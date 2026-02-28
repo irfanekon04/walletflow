@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
 
 class AppTheme {
   // User provided palette
@@ -49,6 +50,12 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           fontSize: 24,
         ),
+        headlineSmall: GoogleFonts.inter(
+          fontWeight: FontWeight.bold,
+          color: Get.isDarkMode
+              ? colorScheme.onSurfaceVariant
+              : colorScheme.onSurface,
+        ),
         titleLarge: GoogleFonts.inter(
           fontWeight: FontWeight.w600,
           fontSize: 20,
@@ -73,6 +80,7 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         elevation: 0,
+        color: colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(
@@ -81,6 +89,22 @@ class AppTheme {
           ),
         ),
         clipBehavior: Clip.antiAlias,
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+          backgroundColor: WidgetStatePropertyAll(colorScheme.surfaceContainer),
+        ),
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        menuStyle: MenuStyle(
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+          backgroundColor: WidgetStatePropertyAll(colorScheme.surfaceContainer),
+        ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colorScheme.surface,

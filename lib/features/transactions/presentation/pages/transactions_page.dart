@@ -355,6 +355,7 @@ class TransactionsPage extends StatelessWidget {
                       )
                       .toList(),
                   onChanged: (value) => selectedAccountId.value = value ?? '',
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
               SizedBox(height: context.responsiveHeight(0.015)),
@@ -376,6 +377,7 @@ class TransactionsPage extends StatelessWidget {
                       )
                       .toList(),
                   onChanged: (value) => selectedCategoryId.value = value ?? '',
+                  borderRadius: BorderRadius.circular(16),
                 );
               }),
               SizedBox(height: context.responsiveHeight(0.015)),

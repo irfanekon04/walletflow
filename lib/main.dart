@@ -13,6 +13,7 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/transactions/presentation/controllers/transaction_controller.dart';
 import 'features/budgets/presentation/controllers/budget_controller.dart';
 import 'features/loans/presentation/controllers/loan_controller.dart';
+import 'features/settings/presentation/controllers/settings_controller.dart';
 
 import 'app/routes/app_pages.dart';
 
@@ -49,6 +50,7 @@ void main() async {
   Get.put(BudgetController(), permanent: true);
   Get.put(LoanController(), permanent: true);
   Get.put(AuthController(), permanent: true);
+  Get.put(SettingsController(), permanent: true);
 
   runApp(const WalletFlowApp());
 }
@@ -58,18 +60,26 @@ class WalletFlowApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicColorBuilder(
-      builder: (lightDynamic, darkDynamic) {
-        return GetMaterialApp(
-          title: 'WalletFlow',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme(lightDynamic),
-          darkTheme: AppTheme.darkTheme(darkDynamic),
-          themeMode: ThemeMode.system,
-          initialRoute: AppPages.initial,
-          getPages: AppPages.routes,
-        );
-      },
-    );
+    final settingsController = Get.find<SettingsController>();
+
+    return Obx(() {
+      // Access values here to ensure Obx registers them
+      final useDynamic = settingsController.useDynamicColor.value;
+      final themeMode = settingsController.themeMode.value;
+
+      return DynamicColorBuilder(
+        builder: (lightDynamic, darkDynamic) {
+          return GetMaterialApp(
+            title: 'WalletFlow',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme(useDynamic ? lightDynamic : null),
+            darkTheme: AppTheme.darkTheme(useDynamic ? darkDynamic : null),
+            themeMode: themeMode,
+            initialRoute: AppPages.initial,
+            getPages: AppPages.routes,
+          );
+        },
+      );
+    });
   }
 }

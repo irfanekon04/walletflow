@@ -315,13 +315,9 @@ class LoansPage extends StatelessWidget {
               ),
               style: theme.textTheme.headlineMedium,
               textAlign: TextAlign.center,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Amount',
                 prefixText: '\$ ',
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.3,
-                ),
               ),
             ),
             SizedBox(height: context.responsiveHeight(0.04)),

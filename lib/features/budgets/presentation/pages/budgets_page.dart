@@ -231,6 +231,7 @@ class BudgetsPage extends StatelessWidget {
                         )
                         .toList(),
                     onChanged: (val) => controller.selectedMonth.value = val!,
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -251,6 +252,7 @@ class BudgetsPage extends StatelessWidget {
                             )
                             .toList(),
                     onChanged: (val) => controller.selectedYear.value = val!,
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
               ],
@@ -323,6 +325,7 @@ class BudgetsPage extends StatelessWidget {
                 onChanged: budget != null
                     ? null
                     : (val) => selectedCategoryId.value = val ?? '',
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
             SizedBox(height: context.responsiveHeight(0.02)),
@@ -333,13 +336,9 @@ class BudgetsPage extends StatelessWidget {
               ),
               style: theme.textTheme.headlineMedium,
               textAlign: TextAlign.center,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Limit Amount',
                 prefixText: '\$ ',
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.3,
-                ),
               ),
             ),
             SizedBox(height: context.responsiveHeight(0.04)),
