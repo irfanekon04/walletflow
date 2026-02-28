@@ -400,10 +400,281 @@ class TransactionsPage extends StatelessWidget {
         ),
         actions: [
           TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showDeleteConfirmation(context, transaction);
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.red[700]),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showEditTransactionBottomSheet(
+                context,
+                Get.find<TransactionController>(),
+                Get.find<AccountController>(),
+                transaction,
+              );
+            },
+            child: const Text('Edit'),
+          ),
+          TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context,
+    TransactionModel transaction,
+  ) {
+    final controller = Get.find<TransactionController>();
+    final accountController = Get.find<AccountController>();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Transaction'),
+        content: const Text('Are you sure you want to delete this transaction?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await controller.deleteTransaction(transaction.id);
+              
+              final accountController = Get.find<AccountController>();
+              if (transaction.type == TransactionType.expense) {
+                await accountController.updateBalance(
+                  transaction.accountId,
+                  transaction.amount,
+                  isAdd: true,
+                );
+              } else if (transaction.type == TransactionType.income) {
+                await accountController.updateBalance(
+                  transaction.accountId,
+                  transaction.amount,
+                  isAdd: false,
+                );
+              } else if (transaction.type == TransactionType.transfer &&
+                  transaction.toAccountId != null) {
+                await accountController.updateBalance(
+                  transaction.accountId,
+                  transaction.amount,
+                  isAdd: true,
+                );
+                await accountController.updateBalance(
+                  transaction.toAccountId!,
+                  transaction.amount,
+                  isAdd: false,
+                );
+              }
+              accountController.loadAccounts();
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.red[700]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditTransactionBottomSheet(
+    BuildContext context,
+    TransactionController controller,
+    AccountController accountController,
+    TransactionModel transaction,
+  ) {
+    final amountController = TextEditingController(text: transaction.amount.toString());
+    final noteController = TextEditingController(text: transaction.note ?? '');
+    final Rx<TransactionType> selectedType = transaction.type.obs;
+    final RxString selectedAccountId = transaction.accountId.obs;
+    final RxString selectedCategoryId = (transaction.categoryId ?? '').obs;
+    final Rx<DateTime> selectedDate = transaction.date.obs;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          left: AppDimensions.paddingM,
+          right: AppDimensions.paddingM,
+          top: AppDimensions.paddingM,
+          bottom:
+              MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Edit Transaction',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: AppDimensions.paddingM),
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text(AppStrings.expense),
+                        selected: selectedType.value == TransactionType.expense,
+                        onSelected: (_) =>
+                            selectedType.value = TransactionType.expense,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text(AppStrings.income),
+                        selected: selectedType.value == TransactionType.income,
+                        onSelected: (_) =>
+                            selectedType.value = TransactionType.income,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text(AppStrings.transfer),
+                        selected:
+                            selectedType.value == TransactionType.transfer,
+                        onSelected: (_) =>
+                            selectedType.value = TransactionType.transfer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppDimensions.paddingM),
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  prefixText: '\$ ',
+                ),
+              ),
+              const SizedBox(height: AppDimensions.paddingM),
+              Obx(
+                () => DropdownButtonFormField<String>(
+                  value: selectedAccountId.value.isEmpty
+                      ? null
+                      : selectedAccountId.value,
+                  decoration: const InputDecoration(labelText: 'Account'),
+                  items: accountController.accounts
+                      .map(
+                        (acc) => DropdownMenuItem(
+                          value: acc.id,
+                          child: Text(acc.name),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) => selectedAccountId.value = value ?? '',
+                ),
+              ),
+              const SizedBox(height: AppDimensions.paddingM),
+              Obx(() {
+                final categories = selectedType.value == TransactionType.expense
+                    ? controller.expenseCategories
+                    : controller.incomeCategories;
+                return DropdownButtonFormField<String>(
+                  value: selectedCategoryId.value.isEmpty
+                      ? null
+                      : selectedCategoryId.value,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                  items: categories
+                      .map(
+                        (cat) => DropdownMenuItem(
+                          value: cat.id,
+                          child: Text(cat.name),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) => selectedCategoryId.value = value ?? '',
+                );
+              }),
+              const SizedBox(height: AppDimensions.paddingM),
+              TextField(
+                controller: noteController,
+                decoration: const InputDecoration(labelText: 'Note (optional)'),
+              ),
+              const SizedBox(height: AppDimensions.paddingL),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final amount = double.tryParse(amountController.text);
+                    if (amount != null &&
+                        amount > 0 &&
+                        selectedAccountId.value.isNotEmpty) {
+                      
+                      final oldType = transaction.type;
+                      final oldAccountId = transaction.accountId;
+                      final oldAmount = transaction.amount;
+                      
+                      transaction.accountId = selectedAccountId.value;
+                      transaction.type = selectedType.value;
+                      transaction.amount = amount;
+                      transaction.categoryId = selectedCategoryId.value.isEmpty
+                          ? null
+                          : selectedCategoryId.value;
+                      transaction.note = noteController.text.isEmpty
+                          ? null
+                          : noteController.text;
+                      transaction.date = selectedDate.value;
+                      
+                      await controller.updateTransaction(transaction);
+                      
+                      if (oldType == TransactionType.expense) {
+                        await accountController.updateBalance(
+                          oldAccountId,
+                          oldAmount,
+                          isAdd: true,
+                        );
+                      } else if (oldType == TransactionType.income) {
+                        await accountController.updateBalance(
+                          oldAccountId,
+                          oldAmount,
+                          isAdd: false,
+                        );
+                      }
+                      
+                      if (selectedType.value == TransactionType.expense) {
+                        await accountController.updateBalance(
+                          selectedAccountId.value,
+                          amount,
+                          isAdd: false,
+                        );
+                      } else if (selectedType.value == TransactionType.income) {
+                        await accountController.updateBalance(
+                          selectedAccountId.value,
+                          amount,
+                          isAdd: true,
+                        );
+                      }
+                      
+                      accountController.loadAccounts();
+                      if (context.mounted) Navigator.pop(context);
+                    }
+                  },
+                  child: const Text(AppStrings.save),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
