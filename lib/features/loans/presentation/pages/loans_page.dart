@@ -277,7 +277,7 @@ class LoansPage extends StatelessWidget {
               const SizedBox(height: AppDimensions.paddingL),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () async {
                     final amount = double.tryParse(amountController.text);
                     if (amount != null && amount > 0 && nameController.text.isNotEmpty) {
@@ -338,7 +338,7 @@ class LoansPage extends StatelessWidget {
             const SizedBox(height: AppDimensions.paddingL),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton(
                 onPressed: () async {
                   final amount = double.tryParse(amountController.text);
                   if (amount != null && amount > 0 && amount <= loan.remainingAmount) {
@@ -370,12 +370,12 @@ class LoansPage extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: const Text(AppStrings.cancel),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () {
               controller.deleteLoan(loan.id);
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.expenseRed),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
             child: const Text(AppStrings.delete),
           ),
         ],

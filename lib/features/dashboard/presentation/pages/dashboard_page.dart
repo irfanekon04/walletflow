@@ -70,10 +70,13 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildBalanceCard(BuildContext context, String balance) {
+    final theme = Theme.of(context);
     return Card(
+      elevation: 0,
+      color: theme.colorScheme.primary,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(AppDimensions.paddingL),
+        padding: EdgeInsets.all(AppDimensions.paddingL * context.responsiveFontSize),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -81,7 +84,7 @@ class DashboardPage extends StatelessWidget {
               AppStrings.totalBalance,
               style: TextStyle(
                 fontSize: 14 * context.responsiveFontSize,
-                color: Colors.white70,
+                color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
               ),
             ),
             const SizedBox(height: AppDimensions.paddingS),
@@ -90,7 +93,7 @@ class DashboardPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 32 * context.responsiveFontSize,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: theme.colorScheme.onPrimary,
               ),
             ),
           ],

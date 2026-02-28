@@ -205,7 +205,8 @@ class TransactionsPage extends StatelessWidget {
                   },
                   child: const Text('Clear'),
                 ),
-                ElevatedButton(
+                const SizedBox(width: 8),
+                FilledButton(
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Apply'),
                 ),
@@ -343,7 +344,7 @@ class TransactionsPage extends StatelessWidget {
               const SizedBox(height: AppDimensions.paddingL),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () async {
                     final amount = double.tryParse(amountController.text);
                     if (amount != null &&
@@ -404,10 +405,7 @@ class TransactionsPage extends StatelessWidget {
               Navigator.pop(context);
               _showDeleteConfirmation(context, transaction);
             },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Colors.red[700]),
-            ),
+            child: Text('Delete', style: TextStyle(color: Colors.red[700])),
           ),
           TextButton(
             onPressed: () {
@@ -440,7 +438,9 @@ class TransactionsPage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Transaction'),
-        content: const Text('Are you sure you want to delete this transaction?'),
+        content: const Text(
+          'Are you sure you want to delete this transaction?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -449,7 +449,7 @@ class TransactionsPage extends StatelessWidget {
           TextButton(
             onPressed: () async {
               await controller.deleteTransaction(transaction.id);
-              
+
               final accountController = Get.find<AccountController>();
               if (transaction.type == TransactionType.expense) {
                 await accountController.updateBalance(
@@ -479,10 +479,7 @@ class TransactionsPage extends StatelessWidget {
               accountController.loadAccounts();
               if (context.mounted) Navigator.pop(context);
             },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Colors.red[700]),
-            ),
+            child: Text('Delete', style: TextStyle(color: Colors.red[700])),
           ),
         ],
       ),
@@ -495,7 +492,9 @@ class TransactionsPage extends StatelessWidget {
     AccountController accountController,
     TransactionModel transaction,
   ) {
-    final amountController = TextEditingController(text: transaction.amount.toString());
+    final amountController = TextEditingController(
+      text: transaction.amount.toString(),
+    );
     final noteController = TextEditingController(text: transaction.note ?? '');
     final Rx<TransactionType> selectedType = transaction.type.obs;
     final RxString selectedAccountId = transaction.accountId.obs;
@@ -568,7 +567,7 @@ class TransactionsPage extends StatelessWidget {
               const SizedBox(height: AppDimensions.paddingM),
               Obx(
                 () => DropdownButtonFormField<String>(
-                  value: selectedAccountId.value.isEmpty
+                  initialValue: selectedAccountId.value.isEmpty
                       ? null
                       : selectedAccountId.value,
                   decoration: const InputDecoration(labelText: 'Account'),
@@ -589,7 +588,7 @@ class TransactionsPage extends StatelessWidget {
                     ? controller.expenseCategories
                     : controller.incomeCategories;
                 return DropdownButtonFormField<String>(
-                  value: selectedCategoryId.value.isEmpty
+                  initialValue: selectedCategoryId.value.isEmpty
                       ? null
                       : selectedCategoryId.value,
                   decoration: const InputDecoration(labelText: 'Category'),
@@ -612,17 +611,16 @@ class TransactionsPage extends StatelessWidget {
               const SizedBox(height: AppDimensions.paddingL),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () async {
                     final amount = double.tryParse(amountController.text);
                     if (amount != null &&
                         amount > 0 &&
                         selectedAccountId.value.isNotEmpty) {
-                      
                       final oldType = transaction.type;
                       final oldAccountId = transaction.accountId;
                       final oldAmount = transaction.amount;
-                      
+
                       transaction.accountId = selectedAccountId.value;
                       transaction.type = selectedType.value;
                       transaction.amount = amount;
@@ -633,9 +631,9 @@ class TransactionsPage extends StatelessWidget {
                           ? null
                           : noteController.text;
                       transaction.date = selectedDate.value;
-                      
+
                       await controller.updateTransaction(transaction);
-                      
+
                       if (oldType == TransactionType.expense) {
                         await accountController.updateBalance(
                           oldAccountId,
@@ -649,7 +647,7 @@ class TransactionsPage extends StatelessWidget {
                           isAdd: false,
                         );
                       }
-                      
+
                       if (selectedType.value == TransactionType.expense) {
                         await accountController.updateBalance(
                           selectedAccountId.value,
@@ -663,7 +661,7 @@ class TransactionsPage extends StatelessWidget {
                           isAdd: true,
                         );
                       }
-                      
+
                       accountController.loadAccounts();
                       if (context.mounted) Navigator.pop(context);
                     }

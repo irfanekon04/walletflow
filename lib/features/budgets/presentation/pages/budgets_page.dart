@@ -230,7 +230,7 @@ class BudgetsPage extends StatelessWidget {
             const SizedBox(height: AppDimensions.paddingL),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton(
                 onPressed: () async {
                   final amount = double.tryParse(amountController.text);
                   if (amount != null && amount > 0 && selectedCategoryId.value.isNotEmpty) {

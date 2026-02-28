@@ -208,12 +208,12 @@ class SettingsPage extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: const Text(AppStrings.cancel),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () {
               Navigator.pop(context);
               controller.logout();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.expenseRed),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
             child: const Text('Sign Out'),
           ),
         ],
@@ -353,7 +353,7 @@ class SettingsPage extends StatelessWidget {
               const SizedBox(height: AppDimensions.paddingL),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () async {
                     if (nameController.text.isNotEmpty) {
                       final balance = double.tryParse(balanceController.text) ?? 0;
@@ -412,7 +412,7 @@ class SettingsPage extends StatelessWidget {
               const SizedBox(height: AppDimensions.paddingL),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () async {
                     if (nameController.text.isNotEmpty) {
                       final updated = account.copyWith(
@@ -444,12 +444,12 @@ class SettingsPage extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: const Text(AppStrings.cancel),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () {
               controller.deleteAccount(account.id);
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.expenseRed),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
             child: const Text(AppStrings.delete),
           ),
         ],
@@ -468,9 +468,9 @@ class SettingsPage extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: const Text(AppStrings.cancel),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () {},
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.expenseRed),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
             child: const Text('Clear'),
           ),
         ],
