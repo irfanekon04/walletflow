@@ -18,17 +18,15 @@ class DashboardPage extends StatelessWidget {
     final transactionController = Get.find<TransactionController>();
     final budgetController = Get.find<BudgetController>();
     final loanController = Get.find<LoanController>();
-    
+
+    final theme = Theme.of(context);
     final currencyFormat = NumberFormat.currency(symbol: '\$');
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.appName),
+        title: Text(AppStrings.appName, style: theme.textTheme.titleLarge),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.sync),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.sync_outlined), onPressed: () {}),
         ],
       ),
       body: RefreshIndicator(
@@ -44,23 +42,29 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Obx(() => _buildBalanceCard(
-                context,
-                currencyFormat.format(accountController.totalBalance.value),
-              )),
-              const SizedBox(height: AppDimensions.paddingM),
+              Obx(
+                () => _buildBalanceCard(
+                  context,
+                  currencyFormat.format(accountController.totalBalance.value),
+                ),
+              ),
+              SizedBox(height: context.responsiveHeight(0.02)),
               _buildThisMonthSummary(
                 context,
                 currencyFormat.format(transactionController.totalIncome.value),
                 currencyFormat.format(transactionController.totalExpense.value),
               ),
-              const SizedBox(height: AppDimensions.paddingL),
+              SizedBox(height: context.responsiveHeight(0.03)),
               _buildAccountsSection(context, accountController, currencyFormat),
-              const SizedBox(height: AppDimensions.paddingL),
-              _buildRecentTransactions(context, transactionController, currencyFormat),
-              const SizedBox(height: AppDimensions.paddingL),
+              SizedBox(height: context.responsiveHeight(0.03)),
+              _buildRecentTransactions(
+                context,
+                transactionController,
+                currencyFormat,
+              ),
+              SizedBox(height: context.responsiveHeight(0.03)),
               _buildBudgetOverview(context, budgetController, currencyFormat),
-              const SizedBox(height: AppDimensions.paddingL),
+              SizedBox(height: context.responsiveHeight(0.03)),
               _buildLoanSummary(context, loanController, currencyFormat),
             ],
           ),
@@ -72,28 +76,30 @@ class DashboardPage extends StatelessWidget {
   Widget _buildBalanceCard(BuildContext context, String balance) {
     final theme = Theme.of(context);
     return Card(
+      color: theme.colorScheme.primaryContainer,
       elevation: 0,
-      color: theme.colorScheme.primary,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(AppDimensions.paddingL * context.responsiveFontSize),
+        padding: EdgeInsets.all(context.responsivePadding * 1.5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               AppStrings.totalBalance,
-              style: TextStyle(
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: theme.colorScheme.onPrimaryContainer.withValues(
+                  alpha: 0.7,
+                ),
                 fontSize: 14 * context.responsiveFontSize,
-                color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
               ),
             ),
-            const SizedBox(height: AppDimensions.paddingS),
+            SizedBox(height: context.responsiveHeight(0.01)),
             Text(
               balance,
-              style: TextStyle(
+              style: theme.textTheme.displayLarge?.copyWith(
+                color: theme.colorScheme.onPrimaryContainer,
                 fontSize: 32 * context.responsiveFontSize,
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onPrimary,
               ),
             ),
           ],
@@ -102,36 +108,44 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThisMonthSummary(BuildContext context, String income, String expense) {
+  Widget _buildThisMonthSummary(
+    BuildContext context,
+    String income,
+    String expense,
+  ) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         Expanded(
           child: Card(
+            color: theme.colorScheme.surfaceContainerLow,
             child: Padding(
-              padding: EdgeInsets.all(AppDimensions.paddingM),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.arrow_downward, color: AppColors.incomeGreen, size: 20),
-                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_downward,
+                        color: theme.colorScheme.primary,
+                        size: 18 * context.responsiveFontSize,
+                      ),
+                      SizedBox(width: context.responsiveWidth(0.01)),
                       Text(
                         AppStrings.income,
-                        style: TextStyle(
-                          fontSize: 12 * context.responsiveFontSize,
-                          color: Colors.grey[600],
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     income,
-                    style: TextStyle(
-                      fontSize: 18 * context.responsiveFontSize,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.incomeGreen,
                     ),
                   ),
                 ],
@@ -139,34 +153,37 @@ class DashboardPage extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: AppDimensions.paddingM),
+        SizedBox(width: context.responsiveWidth(0.03)),
         Expanded(
           child: Card(
+            color: theme.colorScheme.surfaceContainerLow,
             child: Padding(
-              padding: EdgeInsets.all(AppDimensions.paddingM),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.arrow_upward, color: AppColors.expenseRed, size: 20),
-                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_upward,
+                        color: theme.colorScheme.error,
+                        size: 18 * context.responsiveFontSize,
+                      ),
+                      SizedBox(width: context.responsiveWidth(0.01)),
                       Text(
                         AppStrings.expense,
-                        style: TextStyle(
-                          fontSize: 12 * context.responsiveFontSize,
-                          color: Colors.grey[600],
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     expense,
-                    style: TextStyle(
-                      fontSize: 18 * context.responsiveFontSize,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.error,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.expenseRed,
                     ),
                   ),
                 ],
@@ -183,43 +200,57 @@ class DashboardPage extends StatelessWidget {
     AccountController controller,
     NumberFormat format,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppStrings.accounts,
-          style: TextStyle(
-            fontSize: 18 * context.responsiveFontSize,
-            fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            AppStrings.accounts,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingS),
+        const SizedBox(height: 12),
         Obx(() {
           if (controller.accounts.isEmpty) {
             return Card(
               child: Padding(
-                padding: EdgeInsets.all(AppDimensions.paddingL),
+                padding: const EdgeInsets.all(24),
                 child: Center(
                   child: Text(
                     AppStrings.noAccounts,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
             );
           }
           return SizedBox(
-            height: 100,
+            height: context.responsiveHeight(0.14),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
               itemCount: controller.accounts.length,
               itemBuilder: (context, index) {
                 final account = controller.accounts[index];
                 return Card(
-                  margin: const EdgeInsets.only(right: AppDimensions.paddingS),
+                  margin: EdgeInsets.only(right: context.responsiveWidth(0.03)),
+                  color: theme.colorScheme.surfaceContainerLow,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: theme.colorScheme.outlineVariant,
+                      width: 0.5,
+                    ),
+                  ),
                   child: Container(
-                    width: context.screenWidth * 0.4,
-                    padding: EdgeInsets.all(AppDimensions.paddingM),
+                    width: context.isTabletWidth ? 200 : 160,
+                    padding: EdgeInsets.all(context.responsivePadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -228,24 +259,22 @@ class DashboardPage extends StatelessWidget {
                           children: [
                             Icon(
                               _getAccountIcon(account.type.name),
-                              color: AppColors.fromHex(account.color),
+                              size: 20 * context.responsiveFontSize,
+                              color: theme.colorScheme.primary,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: context.responsiveWidth(0.02)),
                             Expanded(
                               child: Text(
                                 account.name,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14 * context.responsiveFontSize,
-                                ),
+                                style: theme.textTheme.labelLarge,
                               ),
                             ),
                           ],
                         ),
                         Text(
                           format.format(account.balance),
-                          style: TextStyle(
-                            fontSize: 16 * context.responsiveFontSize,
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -266,80 +295,100 @@ class DashboardPage extends StatelessWidget {
     TransactionController controller,
     NumberFormat format,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Recent Transactions',
-              style: TextStyle(
-                fontSize: 18 * context.responsiveFontSize,
-                fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Transactions',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text('See All'),
-            ),
-          ],
+              TextButton(onPressed: () {}, child: const Text('See All')),
+            ],
+          ),
         ),
-        const SizedBox(height: AppDimensions.paddingS),
+        const SizedBox(height: 8),
         Obx(() {
           final transactions = controller.transactions.take(5).toList();
           if (transactions.isEmpty) {
             return Card(
               child: Padding(
-                padding: EdgeInsets.all(AppDimensions.paddingL),
+                padding: const EdgeInsets.all(24),
                 child: Center(
                   child: Text(
                     AppStrings.noTransactions,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
             );
           }
           return Card(
+            color: theme.colorScheme.surfaceContainerLow,
             child: ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: transactions.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                indent: 72,
+                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
               itemBuilder: (context, index) {
                 final transaction = transactions[index];
-                final category = controller.getCategoryById(transaction.categoryId ?? '');
+                final category = controller.getCategoryById(
+                  transaction.categoryId ?? '',
+                );
+                final color = category != null
+                    ? Color(
+                        int.parse(
+                          category.color.replaceFirst('#', 'FF'),
+                          radix: 16,
+                        ),
+                      )
+                    : theme.colorScheme.secondary;
+
                 return ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: AppColors.fromHex(category?.color ?? '#607D8B'),
+                  leading: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Icon(
                       _getCategoryIcon(category?.icon ?? 'category'),
-                      color: Colors.white,
-                      size: 20,
+                      color: color,
+                      size: 20 * context.responsiveFontSize,
                     ),
                   ),
                   title: Text(
                     category?.name ?? 'Uncategorized',
-                    style: TextStyle(
-                      fontSize: 14 * context.responsiveFontSize,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   subtitle: Text(
                     DateFormat('MMM dd, yyyy').format(transaction.date),
-                    style: TextStyle(
-                      fontSize: 12 * context.responsiveFontSize,
-                      color: Colors.grey[600],
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   trailing: Text(
                     '${transaction.type == TransactionType.expense ? '-' : '+'}${format.format(transaction.amount)}',
-                    style: TextStyle(
-                      fontSize: 14 * context.responsiveFontSize,
+                    style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: transaction.type == TransactionType.expense
-                          ? AppColors.expenseRed
-                          : AppColors.incomeGreen,
+                          ? theme.colorScheme.error
+                          : theme.colorScheme.primary,
                     ),
                   ),
                 );
@@ -356,53 +405,79 @@ class DashboardPage extends StatelessWidget {
     BudgetController controller,
     NumberFormat format,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Budget Overview',
-          style: TextStyle(
-            fontSize: 18 * context.responsiveFontSize,
-            fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            'Budget Overview',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingS),
+        const SizedBox(height: 12),
         Obx(() {
           if (controller.budgets.isEmpty) {
             return Card(
               child: Padding(
-                padding: EdgeInsets.all(AppDimensions.paddingL),
+                padding: const EdgeInsets.all(24),
                 child: Center(
                   child: Text(
                     AppStrings.noBudgets,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
             );
           }
+          final percent = controller.totalBudget.value > 0
+              ? controller.totalSpent.value / controller.totalBudget.value
+              : 0.0;
+          final isOver =
+              controller.totalSpent.value > controller.totalBudget.value;
+
           return Card(
+            color: theme.colorScheme.surfaceContainerLow,
             child: Padding(
-              padding: EdgeInsets.all(AppDimensions.paddingM),
+              padding: const EdgeInsets.all(20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('${controller.getMonthName(controller.selectedMonth.value)} ${controller.selectedYear.value}'),
-                      Text('${format.format(controller.totalSpent.value)} / ${format.format(controller.totalBudget.value)}'),
+                      Text(
+                        '${controller.getMonthName(controller.selectedMonth.value)} ${controller.selectedYear.value}',
+                        style: theme.textTheme.labelLarge,
+                      ),
+                      Text(
+                        '${format.format(controller.totalSpent.value)} / ${format.format(controller.totalBudget.value)}',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: isOver
+                              ? theme.colorScheme.error
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: AppDimensions.paddingS),
-                  LinearProgressIndicator(
-                    value: controller.totalBudget.value > 0
-                        ? controller.totalSpent.value / controller.totalBudget.value
-                        : 0,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      controller.totalSpent.value > controller.totalBudget.value
-                          ? AppColors.expenseRed
-                          : AppColors.primary,
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: percent.clamp(0.0, 1.0),
+                      minHeight: 8 * context.responsiveFontSize,
+                      backgroundColor:
+                          theme.colorScheme.surfaceContainerHighest,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        isOver
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.primary,
+                      ),
                     ),
                   ),
                 ],
@@ -419,76 +494,79 @@ class DashboardPage extends StatelessWidget {
     LoanController controller,
     NumberFormat format,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Loan Summary',
-          style: TextStyle(
-            fontSize: 18 * context.responsiveFontSize,
-            fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            'Loan Summary',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingS),
-        Obx(() => Row(
-          children: [
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: EdgeInsets.all(AppDimensions.paddingM),
-                  child: Column(
-                    children: [
-                      Text(
-                        AppStrings.lent,
-                        style: TextStyle(
-                          fontSize: 12 * context.responsiveFontSize,
-                          color: Colors.grey[600],
+        const SizedBox(height: 12),
+        Obx(
+          () => Row(
+            children: [
+              Expanded(
+                child: Card(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          AppStrings.lent,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        format.format(controller.totalLent.value),
-                        style: TextStyle(
-                          fontSize: 16 * context.responsiveFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.incomeGreen,
+                        const SizedBox(height: 8),
+                        Text(
+                          format.format(controller.totalLent.value),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: AppDimensions.paddingM),
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: EdgeInsets.all(AppDimensions.paddingM),
-                  child: Column(
-                    children: [
-                      Text(
-                        AppStrings.owed,
-                        style: TextStyle(
-                          fontSize: 12 * context.responsiveFontSize,
-                          color: Colors.grey[600],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Card(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          AppStrings.owed,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        format.format(controller.totalOwed.value),
-                        style: TextStyle(
-                          fontSize: 16 * context.responsiveFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.expenseRed,
+                        const SizedBox(height: 8),
+                        Text(
+                          format.format(controller.totalOwed.value),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.error,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        )),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -496,38 +574,38 @@ class DashboardPage extends StatelessWidget {
   IconData _getAccountIcon(String type) {
     switch (type) {
       case 'cash':
-        return Icons.wallet;
+        return Icons.account_balance_wallet_outlined;
       case 'bank':
-        return Icons.account_balance;
+        return Icons.account_balance_outlined;
       case 'mfs':
-        return Icons.phone_android;
+        return Icons.phone_android_outlined;
       case 'creditCard':
-        return Icons.credit_card;
+        return Icons.credit_card_outlined;
       default:
-        return Icons.wallet;
+        return Icons.account_balance_wallet_outlined;
     }
   }
 
   IconData _getCategoryIcon(String icon) {
     switch (icon) {
       case 'restaurant':
-        return Icons.restaurant;
+        return Icons.restaurant_outlined;
       case 'directions_car':
-        return Icons.directions_car;
+        return Icons.directions_car_outlined;
       case 'shopping_bag':
-        return Icons.shopping_bag;
+        return Icons.shopping_bag_outlined;
       case 'receipt_long':
-        return Icons.receipt_long;
+        return Icons.receipt_long_outlined;
       case 'movie':
-        return Icons.movie;
+        return Icons.movie_outlined;
       case 'medical_services':
-        return Icons.medical_services;
+        return Icons.medical_services_outlined;
       case 'school':
-        return Icons.school;
+        return Icons.school_outlined;
       case 'work':
-        return Icons.work;
+        return Icons.work_outline;
       default:
-        return Icons.category;
+        return Icons.category_outlined;
     }
   }
 }

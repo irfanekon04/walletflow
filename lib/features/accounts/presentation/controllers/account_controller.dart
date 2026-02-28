@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/models/account_model.dart';
 import '../../data/repositories/account_repository.dart';
 
 class AccountController extends GetxController {
   final AccountRepository _repository = AccountRepository();
-  
+
   final RxList<AccountModel> accounts = <AccountModel>[].obs;
   final RxDouble totalBalance = 0.0.obs;
   final RxBool isLoading = false.obs;
@@ -38,6 +39,7 @@ class AccountController extends GetxController {
       icon: icon,
       color: color,
     );
+    debugPrint('Account created');
     loadAccounts();
   }
 
@@ -51,7 +53,11 @@ class AccountController extends GetxController {
     loadAccounts();
   }
 
-  Future<void> updateBalance(String id, double amount, {bool isAdd = true}) async {
+  Future<void> updateBalance(
+    String id,
+    double amount, {
+    bool isAdd = true,
+  }) async {
     await _repository.updateBalance(id, amount, isAdd: isAdd);
     loadAccounts();
   }

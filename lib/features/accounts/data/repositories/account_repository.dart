@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
 import '../models/account_model.dart';
@@ -40,6 +41,7 @@ class AccountRepository {
       updatedAt: now,
     );
     await _box.put(account.id, account);
+    debugPrint('Account created: ${account.id}');
     return account;
   }
 
@@ -54,10 +56,16 @@ class AccountRepository {
     await _box.delete(id);
   }
 
-  Future<void> updateBalance(String id, double amount, {bool isAdd = true}) async {
+  Future<void> updateBalance(
+    String id,
+    double amount, {
+    bool isAdd = true,
+  }) async {
     final account = getById(id);
     if (account != null) {
-      account.balance = isAdd ? account.balance + amount : account.balance - amount;
+      account.balance = isAdd
+          ? account.balance + amount
+          : account.balance - amount;
       account.updatedAt = DateTime.now();
       account.isSynced = false;
       await _box.put(account.id, account);

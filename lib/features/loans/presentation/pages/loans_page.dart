@@ -12,13 +12,14 @@ class LoansPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<LoanController>();
+    final theme = Theme.of(context);
     final currencyFormat = NumberFormat.currency(symbol: '\$');
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(AppStrings.loans),
+          title: Text(AppStrings.loans, style: theme.textTheme.titleLarge),
           bottom: TabBar(
             onTap: (index) => controller.selectedTab.value = index,
             tabs: const [
@@ -33,14 +34,25 @@ class LoansPage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildLoansList(context, controller, LoanType.lent, currencyFormat),
-                  _buildLoansList(context, controller, LoanType.owed, currencyFormat),
+                  _buildLoansList(
+                    context,
+                    controller,
+                    LoanType.lent,
+                    currencyFormat,
+                  ),
+                  _buildLoansList(
+                    context,
+                    controller,
+                    LoanType.owed,
+                    currencyFormat,
+                  ),
                 ],
               ),
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.large(
+          heroTag: 'loans_fab',
           onPressed: () => _showAddLoanBottomSheet(context, controller),
           child: const Icon(Icons.add),
         ),
@@ -48,306 +60,294 @@ class LoansPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLoanSummary(BuildContext context, LoanController controller, NumberFormat format) {
-    return Obx(() => Container(
-      margin: EdgeInsets.all(AppDimensions.paddingM),
-      padding: EdgeInsets.all(AppDimensions.paddingM),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Column(
-            children: [
-              Text(AppStrings.lent, style: TextStyle(color: Colors.grey[600])),
-              Text(
-                format.format(controller.totalLent.value),
-                style: TextStyle(
-                  fontSize: 18 * context.responsiveFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.incomeGreen,
-                ),
-              ),
-            ],
-          ),
-          Container(width: 1, height: 40, color: Colors.grey[300]),
-          Column(
-            children: [
-              Text(AppStrings.owed, style: TextStyle(color: Colors.grey[600])),
-              Text(
-                format.format(controller.totalOwed.value),
-                style: TextStyle(
-                  fontSize: 18 * context.responsiveFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.expenseRed,
-                ),
-              ),
-            ],
-          ),
-          Container(width: 1, height: 40, color: Colors.grey[300]),
-          Column(
-            children: [
-              Text('Net', style: TextStyle(color: Colors.grey[600])),
-              Text(
-                format.format(controller.netPosition.value),
-                style: TextStyle(
-                  fontSize: 18 * context.responsiveFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: controller.netPosition.value >= 0 ? AppColors.incomeGreen : AppColors.expenseRed,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ));
-  }
-
-  Widget _buildLoansList(BuildContext context, LoanController controller, LoanType type, NumberFormat format) {
-    final loans = type == LoanType.lent ? controller.lentLoans : controller.owedLoans;
-    
-    if (loans.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildLoanSummary(
+    BuildContext context,
+    LoanController controller,
+    NumberFormat format,
+  ) {
+    final theme = Theme.of(context);
+    return Obx(
+      () => Container(
+        margin: EdgeInsets.all(context.responsivePadding),
+        padding: EdgeInsets.all(context.responsivePadding * 1.25),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Icon(Icons.handshake, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: AppDimensions.paddingM),
-            Text(
-              AppStrings.noLoans,
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            _buildSummaryItem(
+              context,
+              AppStrings.lent,
+              controller.totalLent.value,
+              format,
+              theme.colorScheme.primary,
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: theme.colorScheme.outlineVariant,
+            ),
+            _buildSummaryItem(
+              context,
+              AppStrings.owed,
+              controller.totalOwed.value,
+              format,
+              theme.colorScheme.error,
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: theme.colorScheme.outlineVariant,
+            ),
+            _buildSummaryItem(
+              context,
+              'Net',
+              controller.netPosition.value,
+              format,
+              controller.netPosition.value >= 0
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.error,
             ),
           ],
         ),
-      );
-    }
-
-    return ListView.builder(
-      padding: EdgeInsets.all(context.responsivePadding),
-      itemCount: loans.length,
-      itemBuilder: (context, index) {
-        final loan = loans[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: AppDimensions.paddingM),
-          child: Padding(
-            padding: EdgeInsets.all(AppDimensions.paddingM),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      loan.personName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16 * context.responsiveFontSize,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
-                          onPressed: () => _showAddPaymentBottomSheet(context, controller, loan),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () => _confirmDelete(context, controller, loan),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppDimensions.paddingS),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Remaining', style: TextStyle(color: Colors.grey[600])),
-                    Text(
-                      format.format(loan.remainingAmount),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: type == LoanType.lent ? AppColors.incomeGreen : AppColors.expenseRed,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppDimensions.paddingXS),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Original', style: TextStyle(color: Colors.grey[600])),
-                    Text(format.format(loan.originalAmount)),
-                  ],
-                ),
-                const SizedBox(height: AppDimensions.paddingXS),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Date', style: TextStyle(color: Colors.grey[600])),
-                    Text(DateFormat('MMM dd, yyyy').format(loan.date)),
-                  ],
-                ),
-                if (loan.note != null && loan.note!.isNotEmpty) ...[
-                  const SizedBox(height: AppDimensions.paddingXS),
-                  Text('Note: ${loan.note}', style: TextStyle(color: Colors.grey[600])),
-                ],
-                if (!loan.isCompleted) ...[
-                  const SizedBox(height: AppDimensions.paddingM),
-                  LinearProgressIndicator(
-                    value: (loan.originalAmount - loan.remainingAmount) / loan.originalAmount,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.incomeGreen),
-                  ),
-                ] else ...[
-                  const SizedBox(height: AppDimensions.paddingS),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingS, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.incomeGreen.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusS),
-                    ),
-                    child: const Text('Completed', style: TextStyle(color: AppColors.incomeGreen)),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showAddLoanBottomSheet(BuildContext context, LoanController controller) {
-    final nameController = TextEditingController();
-    final amountController = TextEditingController();
-    final noteController = TextEditingController();
-    final Rx<LoanType> selectedType = LoanType.lent.obs;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        padding: EdgeInsets.only(
-          left: AppDimensions.paddingM,
-          right: AppDimensions.paddingM,
-          top: AppDimensions.paddingM,
-          bottom: MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(AppStrings.addLoan, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: AppDimensions.paddingM),
-              Obx(() => Row(
-                children: [
-                  Expanded(child: ChoiceChip(
-                    label: const Text(AppStrings.lent),
-                    selected: selectedType.value == LoanType.lent,
-                    onSelected: (_) => selectedType.value = LoanType.lent,
-                  )),
-                  const SizedBox(width: 8),
-                  Expanded(child: ChoiceChip(
-                    label: const Text(AppStrings.owed),
-                    selected: selectedType.value == LoanType.owed,
-                    onSelected: (_) => selectedType.value = LoanType.owed,
-                  )),
-                ],
-              )),
-              const SizedBox(height: AppDimensions.paddingM),
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: selectedType.value == LoanType.lent ? 'Borrower Name' : 'Lender Name'),
-              ),
-              const SizedBox(height: AppDimensions.paddingM),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Amount', prefixText: '\$ '),
-              ),
-              const SizedBox(height: AppDimensions.paddingM),
-              TextField(
-                controller: noteController,
-                decoration: const InputDecoration(labelText: 'Note (optional)'),
-              ),
-              const SizedBox(height: AppDimensions.paddingL),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () async {
-                    final amount = double.tryParse(amountController.text);
-                    if (amount != null && amount > 0 && nameController.text.isNotEmpty) {
-                      await controller.addLoan(
-                        type: selectedType.value,
-                        personName: nameController.text,
-                        amount: amount,
-                        date: DateTime.now(),
-                        note: noteController.text.isEmpty ? null : noteController.text,
-                      );
-                      if (context.mounted) Navigator.pop(context);
-                    }
-                  },
-                  child: const Text(AppStrings.save),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
 
-  void _showAddPaymentBottomSheet(BuildContext context, LoanController controller, LoanModel loan) {
-    final amountController = TextEditingController();
-    final noteController = TextEditingController();
+  Widget _buildSummaryItem(
+    BuildContext context,
+    String label,
+    double amount,
+    NumberFormat format,
+    Color color,
+  ) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        SizedBox(height: 4 * context.responsiveFontSize),
+        Text(
+          format.format(amount),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoansList(
+    BuildContext context,
+    LoanController controller,
+    LoanType type,
+    NumberFormat format,
+  ) {
+    final theme = Theme.of(context);
+    return Obx(() {
+      final loans = type == LoanType.lent
+          ? controller.lentLoans
+          : controller.owedLoans;
+
+      if (loans.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.handshake_outlined,
+                size: 64 * context.responsiveFontSize,
+                color: theme.colorScheme.outlineVariant,
+              ),
+              SizedBox(height: context.responsiveHeight(0.02)),
+              Text(
+                AppStrings.noLoans,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return ListView.builder(
+        padding: EdgeInsets.all(context.responsivePadding),
+        itemCount: loans.length,
+        itemBuilder: (context, index) {
+          final loan = loans[index];
+          final remaining = loan.amount - loan.paidAmount;
+          final isLent = loan.type == LoanType.lent;
+
+          return Card(
+            margin: EdgeInsets.only(bottom: context.responsiveHeight(0.015)),
+            color: theme.colorScheme.surfaceContainerLow,
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: context.responsivePadding,
+                vertical: context.responsivePadding * 0.5,
+              ),
+              leading: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color:
+                      (isLent
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.error)
+                          .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  isLent ? Icons.arrow_outward : Icons.arrow_downward,
+                  color: isLent
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.error,
+                  size: 20 * context.responsiveFontSize,
+                ),
+              ),
+              title: Text(
+                loan.personName,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'Remaining: ${format.format(remaining)}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    format.format(loan.amount),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: isLent
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.error,
+                    ),
+                  ),
+                  Text(
+                    isLent ? AppStrings.lent : AppStrings.owed,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () => _showLoanDetails(context, controller, loan, format),
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  void _showAddLoanBottomSheet(
+    BuildContext context,
+    LoanController controller, {
+    LoanModel? loan,
+  }) {
+    final theme = Theme.of(context);
+    final nameController = TextEditingController(text: loan?.personName ?? '');
+    final amountController = TextEditingController(
+      text: loan?.amount.toString() ?? '',
+    );
+    final Rx<LoanType> selectedType = (loan?.type ?? LoanType.lent).obs;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Container(
+      showDragHandle: true,
+      builder: (context) => Padding(
         padding: EdgeInsets.only(
-          left: AppDimensions.paddingM,
-          right: AppDimensions.paddingM,
-          top: AppDimensions.paddingM,
-          bottom: MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Add Payment', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: AppDimensions.paddingM),
+            Text(
+              loan == null ? AppStrings.addLoan : 'Edit Loan',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: context.responsiveHeight(0.03)),
+            Obx(
+              () => SegmentedButton<LoanType>(
+                segments: const [
+                  ButtonSegment(
+                    value: LoanType.lent,
+                    label: Text(AppStrings.lent),
+                  ),
+                  ButtonSegment(
+                    value: LoanType.owed,
+                    label: Text(AppStrings.owed),
+                  ),
+                ],
+                selected: {selectedType.value},
+                onSelectionChanged: (val) => selectedType.value = val.first,
+              ),
+            ),
+            SizedBox(height: context.responsiveHeight(0.025)),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Person Name'),
+            ),
+            SizedBox(height: context.responsiveHeight(0.02)),
             TextField(
               controller: amountController,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              style: theme.textTheme.headlineMedium,
+              textAlign: TextAlign.center,
               decoration: InputDecoration(
                 labelText: 'Amount',
                 prefixText: '\$ ',
-                hintText: 'Max: \$${loan.remainingAmount}',
+                filled: true,
+                fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.3,
+                ),
               ),
             ),
-            const SizedBox(height: AppDimensions.paddingM),
-            TextField(
-              controller: noteController,
-              decoration: const InputDecoration(labelText: 'Note (optional)'),
-            ),
-            const SizedBox(height: AppDimensions.paddingL),
+            SizedBox(height: context.responsiveHeight(0.04)),
             SizedBox(
               width: double.infinity,
+              height: 56 * context.responsiveFontSize,
               child: FilledButton(
                 onPressed: () async {
                   final amount = double.tryParse(amountController.text);
-                  if (amount != null && amount > 0 && amount <= loan.remainingAmount) {
-                    await controller.addPayment(
-                      loan.id,
-                      amount,
-                      note: noteController.text.isEmpty ? null : noteController.text,
-                    );
-                    if (context.mounted) Navigator.pop(context);
+                  if (amount != null &&
+                      amount > 0 &&
+                      nameController.text.isNotEmpty) {
+                    if (loan == null) {
+                      await controller.addLoan(
+                        personName: nameController.text,
+                        amount: amount,
+                        type: selectedType.value,
+                        date: DateTime.now(),
+                      );
+                    } else {
+                      loan.personName = nameController.text;
+                      loan.amount = amount;
+                      loan.type = selectedType.value;
+                      await controller.updateLoan(loan);
+                    }
+                    Get.back();
                   }
                 },
                 child: const Text(AppStrings.save),
@@ -359,24 +359,90 @@ class LoansPage extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, LoanController controller, LoanModel loan) {
+  void _showLoanDetails(
+    BuildContext context,
+    LoanController controller,
+    LoanModel loan,
+    NumberFormat format,
+  ) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(loan.personName),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Total Amount: ${format.format(loan.amount)}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text('Paid: ${format.format(loan.paidAmount)}'),
+            Text(
+              'Remaining: ${format.format(loan.amount - loan.paidAmount)}',
+              style: TextStyle(
+                color: loan.type == LoanType.lent
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.error,
+              ),
+            ),
+            SizedBox(height: context.responsiveHeight(0.01)),
+            Text('Date: ${DateFormat('MMMM dd, yyyy').format(loan.date)}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _showDeleteConfirmation(context, controller, loan);
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _showAddLoanBottomSheet(context, controller, loan: loan);
+            },
+            child: const Text('Edit'),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Get.back(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context,
+    LoanController controller,
+    LoanModel loan,
+  ) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Loan'),
-        content: Text('Are you sure you want to delete this ${loan.type == LoanType.lent ? "borrower" : "lender"}?'),
+        content: const Text(
+          'Are you sure you want to delete this loan record?',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(AppStrings.cancel),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           FilledButton(
-            onPressed: () {
-              controller.deleteLoan(loan.id);
-              Navigator.pop(context);
+            onPressed: () async {
+              await controller.deleteLoan(loan.id);
+              Get.back();
             },
-            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
-            child: const Text(AppStrings.delete),
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
+            child: const Text('Delete'),
           ),
         ],
       ),

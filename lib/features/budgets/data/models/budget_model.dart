@@ -31,6 +31,8 @@ class BudgetModel extends HiveObject {
   @HiveField(8)
   String? userId;
 
+  double spent = 0.0;
+
   BudgetModel({
     required this.id,
     required this.categoryId,

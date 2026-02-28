@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:walletflow/app/routes/app_routes.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/services/auth_service.dart';
+import '../../../../core/utils/responsive.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,19 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuth() async {
     await Future.delayed(const Duration(milliseconds: 500));
-
-    try {
-      final authService = Get.find<AuthService>();
-
-      if (authService.isLoggedIn) {
-        Get.offAllNamed('/home');
-      } else {
-        Get.offAllNamed('/login');
-      }
-    } catch (e) {
-      debugPrint('Auth check error: $e');
-      Get.offAllNamed('/login');
-    }
+    Get.offAllNamed(Routes.home);
   }
 
   @override
@@ -42,21 +31,21 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.account_balance_wallet,
-              size: 80,
+              size: 80 * context.responsiveFontSize,
               color: Colors.white,
             ),
-            const SizedBox(height: 24),
-            const Text(
+            SizedBox(height: context.responsiveHeight(0.03)),
+            Text(
               'WalletFlow',
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 32 * context.responsiveFontSize,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: context.responsiveHeight(0.04)),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),

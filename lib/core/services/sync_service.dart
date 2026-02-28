@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'auth_service.dart';
 import 'supabase_service.dart';
 import '../../features/accounts/data/models/account_model.dart';
@@ -13,55 +11,26 @@ import '../../features/loans/data/models/loan_model.dart';
 class SyncService extends GetxService {
   final AuthService _authService = Get.find<AuthService>();
   final SupabaseService _supabaseService = Get.find<SupabaseService>();
-  final Connectivity _connectivity = Connectivity();
-  
-  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
-  Timer? _periodicSyncTimer;
-  
+
   final RxBool isSyncing = false.obs;
   final RxBool isEnabled = false.obs;
   final RxBool isOnline = true.obs;
   final RxString lastSyncTime = ''.obs;
   final RxInt pendingChanges = 0.obs;
-  
+
   Box get _settingsBox => Hive.box('settings');
 
   static const String _syncEnabledKey = 'sync_enabled';
   static const String _lastSyncKey = 'last_sync';
 
   Future<SyncService> init() async {
-    isEnabled.value = _settingsBox.get(_syncEnabledKey, defaultValue: false);
+    isEnabled.value = false;
     lastSyncTime.value = _settingsBox.get(_lastSyncKey, defaultValue: '');
-    
-    await _initConnectivity();
-    _startPeriodicSync();
-    
+
+    // await _initConnectivity();
+    // _startPeriodicSync();
+
     return this;
-  }
-
-  Future<void> _initConnectivity() async {
-    final results = await _connectivity.checkConnectivity();
-    _updateConnectionStatus(results);
-    
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-  }
-
-  void _updateConnectionStatus(List<ConnectivityResult> results) {
-    final wasOffline = !isOnline.value;
-    isOnline.value = results.isNotEmpty && !results.contains(ConnectivityResult.none);
-    
-    if (wasOffline && isOnline.value && isEnabled.value) {
-      syncAllData();
-    }
-  }
-
-  void _startPeriodicSync() {
-    _periodicSyncTimer?.cancel();
-    _periodicSyncTimer = Timer.periodic(const Duration(minutes: 5), (_) {
-      if (isEnabled.value && isOnline.value && !isSyncing.value) {
-        syncAllData();
-      }
-    });
   }
 
   bool get isSyncEnabled => isEnabled.value;
@@ -75,10 +44,10 @@ class SyncService extends GetxService {
       );
       return;
     }
-    
+
     isEnabled.value = true;
     await _settingsBox.put(_syncEnabledKey, true);
-    
+
     await syncAllData();
   }
 
@@ -88,8 +57,13 @@ class SyncService extends GetxService {
   }
 
   Future<void> syncAllData() async {
-    if (!isEnabled.value || !_authService.isLoggedIn || !isOnline.value) return;
-    
+    if (!isEnabled.value ||
+        !_authService.isLoggedIn ||
+        !isOnline.value ||
+        !_supabaseService.isConfigured) {
+      return;
+    }
+
     isSyncing.value = true;
     try {
       final userId = _authService.userId;
@@ -105,7 +79,7 @@ class SyncService extends GetxService {
       lastSyncTime.value = now;
       await _settingsBox.put(_lastSyncKey, now);
       pendingChanges.value = 0;
-      
+
       Get.snackbar(
         'Sync Complete',
         'All data has been backed up to cloud',
@@ -124,8 +98,10 @@ class SyncService extends GetxService {
 
   Future<void> _syncAccounts(String userId) async {
     final accountsBox = Hive.box<AccountModel>('accounts');
-    final unsyncedAccounts = accountsBox.values.where((a) => !a.isSynced).toList();
-    
+    final unsyncedAccounts = accountsBox.values
+        .where((a) => !a.isSynced)
+        .toList();
+
     for (final account in unsyncedAccounts) {
       try {
         await _supabaseService.createAccount(userId, account.toJson());
@@ -140,13 +116,16 @@ class SyncService extends GetxService {
     await _pullAndMergeAccounts(userId, accountsBox);
   }
 
-  Future<void> _pullAndMergeAccounts(String userId, Box<AccountModel> accountsBox) async {
+  Future<void> _pullAndMergeAccounts(
+    String userId,
+    Box<AccountModel> accountsBox,
+  ) async {
     try {
       final cloudAccounts = await _supabaseService.getAccounts(userId);
       for (final accountData in cloudAccounts) {
         final cloudAccount = AccountModel.fromJson(accountData);
         final localAccount = accountsBox.get(cloudAccount.id);
-        
+
         if (localAccount == null) {
           cloudAccount.isSynced = true;
           await accountsBox.put(cloudAccount.id, cloudAccount);
@@ -162,8 +141,10 @@ class SyncService extends GetxService {
 
   Future<void> _syncTransactions(String userId) async {
     final transactionsBox = Hive.box<TransactionModel>('transactions');
-    final unsyncedTransactions = transactionsBox.values.where((t) => !t.isSynced).toList();
-    
+    final unsyncedTransactions = transactionsBox.values
+        .where((t) => !t.isSynced)
+        .toList();
+
     for (final transaction in unsyncedTransactions) {
       try {
         await _supabaseService.createTransaction(userId, transaction.toJson());
@@ -177,17 +158,22 @@ class SyncService extends GetxService {
     await _pullAndMergeTransactions(userId, transactionsBox);
   }
 
-  Future<void> _pullAndMergeTransactions(String userId, Box<TransactionModel> transactionsBox) async {
+  Future<void> _pullAndMergeTransactions(
+    String userId,
+    Box<TransactionModel> transactionsBox,
+  ) async {
     try {
       final cloudTransactions = await _supabaseService.getTransactions(userId);
       for (final transactionData in cloudTransactions) {
         final cloudTransaction = TransactionModel.fromJson(transactionData);
         final localTransaction = transactionsBox.get(cloudTransaction.id);
-        
+
         if (localTransaction == null) {
           cloudTransaction.isSynced = true;
           await transactionsBox.put(cloudTransaction.id, cloudTransaction);
-        } else if (cloudTransaction.updatedAt.isAfter(localTransaction.updatedAt)) {
+        } else if (cloudTransaction.updatedAt.isAfter(
+          localTransaction.updatedAt,
+        )) {
           cloudTransaction.isSynced = true;
           await transactionsBox.put(cloudTransaction.id, cloudTransaction);
         }
@@ -199,8 +185,10 @@ class SyncService extends GetxService {
 
   Future<void> _syncCategories(String userId) async {
     final categoriesBox = Hive.box<CategoryModel>('categories');
-    final customCategories = categoriesBox.values.where((c) => !c.isDefault).toList();
-    
+    final customCategories = categoriesBox.values
+        .where((c) => !c.isDefault)
+        .toList();
+
     for (final category in customCategories) {
       try {
         await _supabaseService.createCategory(userId, category.toJson());
@@ -212,8 +200,10 @@ class SyncService extends GetxService {
 
   Future<void> _syncBudgets(String userId) async {
     final budgetsBox = Hive.box<BudgetModel>('budgets');
-    final unsyncedBudgets = budgetsBox.values.where((b) => !b.isSynced).toList();
-    
+    final unsyncedBudgets = budgetsBox.values
+        .where((b) => !b.isSynced)
+        .toList();
+
     for (final budget in unsyncedBudgets) {
       try {
         await _supabaseService.createBudget(userId, budget.toJson());
@@ -227,14 +217,21 @@ class SyncService extends GetxService {
     await _pullAndMergeBudgets(userId, budgetsBox);
   }
 
-  Future<void> _pullAndMergeBudgets(String userId, Box<BudgetModel> budgetsBox) async {
+  Future<void> _pullAndMergeBudgets(
+    String userId,
+    Box<BudgetModel> budgetsBox,
+  ) async {
     try {
       final now = DateTime.now();
-      final cloudBudgets = await _supabaseService.getBudgets(userId, now.month, now.year);
+      final cloudBudgets = await _supabaseService.getBudgets(
+        userId,
+        now.month,
+        now.year,
+      );
       for (final budgetData in cloudBudgets) {
         final cloudBudget = BudgetModel.fromJson(budgetData);
         final localBudget = budgetsBox.get(cloudBudget.id);
-        
+
         if (localBudget == null) {
           cloudBudget.isSynced = true;
           await budgetsBox.put(cloudBudget.id, cloudBudget);
@@ -251,7 +248,7 @@ class SyncService extends GetxService {
   Future<void> _syncLoans(String userId) async {
     final loansBox = Hive.box<LoanModel>('loans');
     final unsyncedLoans = loansBox.values.where((l) => !l.isSynced).toList();
-    
+
     for (final loan in unsyncedLoans) {
       try {
         await _supabaseService.createLoan(userId, loan.toJson());
@@ -265,13 +262,16 @@ class SyncService extends GetxService {
     await _pullAndMergeLoans(userId, loansBox);
   }
 
-  Future<void> _pullAndMergeLoans(String userId, Box<LoanModel> loansBox) async {
+  Future<void> _pullAndMergeLoans(
+    String userId,
+    Box<LoanModel> loansBox,
+  ) async {
     try {
       final cloudLoans = await _supabaseService.getLoans(userId);
       for (final loanData in cloudLoans) {
         final cloudLoan = LoanModel.fromJson(loanData);
         final localLoan = loansBox.get(cloudLoan.id);
-        
+
         if (localLoan == null) {
           cloudLoan.isSynced = true;
           await loansBox.put(cloudLoan.id, cloudLoan);
@@ -292,8 +292,12 @@ class SyncService extends GetxService {
   }
 
   Future<void> restoreFromCloud() async {
-    if (!isEnabled.value || !_authService.isLoggedIn) return;
-    
+    if (!isEnabled.value ||
+        !_authService.isLoggedIn ||
+        !_supabaseService.isConfigured) {
+      return;
+    }
+
     isSyncing.value = true;
     try {
       final userId = _authService.userId;
@@ -328,7 +332,11 @@ class SyncService extends GetxService {
 
       // Restore budgets (current month)
       final now = DateTime.now();
-      final cloudBudgets = await _supabaseService.getBudgets(userId, now.month, now.year);
+      final cloudBudgets = await _supabaseService.getBudgets(
+        userId,
+        now.month,
+        now.year,
+      );
       for (final budgetData in cloudBudgets) {
         final budget = BudgetModel.fromJson(budgetData);
         budget.isSynced = true;
@@ -357,12 +365,5 @@ class SyncService extends GetxService {
     } finally {
       isSyncing.value = false;
     }
-  }
-
-  @override
-  void onClose() {
-    _connectivitySubscription?.cancel();
-    _periodicSyncTimer?.cancel();
-    super.onClose();
   }
 }

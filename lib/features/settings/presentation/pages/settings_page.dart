@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
-import '../../../../core/services/auth_service.dart';
-import '../../../../core/services/sync_service.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -14,126 +11,59 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accountController = Get.find<AccountController>();
-    final authService = Get.find<AuthService>();
-    final syncService = Get.find<SyncService>();
-    final authController = Get.put(AuthController());
-    final RxBool isDarkMode = false.obs;
+    final theme = Theme.of(context);
+    final RxBool isDarkMode = Get.isDarkMode.obs;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.settings),
+        title: Text(AppStrings.settings, style: theme.textTheme.titleLarge),
       ),
       body: ListView(
         padding: EdgeInsets.all(context.responsivePadding),
         children: [
           _buildSectionTitle(context, AppStrings.accounts),
           Card(
+            color: theme.colorScheme.surfaceContainerLow,
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.account_balance_wallet),
+                  leading: const Icon(Icons.account_balance_wallet_outlined),
                   title: const Text('Manage Accounts'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showAccountsManagement(context, accountController),
+                  onTap: () =>
+                      _showAccountsManagement(context, accountController),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppDimensions.paddingL),
+          SizedBox(height: context.responsiveHeight(0.03)),
           _buildSectionTitle(context, 'Appearance'),
           Card(
-            child: Obx(() => SwitchListTile(
-              secondary: Icon(isDarkMode.value ? Icons.dark_mode : Icons.light_mode),
-              title: const Text('Dark Mode'),
-              value: isDarkMode.value,
-              onChanged: (value) {
-                isDarkMode.value = value;
-                Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
-              },
-            )),
+            color: theme.colorScheme.surfaceContainerLow,
+            child: Obx(
+              () => SwitchListTile(
+                secondary: Icon(
+                  isDarkMode.value
+                      ? Icons.dark_mode_outlined
+                      : Icons.light_mode_outlined,
+                ),
+                title: const Text('Dark Mode'),
+                value: isDarkMode.value,
+                onChanged: (value) {
+                  isDarkMode.value = value;
+                  Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+                },
+              ),
+            ),
           ),
-          const SizedBox(height: AppDimensions.paddingL),
-          _buildSectionTitle(context, 'Cloud'),
-          Card(
-            child: Obx(() {
-              final isLoggedIn = authService.isLoggedIn;
-              final isSyncing = syncService.isSyncing.value;
-              final isSyncEnabled = syncService.isSyncEnabled;
-              final lastSync = syncService.lastSyncTime.value;
-
-              return Column(
-                children: [
-                  if (isLoggedIn) ...[
-                    SwitchListTile(
-                      secondary: Icon(
-                        isSyncEnabled ? Icons.cloud_done : Icons.cloud_off,
-                        color: isSyncEnabled ? AppColors.incomeGreen : Colors.grey,
-                      ),
-                      title: const Text('Cloud Backup'),
-                      subtitle: Text(
-                        isSyncEnabled
-                            ? 'Data will sync to cloud'
-                            : 'Enable to backup your data',
-                      ),
-                      value: isSyncEnabled,
-                      onChanged: (value) async {
-                        if (value) {
-                          await syncService.enableSync();
-                        } else {
-                          await syncService.disableSync();
-                        }
-                      },
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: isSyncing
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.sync),
-                      title: const Text('Sync Now'),
-                      subtitle: Text(
-                        lastSync.isEmpty
-                            ? 'Never synced'
-                            : 'Last synced: ${_formatDate(lastSync)}',
-                      ),
-                      trailing: isSyncing
-                          ? const SizedBox.shrink()
-                          : TextButton(
-                              onPressed: isSyncEnabled
-                                  ? () => syncService.syncAllData()
-                                  : null,
-                              child: const Text('Sync'),
-                            ),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.logout, color: AppColors.expenseRed),
-                      title: const Text('Sign Out', style: TextStyle(color: AppColors.expenseRed)),
-                      onTap: () => _confirmSignOut(context, authController),
-                    ),
-                  ] else ...[
-                    ListTile(
-                      leading: const Icon(Icons.login),
-                      title: const Text('Sign In'),
-                      subtitle: const Text('Enable cloud backup'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Get.toNamed('/login'),
-                    ),
-                  ],
-                ],
-              );
-            }),
-          ),
-          const SizedBox(height: AppDimensions.paddingL),
+          SizedBox(height: context.responsiveHeight(0.03)),
           _buildSectionTitle(context, 'Data'),
           Card(
+            color: theme.colorScheme.surfaceContainerLow,
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.file_download),
+                  leading: const Icon(Icons.file_download_outlined),
                   title: const Text('Export Data'),
                   subtitle: const Text('Download as CSV'),
                   trailing: const Icon(Icons.chevron_right),
@@ -141,26 +71,33 @@ class SettingsPage extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.delete_forever, color: AppColors.expenseRed),
-                  title: const Text('Clear All Data', style: TextStyle(color: AppColors.expenseRed)),
+                  leading: Icon(
+                    Icons.delete_forever_outlined,
+                    color: theme.colorScheme.error,
+                  ),
+                  title: Text(
+                    'Clear All Data',
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
                   onTap: () => _showClearDataDialog(context),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppDimensions.paddingL),
+          SizedBox(height: context.responsiveHeight(0.03)),
           _buildSectionTitle(context, 'About'),
           Card(
+            color: theme.colorScheme.surfaceContainerLow,
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.info),
-                  title: const Text('App Version'),
-                  subtitle: const Text('1.0.0'),
+                const ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text('App Version'),
+                  subtitle: Text('1.0.0'),
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.description),
+                  leading: const Icon(Icons.description_outlined),
                   title: const Text('Licenses'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => showLicensePage(context: context),
@@ -168,70 +105,57 @@ class SettingsPage extends StatelessWidget {
               ],
             ),
           ),
+          SizedBox(height: context.responsiveHeight(0.04)),
+          Center(
+            child: Text(
+              'Made with ❤️ by irfanekon',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
+            ),
+          ),
+          SizedBox(height: context.responsiveHeight(0.04)),
         ],
       ),
     );
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppDimensions.paddingS),
+      padding: EdgeInsets.fromLTRB(
+        context.responsivePadding,
+        0,
+        context.responsivePadding,
+        8 * context.responsiveFontSize,
+      ),
       child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14 * context.responsiveFontSize,
+        title.toUpperCase(),
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: theme.colorScheme.primary,
           fontWeight: FontWeight.bold,
-          color: Colors.grey[600],
+          letterSpacing: 1.2,
         ),
       ),
     );
   }
 
-  String _formatDate(String isoString) {
-    if (isoString.isEmpty) return 'Never';
-    try {
-      final date = DateTime.parse(isoString);
-      return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-    } catch (e) {
-      return 'Never';
-    }
-  }
-
-  void _confirmSignOut(BuildContext context, AuthController controller) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(AppStrings.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              controller.logout();
-            },
-            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
-            child: const Text('Sign Out'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAccountsManagement(BuildContext context, AccountController controller) {
+  void _showAccountsManagement(
+    BuildContext context,
+    AccountController controller,
+  ) {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
         minChildSize: 0.5,
         maxChildSize: 0.9,
         expand: false,
-        builder: (context, scrollController) => Container(
-          padding: EdgeInsets.all(AppDimensions.paddingM),
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -240,15 +164,18 @@ class SettingsPage extends StatelessWidget {
                 children: [
                   Text(
                     AppStrings.accounts,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  IconButton(
+                  IconButton.filledTonal(
                     icon: const Icon(Icons.add),
-                    onPressed: () => _showAddAccountBottomSheet(context, controller),
+                    onPressed: () =>
+                        _showAddAccountBottomSheet(context, controller),
                   ),
                 ],
               ),
-              const Divider(),
+              SizedBox(height: context.responsiveHeight(0.02)),
               Expanded(
                 child: Obx(() {
                   if (controller.accounts.isEmpty) {
@@ -256,9 +183,18 @@ class SettingsPage extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.account_balance_wallet, size: 48, color: Colors.grey[400]),
-                          const SizedBox(height: AppDimensions.paddingM),
-                          Text(AppStrings.noAccounts, style: TextStyle(color: Colors.grey[600])),
+                          Icon(
+                            Icons.account_balance_wallet_outlined,
+                            size: 48,
+                            color: theme.colorScheme.outlineVariant,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            AppStrings.noAccounts,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
                         ],
                       ),
                     );
@@ -268,22 +204,58 @@ class SettingsPage extends StatelessWidget {
                     itemCount: controller.accounts.length,
                     itemBuilder: (context, index) {
                       final account = controller.accounts[index];
-                      return ListTile(
-                        leading: Icon(_getAccountIcon(account.type)),
-                        title: Text(account.name),
-                        subtitle: Text(account.type.name.toUpperCase()),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => _showEditAccountBottomSheet(context, controller, account),
+                      return Card(
+                        margin: EdgeInsets.only(
+                          bottom: context.responsiveHeight(0.01),
+                        ),
+                        color: theme.colorScheme.surfaceContainer,
+                        child: ListTile(
+                          leading: Container(
+                            padding: EdgeInsets.all(
+                              context.responsivePadding * 0.5,
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: AppColors.expenseRed),
-                              onPressed: () => _confirmDeleteAccount(context, controller, account),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ],
+                            child: Icon(
+                              _getAccountIcon(account.type),
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          title: Text(
+                            account.name,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          subtitle: Text(
+                            account.type.name.toUpperCase(),
+                            style: theme.textTheme.labelSmall,
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, size: 20),
+                                onPressed: () => _showEditAccountBottomSheet(
+                                  context,
+                                  controller,
+                                  account,
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  size: 20,
+                                  color: theme.colorScheme.error,
+                                ),
+                                onPressed: () => _confirmDeleteAccount(
+                                  context,
+                                  controller,
+                                  account,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -297,7 +269,11 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  void _showAddAccountBottomSheet(BuildContext context, AccountController controller) {
+  void _showAddAccountBottomSheet(
+    BuildContext context,
+    AccountController controller,
+  ) {
+    final theme = Theme.of(context);
     final nameController = TextEditingController();
     final balanceController = TextEditingController(text: '0');
     final creditLimitController = TextEditingController();
@@ -306,65 +282,98 @@ class SettingsPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Container(
+      showDragHandle: true,
+      builder: (context) => Padding(
         padding: EdgeInsets.only(
-          left: AppDimensions.paddingM,
-          right: AppDimensions.paddingM,
-          top: AppDimensions.paddingM,
-          bottom: MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppStrings.addAccount, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: AppDimensions.paddingM),
-              Obx(() => Wrap(
-                spacing: 8,
-                children: AccountType.values.map((type) => ChoiceChip(
-                  label: Text(type.name.toUpperCase()),
-                  selected: selectedType.value == type,
-                  onSelected: (_) => selectedType.value = type,
-                )).toList(),
-              )),
-              const SizedBox(height: AppDimensions.paddingM),
+              Text(
+                AppStrings.addAccount,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Obx(
+                () => SegmentedButton<AccountType>(
+                  segments: AccountType.values
+                      .map(
+                        (type) => ButtonSegment(
+                          value: type,
+                          label: Text(
+                            type.name.toUpperCase(),
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  selected: {selectedType.value},
+                  onSelectionChanged: (val) => selectedType.value = val.first,
+                ),
+              ),
+              SizedBox(height: context.responsiveHeight(0.03)),
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: 'Account Name'),
               ),
-              const SizedBox(height: AppDimensions.paddingM),
+              const SizedBox(height: 16),
               TextField(
                 controller: balanceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Initial Balance', prefixText: '\$ '),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                style: theme.textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  labelText: 'Initial Balance',
+                  prefixText: '\$ ',
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.3),
+                ),
               ),
-              const SizedBox(height: AppDimensions.paddingM),
+              const SizedBox(height: 16),
               Obx(() {
                 if (selectedType.value == AccountType.creditCard) {
                   return TextField(
                     controller: creditLimitController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Credit Limit', prefixText: '\$ '),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Credit Limit',
+                      prefixText: '\$ ',
+                    ),
                   );
                 }
                 return const SizedBox.shrink();
               }),
-              const SizedBox(height: AppDimensions.paddingL),
+              SizedBox(height: context.responsiveHeight(0.04)),
               SizedBox(
                 width: double.infinity,
+                height: 56 * context.responsiveFontSize,
                 child: FilledButton(
                   onPressed: () async {
                     if (nameController.text.isNotEmpty) {
-                      final balance = double.tryParse(balanceController.text) ?? 0;
-                      final creditLimit = double.tryParse(creditLimitController.text);
+                      final balance =
+                          double.tryParse(balanceController.text) ?? 0;
+                      final creditLimit = double.tryParse(
+                        creditLimitController.text,
+                      );
                       await controller.addAccount(
                         name: nameController.text,
                         type: selectedType.value,
                         balance: balance,
                         creditLimit: creditLimit,
                       );
-                      if (context.mounted) Navigator.pop(context);
+                      Get.back();
                     }
                   },
                   child: const Text(AppStrings.save),
@@ -377,50 +386,70 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  void _showEditAccountBottomSheet(BuildContext context, AccountController controller, AccountModel account) {
+  void _showEditAccountBottomSheet(
+    BuildContext context,
+    AccountController controller,
+    AccountModel account,
+  ) {
+    final theme = Theme.of(context);
     final nameController = TextEditingController(text: account.name);
-    final creditLimitController = TextEditingController(text: account.creditLimit?.toString() ?? '');
+    final creditLimitController = TextEditingController(
+      text: account.creditLimit?.toString() ?? '',
+    );
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Container(
+      showDragHandle: true,
+      builder: (context) => Padding(
         padding: EdgeInsets.only(
-          left: AppDimensions.paddingM,
-          right: AppDimensions.paddingM,
-          top: AppDimensions.paddingM,
-          bottom: MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Edit Account', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: AppDimensions.paddingM),
+              Text(
+                'Edit Account',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: 'Account Name'),
               ),
-              const SizedBox(height: AppDimensions.paddingM),
+              const SizedBox(height: 16),
               if (account.type == AccountType.creditCard)
                 TextField(
                   controller: creditLimitController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Credit Limit', prefixText: '\$ '),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Credit Limit',
+                    prefixText: '\$ ',
+                  ),
                 ),
-              const SizedBox(height: AppDimensions.paddingL),
+              SizedBox(height: context.responsiveHeight(0.04)),
               SizedBox(
                 width: double.infinity,
+                height: 56 * context.responsiveFontSize,
                 child: FilledButton(
                   onPressed: () async {
                     if (nameController.text.isNotEmpty) {
                       final updated = account.copyWith(
                         name: nameController.text,
-                        creditLimit: double.tryParse(creditLimitController.text),
+                        creditLimit: double.tryParse(
+                          creditLimitController.text,
+                        ),
                       );
                       await controller.updateAccount(updated);
-                      if (context.mounted) Navigator.pop(context);
+                      Get.back();
                     }
                   },
                   child: const Text(AppStrings.save),
@@ -433,7 +462,12 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  void _confirmDeleteAccount(BuildContext context, AccountController controller, AccountModel account) {
+  void _confirmDeleteAccount(
+    BuildContext context,
+    AccountController controller,
+    AccountModel account,
+  ) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -441,15 +475,18 @@ class SettingsPage extends StatelessWidget {
         content: Text('Are you sure you want to delete "${account.name}"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.back(),
             child: const Text(AppStrings.cancel),
           ),
           FilledButton(
             onPressed: () {
               controller.deleteAccount(account.id);
-              Navigator.pop(context);
+              Get.back();
             },
-            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
             child: const Text(AppStrings.delete),
           ),
         ],
@@ -458,19 +495,25 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showClearDataDialog(BuildContext context) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Data'),
-        content: const Text('This will permanently delete all your data. This action cannot be undone.'),
+        content: const Text(
+          'This will permanently delete all your data. This action cannot be undone.',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.back(),
             child: const Text(AppStrings.cancel),
           ),
           FilledButton(
             onPressed: () {},
-            style: FilledButton.styleFrom(backgroundColor: AppColors.expenseRed),
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
             child: const Text('Clear'),
           ),
         ],
@@ -480,10 +523,14 @@ class SettingsPage extends StatelessWidget {
 
   IconData _getAccountIcon(AccountType type) {
     switch (type) {
-      case AccountType.cash: return Icons.wallet;
-      case AccountType.bank: return Icons.account_balance;
-      case AccountType.mfs: return Icons.phone_android;
-      case AccountType.creditCard: return Icons.credit_card;
+      case AccountType.cash:
+        return Icons.account_balance_wallet_outlined;
+      case AccountType.bank:
+        return Icons.account_balance_outlined;
+      case AccountType.mfs:
+        return Icons.phone_android_outlined;
+      case AccountType.creditCard:
+        return Icons.credit_card_outlined;
     }
   }
 }

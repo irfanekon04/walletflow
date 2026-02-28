@@ -41,10 +41,10 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: context.screenHeight * 0.1),
                 Icon(
                   Icons.account_balance_wallet,
-                  size: 80,
+                  size: 80 * context.responsiveFontSize,
                   color: AppColors.primary,
                 ),
-                SizedBox(height: AppDimensions.paddingM),
+                SizedBox(height: context.responsiveHeight(0.02)),
                 Text(
                   AppStrings.appName,
                   textAlign: TextAlign.center,
@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: AppColors.primary,
                   ),
                 ),
-                SizedBox(height: AppDimensions.paddingXS),
+                SizedBox(height: context.responsiveHeight(0.005)),
                 Text(
                   _isLogin ? 'Welcome back!' : 'Create your account',
                   textAlign: TextAlign.center,
@@ -81,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: AppDimensions.paddingM),
+                SizedBox(height: context.responsiveHeight(0.02)),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: AppDimensions.paddingL),
+                SizedBox(height: context.responsiveHeight(0.03)),
                 Obx(
                   () => ElevatedButton(
                     onPressed: _authController.isLoading.value ? null : _submit,
@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                   ),
                 ),
-                SizedBox(height: AppDimensions.paddingM),
+                SizedBox(height: context.responsiveHeight(0.02)),
                 if (_authController.errorMessage.value.isNotEmpty)
                   Container(
                     padding: EdgeInsets.all(AppDimensions.paddingS),
@@ -148,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                SizedBox(height: AppDimensions.paddingL),
+                SizedBox(height: context.responsiveHeight(0.03)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -165,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                     Expanded(child: Divider(color: Colors.grey[400])),
                   ],
                 ),
-                SizedBox(height: AppDimensions.paddingL),
+                SizedBox(height: context.responsiveHeight(0.03)),
                 Obx(
                   () => OutlinedButton.icon(
                     onPressed: _authController.isLoading.value
@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: AppDimensions.paddingL),
+                SizedBox(height: context.responsiveHeight(0.03)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -1,32 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
+import 'supabase_service.dart';
 
 class AuthService extends GetxService {
   final Rx<Session?> currentSession = Rx<Session?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
+  bool _checkInitialized() {
+    final supabaseService = Get.find<SupabaseService>();
+    if (!supabaseService.isInitialized.value) {
+      errorMessage.value =
+          'Supabase not initialized. Check your configuration.';
+      return false;
+    }
+    return true;
+  }
+
   Future<AuthService> init() async {
-    currentSession.value = Supabase.instance.client.auth.currentSession;
-
-    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
-      currentSession.value = event.session;
-    });
-
+    // Mock local session
     return this;
   }
 
-  String? get userId => currentSession.value?.user.id;
-  String? get userEmail => currentSession.value?.user.email;
-  bool get isLoggedIn => currentSession.value?.user != null;
+  String? get userId => 'local_user';
+  String? get userEmail => 'local@user.com';
+  bool get isLoggedIn => true;
 
   Future<bool> register(String email, String password) async {
+    if (!_checkInitialized()) return false;
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final response = await Supabase.instance.client.auth.signUp(
+      final response = await Get.find<SupabaseService>().client.auth.signUp(
         email: email,
         password: password,
       );
@@ -36,7 +43,6 @@ class AuthService extends GetxService {
       if (response.user != null) {
         return true;
       } else if (response.session == null) {
-        // Email confirmation required
         errorMessage.value = 'Please check your email to confirm your account';
         return false;
       }
@@ -49,35 +55,38 @@ class AuthService extends GetxService {
   }
 
   Future<bool> login(String email, String password) async {
+    if (!_checkInitialized()) return false;
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-      debugPrint('Login response: $response');
+      final response = await Get.find<SupabaseService>().client.auth
+          .signInWithPassword(email: email, password: password);
+      debugPrint('Login response success');
 
       isLoading.value = false;
       return response.user != null;
     } catch (e) {
-      debugPrint('Login response: $e');
+      debugPrint('Login error: $e');
       isLoading.value = false;
-      // errorMessage.value = _getErrorMessage(e.toString());
+      errorMessage.value = _getErrorMessage(e.toString());
       return false;
     }
   }
 
   Future<void> logout() async {
-    await Supabase.instance.client.auth.signOut();
+    if (!_checkInitialized()) return;
+    await Get.find<SupabaseService>().client.auth.signOut();
     currentSession.value = null;
   }
 
   Future<void> sendPasswordReset(String email) async {
+    if (!_checkInitialized()) return;
     try {
       isLoading.value = true;
-      await Supabase.instance.client.auth.resetPasswordForEmail(email);
+      await Get.find<SupabaseService>().client.auth.resetPasswordForEmail(
+        email,
+      );
       isLoading.value = false;
       errorMessage.value =
           'Password reset email sent. Please check your inbox.';
@@ -88,11 +97,12 @@ class AuthService extends GetxService {
   }
 
   Future<bool> signInWithGoogle() async {
+    if (!_checkInitialized()) return false;
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      await Supabase.instance.client.auth.signInWithOAuth(
+      await Get.find<SupabaseService>().client.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: 'com.walletflow.app://login-callback',
       );
@@ -107,6 +117,9 @@ class AuthService extends GetxService {
   }
 
   String _getErrorMessage(String error) {
+    if (error.contains('initialize') || error.contains('null')) {
+      return 'Supabase client error. Please check configuration.';
+    }
     if (error.contains('invalid_email')) {
       return 'Invalid email address';
     } else if (error.contains('invalid_credentials')) {

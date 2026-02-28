@@ -63,7 +63,9 @@ class LoanModel extends HiveObject {
     this.userId,
   });
 
-  double get amountPaid => originalAmount - remainingAmount;
+  double get paidAmount => originalAmount - remainingAmount;
+  double get amount => originalAmount;
+  set amount(double value) => originalAmount = value;
 
   LoanModel copyWith({
     String? id,
