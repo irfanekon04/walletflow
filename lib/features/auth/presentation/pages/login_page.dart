@@ -16,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final AuthController _authController = Get.put(AuthController());
-  
+
   bool _isLogin = true;
   bool _obscurePassword = true;
 
@@ -90,7 +90,9 @@ class _LoginPageState extends State<LoginPage> {
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -110,29 +112,35 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 SizedBox(height: AppDimensions.paddingL),
-                Obx(() => ElevatedButton(
-                  onPressed: _authController.isLoading.value ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: AppDimensions.paddingM),
+                Obx(
+                  () => ElevatedButton(
+                    onPressed: _authController.isLoading.value ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppDimensions.paddingM,
+                      ),
+                    ),
+                    child: _authController.isLoading.value
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            _isLogin ? 'Sign In' : 'Sign Up',
+                            style: const TextStyle(fontSize: 16),
+                          ),
                   ),
-                  child: _authController.isLoading.value
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(
-                          _isLogin ? 'Sign In' : 'Sign Up',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                )),
+                ),
                 SizedBox(height: AppDimensions.paddingM),
                 if (_authController.errorMessage.value.isNotEmpty)
                   Container(
                     padding: EdgeInsets.all(AppDimensions.paddingS),
                     decoration: BoxDecoration(
                       color: AppColors.expenseRed.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusS),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusS,
+                      ),
                     ),
                     child: Text(
                       _authController.errorMessage.value,
@@ -144,8 +152,42 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Expanded(child: Divider(color: Colors.grey[400])),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppDimensions.paddingM,
+                      ),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.grey[400])),
+                  ],
+                ),
+                SizedBox(height: AppDimensions.paddingL),
+                Obx(
+                  () => OutlinedButton.icon(
+                    onPressed: _authController.isLoading.value
+                        ? null
+                        : _signInWithGoogle,
+                    icon: const Icon(Icons.g_mobiledata, size: 24),
+                    label: const Text('Continue with Google'),
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppDimensions.paddingM,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: AppDimensions.paddingL),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Text(
-                      _isLogin ? "Don't have an account? " : 'Already have an account? ',
+                      _isLogin
+                          ? "Don't have an account? "
+                          : 'Already have an account? ',
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     TextButton(
@@ -184,6 +226,38 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (success) {
+      Get.snackbar(
+        'Success',
+        _isLogin ? 'Welcome back!' : 'Account created successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.incomeGreen,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+      Get.offAllNamed('/home');
+    } else {
+      Get.snackbar(
+        'Error',
+        'Login failed. Please check your credentials.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.expenseRed,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    final success = await _authController.signInWithGoogle();
+    if (success) {
+      Get.snackbar(
+        'Success',
+        'Welcome!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.incomeGreen,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
       Get.offAllNamed('/home');
     }
   }

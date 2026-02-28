@@ -435,7 +435,6 @@ class TransactionsPage extends StatelessWidget {
     TransactionModel transaction,
   ) {
     final controller = Get.find<TransactionController>();
-    final accountController = Get.find<AccountController>();
 
     showDialog(
       context: context,

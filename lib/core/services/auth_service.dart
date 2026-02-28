@@ -1,46 +1,49 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
 
 class AuthService extends GetxService {
-  late final FirebaseAuth _auth;
-
-  final Rx<User?> currentUser = Rx<User?>(null);
+  final Rx<Session?> currentSession = Rx<Session?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
   Future<AuthService> init() async {
-    _auth = FirebaseAuth.instance;
-    _auth.authStateChanges().listen((user) {
-      currentUser.value = user;
+    currentSession.value = Supabase.instance.client.auth.currentSession;
+
+    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
+      currentSession.value = event.session;
     });
-    currentUser.value = _auth.currentUser;
+
     return this;
   }
 
-  String? get userId => currentUser.value?.uid;
-  String? get userEmail => currentUser.value?.email;
-  bool get isLoggedIn => currentUser.value != null;
+  String? get userId => currentSession.value?.user.id;
+  String? get userEmail => currentSession.value?.user.email;
+  bool get isLoggedIn => currentSession.value?.user != null;
 
   Future<bool> register(String email, String password) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final credential = await _auth.createUserWithEmailAndPassword(
+      final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
 
       isLoading.value = false;
-      return credential.user != null;
-    } on FirebaseAuthException catch (e) {
+
+      if (response.user != null) {
+        return true;
+      } else if (response.session == null) {
+        // Email confirmation required
+        errorMessage.value = 'Please check your email to confirm your account';
+        return false;
+      }
+      return false;
+    } catch (e) {
       isLoading.value = false;
-      errorMessage.value = _getErrorMessage(e.code);
+      errorMessage.value = _getErrorMessage(e.toString());
       return false;
     }
   }
@@ -50,56 +53,76 @@ class AuthService extends GetxService {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final credential = await _auth.signInWithEmailAndPassword(
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
+      debugPrint('Login response: $response');
 
       isLoading.value = false;
-      return credential.user != null;
-    } on FirebaseAuthException catch (e) {
+      return response.user != null;
+    } catch (e) {
+      debugPrint('Login response: $e');
       isLoading.value = false;
-      errorMessage.value = _getErrorMessage(e.code);
+      // errorMessage.value = _getErrorMessage(e.toString());
       return false;
     }
   }
 
   Future<void> logout() async {
-    await _auth.signOut();
-    currentUser.value = null;
+    await Supabase.instance.client.auth.signOut();
+    currentSession.value = null;
   }
 
   Future<void> sendPasswordReset(String email) async {
     try {
       isLoading.value = true;
-      await _auth.sendPasswordResetEmail(email: email);
+      await Supabase.instance.client.auth.resetPasswordForEmail(email);
       isLoading.value = false;
-    } on FirebaseAuthException catch (e) {
+      errorMessage.value =
+          'Password reset email sent. Please check your inbox.';
+    } catch (e) {
       isLoading.value = false;
-      errorMessage.value = _getErrorMessage(e.code);
+      errorMessage.value = _getErrorMessage(e.toString());
     }
   }
 
-  String _getErrorMessage(String code) {
-    switch (code) {
-      case 'weak-password':
-        return 'Password is too weak';
-      case 'email-already-in-use':
-        return 'Email is already registered';
-      case 'user-not-found':
-        return 'No user found with this email';
-      case 'wrong-password':
-        return 'Wrong password';
-      case 'invalid-email':
-        return 'Invalid email address';
-      case 'user-disabled':
-        return 'This account has been disabled';
-      case 'too-many-requests':
-        return 'Too many attempts. Please try again later';
-      case 'network-request-failed':
-        return 'Network error. Please check your connection';
-      default:
-        return 'An error occurred. Please try again';
+  Future<bool> signInWithGoogle() async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      await Supabase.instance.client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'com.walletflow.app://login-callback',
+      );
+
+      isLoading.value = true;
+      return true;
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value = 'Google sign-in failed. Please try again.';
+      return false;
     }
+  }
+
+  String _getErrorMessage(String error) {
+    if (error.contains('invalid_email')) {
+      return 'Invalid email address';
+    } else if (error.contains('invalid_credentials')) {
+      return 'Invalid email or password';
+    } else if (error.contains('user_not_found')) {
+      return 'No user found with this email';
+    } else if (error.contains('email_not_confirmed')) {
+      return 'Please confirm your email address';
+    } else if (error.contains('weak_password')) {
+      return 'Password is too weak';
+    } else if (error.contains('email_already_exists') ||
+        error.contains('email_already_registered')) {
+      return 'Email is already registered';
+    } else if (error.contains('network')) {
+      return 'Network error. Please check your connection';
+    }
+    return 'An error occurred. Please try again';
   }
 }

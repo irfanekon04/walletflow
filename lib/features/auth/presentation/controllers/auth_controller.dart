@@ -20,6 +20,11 @@ class AuthController extends GetxController {
     
     final success = await _authService.register(email, password);
     
+    if (success) {
+      final syncService = Get.find<SyncService>();
+      await syncService.enableSync();
+    }
+    
     isLoading.value = false;
     return success;
   }
@@ -29,6 +34,12 @@ class AuthController extends GetxController {
     errorMessage.value = '';
     
     final success = await _authService.login(email, password);
+    
+    
+    if (success) {
+      final syncService = Get.find<SyncService>();
+      await syncService.enableSync();
+    }
     
     isLoading.value = false;
     return success;
@@ -45,6 +56,16 @@ class AuthController extends GetxController {
     
     isLoading.value = false;
     Get.offAllNamed('/login');
+  }
+
+  Future<bool> signInWithGoogle() async {
+    isLoading.value = true;
+    errorMessage.value = '';
+    
+    final success = await _authService.signInWithGoogle();
+    
+    isLoading.value = false;
+    return success;
   }
 
   String get error => _authService.errorMessage.value;

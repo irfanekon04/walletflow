@@ -19,12 +19,8 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
-  # Cloud Database
+  # Cloud Database & Auth
   supabase_flutter: ^2.5.4
-  
-  # Authentication
-  firebase_core: ^3.8.0
-  firebase_auth: ^5.3.4
   google_sign_in: ^6.2.2
   
   # Charts
@@ -42,6 +38,9 @@ dependencies:
   
   # HTTP
   dio: ^5.7.0
+  
+  # Connectivity
+  connectivity_plus: ^6.1.0
 
 dev_dependencies:
   flutter_test:

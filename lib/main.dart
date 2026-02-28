@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/theme/app_theme.dart';
 import 'app/pages/home_page.dart';
@@ -8,7 +7,6 @@ import 'core/database/database_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/supabase_service.dart';
 import 'core/services/sync_service.dart';
-import 'firebase_options.dart';
 import 'features/transactions/data/repositories/category_repository.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -28,15 +26,6 @@ void main() async {
     debugPrint('Warning: .env file not found, using default values');
   }
 
-  try {
-    // Initialize Firebase
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    debugPrint('Firebase init error: $e');
-  }
-
   // Initialize Database
   await DatabaseService.init();
 
@@ -44,9 +33,9 @@ void main() async {
   final categoryRepo = CategoryRepository();
   await categoryRepo.initDefaultCategories();
 
-  // Initialize Services
-  await Get.putAsync(() => AuthService().init());
+  // Initialize Services (order matters: Supabase -> Auth -> Sync)
   await Get.putAsync(() => SupabaseService().init());
+  await Get.putAsync(() => AuthService().init());
   await Get.putAsync(() => SyncService().init());
 
   // Initialize Controllers
