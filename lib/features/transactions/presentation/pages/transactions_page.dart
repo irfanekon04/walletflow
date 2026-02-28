@@ -23,7 +23,8 @@ class TransactionsPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: () => _showFilterBottomSheet(context, controller, accountController),
+            onPressed: () =>
+                _showFilterBottomSheet(context, controller, accountController),
           ),
         ],
       ),
@@ -37,7 +38,11 @@ class TransactionsPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.receipt_long, size: 64, color: Colors.grey[400]),
+                      Icon(
+                        Icons.receipt_long,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
                       const SizedBox(height: AppDimensions.paddingM),
                       Text(
                         AppStrings.noTransactions,
@@ -52,12 +57,18 @@ class TransactionsPage extends StatelessWidget {
                 itemCount: controller.transactions.length,
                 itemBuilder: (context, index) {
                   final transaction = controller.transactions[index];
-                  final category = controller.getCategoryById(transaction.categoryId ?? '');
+                  final category = controller.getCategoryById(
+                    transaction.categoryId ?? '',
+                  );
                   return Card(
-                    margin: const EdgeInsets.only(bottom: AppDimensions.paddingS),
+                    margin: const EdgeInsets.only(
+                      bottom: AppDimensions.paddingS,
+                    ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.fromHex(category?.color ?? '#607D8B'),
+                        backgroundColor: AppColors.fromHex(
+                          category?.color ?? '#607D8B',
+                        ),
                         child: Icon(
                           _getCategoryIcon(category?.icon ?? 'category'),
                           color: Colors.white,
@@ -78,7 +89,12 @@ class TransactionsPage extends StatelessWidget {
                               : AppColors.incomeGreen,
                         ),
                       ),
-                      onTap: () => _showTransactionDetails(context, transaction, category, currencyFormat),
+                      onTap: () => _showTransactionDetails(
+                        context,
+                        transaction,
+                        category,
+                        currencyFormat,
+                      ),
                     ),
                   );
                 },
@@ -88,47 +104,63 @@ class TransactionsPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddTransactionBottomSheet(context, controller, accountController),
+        onPressed: () => _showAddTransactionBottomSheet(
+          context,
+          controller,
+          accountController,
+        ),
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildFilterChips(BuildContext context, TransactionController controller) {
+  Widget _buildFilterChips(
+    BuildContext context,
+    TransactionController controller,
+  ) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.all(AppDimensions.paddingS),
-      child: Obx(() => Row(
-        children: [
-          FilterChip(
-            label: const Text('All'),
-            selected: controller.filterType.value == null,
-            onSelected: (_) => controller.filterType.value = null,
-          ),
-          const SizedBox(width: 8),
-          FilterChip(
-            label: const Text(AppStrings.income),
-            selected: controller.filterType.value == TransactionType.income,
-            onSelected: (_) => controller.filterType.value = TransactionType.income,
-          ),
-          const SizedBox(width: 8),
-          FilterChip(
-            label: const Text(AppStrings.expense),
-            selected: controller.filterType.value == TransactionType.expense,
-            onSelected: (_) => controller.filterType.value = TransactionType.expense,
-          ),
-          const SizedBox(width: 8),
-          FilterChip(
-            label: const Text(AppStrings.transfer),
-            selected: controller.filterType.value == TransactionType.transfer,
-            onSelected: (_) => controller.filterType.value = TransactionType.transfer,
-          ),
-        ],
-      )),
+      child: Obx(
+        () => Row(
+          children: [
+            FilterChip(
+              label: const Text('All'),
+              selected: controller.filterType.value == null,
+              onSelected: (_) => controller.filterType.value = null,
+            ),
+            const SizedBox(width: 8),
+            FilterChip(
+              label: const Text(AppStrings.income),
+              selected: controller.filterType.value == TransactionType.income,
+              onSelected: (_) =>
+                  controller.filterType.value = TransactionType.income,
+            ),
+            const SizedBox(width: 8),
+            FilterChip(
+              label: const Text(AppStrings.expense),
+              selected: controller.filterType.value == TransactionType.expense,
+              onSelected: (_) =>
+                  controller.filterType.value = TransactionType.expense,
+            ),
+            const SizedBox(width: 8),
+            FilterChip(
+              label: const Text(AppStrings.transfer),
+              selected: controller.filterType.value == TransactionType.transfer,
+              onSelected: (_) =>
+                  controller.filterType.value = TransactionType.transfer,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void _showFilterBottomSheet(BuildContext context, TransactionController controller, AccountController accountController) {
+  void _showFilterBottomSheet(
+    BuildContext context,
+    TransactionController controller,
+    AccountController accountController,
+  ) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -137,23 +169,31 @@ class TransactionsPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Filter by Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Filter by Account',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
-            Obx(() => Wrap(
-              spacing: 8,
-              children: [
-                ChoiceChip(
-                  label: const Text('All'),
-                  selected: controller.filterAccountId.value.isEmpty,
-                  onSelected: (_) => controller.filterAccountId.value = '',
-                ),
-                ...accountController.accounts.map((acc) => ChoiceChip(
-                  label: Text(acc.name),
-                  selected: controller.filterAccountId.value == acc.id,
-                  onSelected: (_) => controller.filterAccountId.value = acc.id,
-                )),
-              ],
-            )),
+            Obx(
+              () => Wrap(
+                spacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('All'),
+                    selected: controller.filterAccountId.value.isEmpty,
+                    onSelected: (_) => controller.filterAccountId.value = '',
+                  ),
+                  ...accountController.accounts.map(
+                    (acc) => ChoiceChip(
+                      label: Text(acc.name),
+                      selected: controller.filterAccountId.value == acc.id,
+                      onSelected: (_) =>
+                          controller.filterAccountId.value = acc.id,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: AppDimensions.paddingM),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -177,7 +217,11 @@ class TransactionsPage extends StatelessWidget {
     );
   }
 
-  void _showAddTransactionBottomSheet(BuildContext context, TransactionController controller, AccountController accountController) {
+  void _showAddTransactionBottomSheet(
+    BuildContext context,
+    TransactionController controller,
+    AccountController accountController,
+  ) {
     final amountController = TextEditingController();
     final noteController = TextEditingController();
     final Rx<TransactionType> selectedType = TransactionType.expense.obs;
@@ -197,36 +241,52 @@ class TransactionsPage extends StatelessWidget {
           left: AppDimensions.paddingM,
           right: AppDimensions.paddingM,
           top: AppDimensions.paddingM,
-          bottom: MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
+          bottom:
+              MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppStrings.addTransaction, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                AppStrings.addTransaction,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: AppDimensions.paddingM),
-              Obx(() => Row(
-                children: [
-                  Expanded(child: ChoiceChip(
-                    label: const Text(AppStrings.expense),
-                    selected: selectedType.value == TransactionType.expense,
-                    onSelected: (_) => selectedType.value = TransactionType.expense,
-                  )),
-                  const SizedBox(width: 8),
-                  Expanded(child: ChoiceChip(
-                    label: const Text(AppStrings.income),
-                    selected: selectedType.value == TransactionType.income,
-                    onSelected: (_) => selectedType.value = TransactionType.income,
-                  )),
-                  const SizedBox(width: 8),
-                  Expanded(child: ChoiceChip(
-                    label: const Text(AppStrings.transfer),
-                    selected: selectedType.value == TransactionType.transfer,
-                    onSelected: (_) => selectedType.value = TransactionType.transfer,
-                  )),
-                ],
-              )),
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text(AppStrings.expense),
+                        selected: selectedType.value == TransactionType.expense,
+                        onSelected: (_) =>
+                            selectedType.value = TransactionType.expense,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text(AppStrings.income),
+                        selected: selectedType.value == TransactionType.income,
+                        onSelected: (_) =>
+                            selectedType.value = TransactionType.income,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Text(AppStrings.transfer),
+                        selected:
+                            selectedType.value == TransactionType.transfer,
+                        onSelected: (_) =>
+                            selectedType.value = TransactionType.transfer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: AppDimensions.paddingM),
               TextField(
                 controller: amountController,
@@ -237,27 +297,41 @@ class TransactionsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppDimensions.paddingM),
-              Obx(() => DropdownButtonFormField<String>(
-                value: selectedAccountId.value.isEmpty ? null : selectedAccountId.value,
-                decoration: const InputDecoration(labelText: 'Account'),
-                items: accountController.accounts.map((acc) => DropdownMenuItem(
-                  value: acc.id,
-                  child: Text(acc.name),
-                )).toList(),
-                onChanged: (value) => selectedAccountId.value = value ?? '',
-              )),
+              Obx(
+                () => DropdownButtonFormField<String>(
+                  initialValue: selectedAccountId.value.isEmpty
+                      ? null
+                      : selectedAccountId.value,
+                  decoration: const InputDecoration(labelText: 'Account'),
+                  items: accountController.accounts
+                      .map(
+                        (acc) => DropdownMenuItem(
+                          value: acc.id,
+                          child: Text(acc.name),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) => selectedAccountId.value = value ?? '',
+                ),
+              ),
               const SizedBox(height: AppDimensions.paddingM),
               Obx(() {
                 final categories = selectedType.value == TransactionType.expense
                     ? controller.expenseCategories
                     : controller.incomeCategories;
                 return DropdownButtonFormField<String>(
-                  value: selectedCategoryId.value.isEmpty ? null : selectedCategoryId.value,
+                  initialValue: selectedCategoryId.value.isEmpty
+                      ? null
+                      : selectedCategoryId.value,
                   decoration: const InputDecoration(labelText: 'Category'),
-                  items: categories.map((cat) => DropdownMenuItem(
-                    value: cat.id,
-                    child: Text(cat.name),
-                  )).toList(),
+                  items: categories
+                      .map(
+                        (cat) => DropdownMenuItem(
+                          value: cat.id,
+                          child: Text(cat.name),
+                        ),
+                      )
+                      .toList(),
                   onChanged: (value) => selectedCategoryId.value = value ?? '',
                 );
               }),
@@ -272,13 +346,19 @@ class TransactionsPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     final amount = double.tryParse(amountController.text);
-                    if (amount != null && amount > 0 && selectedAccountId.value.isNotEmpty) {
+                    if (amount != null &&
+                        amount > 0 &&
+                        selectedAccountId.value.isNotEmpty) {
                       await controller.addTransaction(
                         accountId: selectedAccountId.value,
                         type: selectedType.value,
                         amount: amount,
-                        categoryId: selectedCategoryId.value.isEmpty ? null : selectedCategoryId.value,
-                        note: noteController.text.isEmpty ? null : noteController.text,
+                        categoryId: selectedCategoryId.value.isEmpty
+                            ? null
+                            : selectedCategoryId.value,
+                        note: noteController.text.isEmpty
+                            ? null
+                            : noteController.text,
                         date: selectedDate.value,
                       );
                       accountController.loadAccounts();
@@ -295,7 +375,12 @@ class TransactionsPage extends StatelessWidget {
     );
   }
 
-  void _showTransactionDetails(BuildContext context, TransactionModel transaction, CategoryModel? category, NumberFormat format) {
+  void _showTransactionDetails(
+    BuildContext context,
+    TransactionModel transaction,
+    CategoryModel? category,
+    NumberFormat format,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -304,8 +389,12 @@ class TransactionsPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Amount: ${transaction.type == TransactionType.expense ? '-' : '+'}${format.format(transaction.amount)}'),
-            Text('Date: ${DateFormat('MMM dd, yyyy').format(transaction.date)}'),
+            Text(
+              'Amount: ${transaction.type == TransactionType.expense ? '-' : '+'}${format.format(transaction.amount)}',
+            ),
+            Text(
+              'Date: ${DateFormat('MMM dd, yyyy').format(transaction.date)}',
+            ),
             if (transaction.note != null) Text('Note: ${transaction.note}'),
           ],
         ),
@@ -321,15 +410,24 @@ class TransactionsPage extends StatelessWidget {
 
   IconData _getCategoryIcon(String icon) {
     switch (icon) {
-      case 'restaurant': return Icons.restaurant;
-      case 'directions_car': return Icons.directions_car;
-      case 'shopping_bag': return Icons.shopping_bag;
-      case 'receipt_long': return Icons.receipt_long;
-      case 'movie': return Icons.movie;
-      case 'medical_services': return Icons.medical_services;
-      case 'school': return Icons.school;
-      case 'work': return Icons.work;
-      default: return Icons.category;
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'directions_car':
+        return Icons.directions_car;
+      case 'shopping_bag':
+        return Icons.shopping_bag;
+      case 'receipt_long':
+        return Icons.receipt_long;
+      case 'movie':
+        return Icons.movie;
+      case 'medical_services':
+        return Icons.medical_services;
+      case 'school':
+        return Icons.school;
+      case 'work':
+        return Icons.work;
+      default:
+        return Icons.category;
     }
   }
 }

@@ -1,9 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SupabaseService extends GetxService {
-  static const String supabaseUrl = 'https://nfsbbmovahchesqvvida.supabase.co';
-  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mc2JibW92YWhjaGVzcXZ2aWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNTM1MjMsImV4cCI6MjA4NzgyOTUyM30.RZgudOtJWnOPEQDJosr7EeevxXwH6Tgkk0YuUyXBxEU';
+  String get _supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
+  String get _supabaseAnonKey => dotenv.env['SUPABASE_ANON_KEY'] ?? '';
 
   late final SupabaseClient client;
   
@@ -12,8 +13,8 @@ class SupabaseService extends GetxService {
 
   Future<SupabaseService> init() async {
     await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
+      url: _supabaseUrl,
+      anonKey: _supabaseAnonKey,
     );
     client = Supabase.instance.client;
     return this;

@@ -37,6 +37,9 @@ dependencies:
   path_provider: ^2.1.5
   share_plus: ^10.1.4
   
+  # Environment
+  flutter_dotenv: ^5.2.1
+  
   # HTTP
   dio: ^5.7.0
 

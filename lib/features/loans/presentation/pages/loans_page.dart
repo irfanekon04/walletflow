@@ -53,7 +53,7 @@ class LoansPage extends StatelessWidget {
       margin: EdgeInsets.all(AppDimensions.paddingM),
       padding: EdgeInsets.all(AppDimensions.paddingM),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppDimensions.radiusM),
       ),
       child: Row(
@@ -206,7 +206,7 @@ class LoansPage extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingS, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.incomeGreen.withOpacity(0.2),
+                      color: AppColors.incomeGreen.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(AppDimensions.radiusS),
                     ),
                     child: const Text('Completed', style: TextStyle(color: AppColors.incomeGreen)),

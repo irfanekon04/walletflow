@@ -152,7 +152,7 @@ class BudgetsPage extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: context.responsivePadding),
       padding: EdgeInsets.all(AppDimensions.paddingM),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppDimensions.radiusM),
       ),
       child: Row(
@@ -210,7 +210,7 @@ class BudgetsPage extends StatelessWidget {
             Text(AppStrings.addBudget, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: AppDimensions.paddingM),
             Obx(() => DropdownButtonFormField<String>(
-              value: selectedCategoryId.value.isEmpty ? null : selectedCategoryId.value,
+              initialValue: selectedCategoryId.value.isEmpty ? null : selectedCategoryId.value,
               decoration: const InputDecoration(labelText: 'Category'),
               items: transactionController.expenseCategories.map((cat) => DropdownMenuItem(
                 value: cat.id,
