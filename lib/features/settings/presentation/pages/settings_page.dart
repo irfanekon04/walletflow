@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/sync_service.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -11,6 +14,9 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accountController = Get.find<AccountController>();
+    final authService = Get.find<AuthService>();
+    final syncService = Get.find<SyncService>();
+    final authController = Get.put(AuthController());
     final RxBool isDarkMode = false.obs;
 
     return Scaffold(
@@ -49,27 +55,77 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: AppDimensions.paddingL),
           _buildSectionTitle(context, 'Cloud'),
           Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.sync),
-                  title: const Text('Sync Status'),
-                  subtitle: const Text('Last synced: Never'),
-                  trailing: TextButton(
-                    onPressed: () {},
-                    child: const Text('Sync Now'),
-                  ),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.login),
-                  title: const Text('Sign In'),
-                  subtitle: const Text('Enable cloud backup'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
-                ),
-              ],
-            ),
+            child: Obx(() {
+              final isLoggedIn = authService.isLoggedIn;
+              final isSyncing = syncService.isSyncing.value;
+              final isSyncEnabled = syncService.isSyncEnabled;
+              final lastSync = syncService.lastSyncTime.value;
+
+              return Column(
+                children: [
+                  if (isLoggedIn) ...[
+                    SwitchListTile(
+                      secondary: Icon(
+                        isSyncEnabled ? Icons.cloud_done : Icons.cloud_off,
+                        color: isSyncEnabled ? AppColors.incomeGreen : Colors.grey,
+                      ),
+                      title: const Text('Cloud Backup'),
+                      subtitle: Text(
+                        isSyncEnabled
+                            ? 'Data will sync to cloud'
+                            : 'Enable to backup your data',
+                      ),
+                      value: isSyncEnabled,
+                      onChanged: (value) async {
+                        if (value) {
+                          await syncService.enableSync();
+                        } else {
+                          await syncService.disableSync();
+                        }
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: isSyncing
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.sync),
+                      title: const Text('Sync Now'),
+                      subtitle: Text(
+                        lastSync.isEmpty
+                            ? 'Never synced'
+                            : 'Last synced: ${_formatDate(lastSync)}',
+                      ),
+                      trailing: isSyncing
+                          ? const SizedBox.shrink()
+                          : TextButton(
+                              onPressed: isSyncEnabled
+                                  ? () => syncService.syncAllData()
+                                  : null,
+                              child: const Text('Sync'),
+                            ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.logout, color: AppColors.expenseRed),
+                      title: const Text('Sign Out', style: TextStyle(color: AppColors.expenseRed)),
+                      onTap: () => _confirmSignOut(context, authController),
+                    ),
+                  ] else ...[
+                    ListTile(
+                      leading: const Icon(Icons.login),
+                      title: const Text('Sign In'),
+                      subtitle: const Text('Enable cloud backup'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Get.toNamed('/login'),
+                    ),
+                  ],
+                ],
+              );
+            }),
           ),
           const SizedBox(height: AppDimensions.paddingL),
           _buildSectionTitle(context, 'Data'),
@@ -127,6 +183,40 @@ class SettingsPage extends StatelessWidget {
           fontWeight: FontWeight.bold,
           color: Colors.grey[600],
         ),
+      ),
+    );
+  }
+
+  String _formatDate(String isoString) {
+    if (isoString.isEmpty) return 'Never';
+    try {
+      final date = DateTime.parse(isoString);
+      return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Never';
+    }
+  }
+
+  void _confirmSignOut(BuildContext context, AuthController controller) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(AppStrings.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              controller.logout();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.expenseRed),
+            child: const Text('Sign Out'),
+          ),
+        ],
       ),
     );
   }
