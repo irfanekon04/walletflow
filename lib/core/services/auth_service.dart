@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class AuthService extends GetxService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+  late final FirebaseAuth _auth;
+
   final Rx<User?> currentUser = Rx<User?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
@@ -11,12 +11,13 @@ class AuthService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    _auth.authStateChanges().listen((user) {
-      currentUser.value = user;
-    });
   }
 
   Future<AuthService> init() async {
+    _auth = FirebaseAuth.instance;
+    _auth.authStateChanges().listen((user) {
+      currentUser.value = user;
+    });
     currentUser.value = _auth.currentUser;
     return this;
   }
@@ -29,12 +30,12 @@ class AuthService extends GetxService {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      
+
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       isLoading.value = false;
       return credential.user != null;
     } on FirebaseAuthException catch (e) {
@@ -48,12 +49,12 @@ class AuthService extends GetxService {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      
+
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       isLoading.value = false;
       return credential.user != null;
     } on FirebaseAuthException catch (e) {

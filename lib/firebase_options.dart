@@ -54,11 +54,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAWhygiLxUhE3Ns4PqC-AFES8Or77Jl3hs',
-    appId: '1:708904354047:android:7088086ae40cf5ad37ccca',
-    messagingSenderId: '708904354047',
-    projectId: 'walletflow-1d9c1',
-    storageBucket: 'walletflow-1d9c1.firebasestorage.app',
+    apiKey: 'AIzaSyDiB6ObWWdxKvIt1LLFV8ZcCufr9JE8ZDc',
+    appId: '1:731118662529:android:b0a13af6ff50cf242fae80',
+    messagingSenderId: '731118662529',
+    projectId: 'walletflow-7488',
+    storageBucket: 'walletflow-7488.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
