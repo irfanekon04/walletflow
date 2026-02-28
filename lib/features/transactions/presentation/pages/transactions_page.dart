@@ -342,6 +342,8 @@ class TransactionsPage extends StatelessWidget {
               const SizedBox(height: 20),
               Obx(
                 () => DropdownButtonFormField<String>(
+                  elevation: 0,
+                  
                   initialValue: selectedAccountId.value.isEmpty
                       ? null
                       : selectedAccountId.value,
@@ -350,12 +352,18 @@ class TransactionsPage extends StatelessWidget {
                       .map(
                         (acc) => DropdownMenuItem(
                           value: acc.id,
-                          child: Text(acc.name),
+                          child: Text(
+                            acc.name,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       )
                       .toList(),
                   onChanged: (value) => selectedAccountId.value = value ?? '',
                   borderRadius: BorderRadius.circular(16),
+                  dropdownColor: theme.colorScheme.surfaceDim,
                 ),
               ),
               SizedBox(height: context.responsiveHeight(0.015)),
@@ -372,7 +380,12 @@ class TransactionsPage extends StatelessWidget {
                       .map(
                         (cat) => DropdownMenuItem(
                           value: cat.id,
-                          child: Text(cat.name),
+                          child: Text(
+                            cat.name,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       )
                       .toList(),
@@ -633,7 +646,12 @@ class TransactionsPage extends StatelessWidget {
                       .map(
                         (acc) => DropdownMenuItem(
                           value: acc.id,
-                          child: Text(acc.name),
+                          child: Text(
+                            acc.name,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       )
                       .toList(),
@@ -654,7 +672,12 @@ class TransactionsPage extends StatelessWidget {
                       .map(
                         (cat) => DropdownMenuItem(
                           value: cat.id,
-                          child: Text(cat.name),
+                          child: Text(
+                            cat.name,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       )
                       .toList(),

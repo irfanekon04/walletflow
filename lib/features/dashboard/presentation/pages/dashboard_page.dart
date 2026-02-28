@@ -276,6 +276,8 @@ class DashboardPage extends StatelessWidget {
                           format.format(account.balance),
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
+                            fontSize: 24 * context.responsiveFontSize,
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ],
@@ -471,8 +473,9 @@ class DashboardPage extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: percent.clamp(0.0, 1.0),
                       minHeight: 8 * context.responsiveFontSize,
-                      backgroundColor:
-                          theme.colorScheme.surfaceContainerHighest,
+                      backgroundColor: theme.colorScheme.onSurface.withValues(
+                        alpha: .3,
+                      ),
                       valueColor: AlwaysStoppedAnimation<Color>(
                         isOver
                             ? theme.colorScheme.error
@@ -522,6 +525,8 @@ class DashboardPage extends StatelessWidget {
                           AppStrings.lent,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16 * context.responsiveFontSize,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -530,6 +535,7 @@ class DashboardPage extends StatelessWidget {
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.primary,
+                            fontSize: 20 * context.responsiveFontSize,
                           ),
                         ),
                       ],
@@ -549,6 +555,8 @@ class DashboardPage extends StatelessWidget {
                           AppStrings.owed,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16 * context.responsiveFontSize,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -557,6 +565,7 @@ class DashboardPage extends StatelessWidget {
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.error,
+                            fontSize: 20 * context.responsiveFontSize,
                           ),
                         ),
                       ],

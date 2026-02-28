@@ -134,8 +134,9 @@ class BudgetsPage extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: percent.clamp(0.0, 1.0),
                         minHeight: 10 * context.responsiveFontSize,
-                        backgroundColor:
-                            theme.colorScheme.surfaceContainerHighest,
+                        backgroundColor: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.3,
+                        ),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           isOver
                               ? theme.colorScheme.error
@@ -226,7 +227,12 @@ class BudgetsPage extends StatelessWidget {
                         .map(
                           (m) => DropdownMenuItem(
                             value: m,
-                            child: Text(controller.getMonthName(m)),
+                            child: Text(
+                              controller.getMonthName(m),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         )
                         .toList(),
@@ -247,7 +253,12 @@ class BudgetsPage extends StatelessWidget {
                             .map(
                               (y) => DropdownMenuItem(
                                 value: y,
-                                child: Text(y.toString()),
+                                child: Text(
+                                  y.toString(),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             )
                             .toList(),
@@ -318,7 +329,12 @@ class BudgetsPage extends StatelessWidget {
                     .map(
                       (cat) => DropdownMenuItem(
                         value: cat.id,
-                        child: Text(cat.name),
+                        child: Text(
+                          cat.name,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     )
                     .toList(),
