@@ -7,6 +7,9 @@ import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/models/category_model.dart';
 import '../controllers/transaction_controller.dart';
+import '../widgets/transaction_filter_tabs.dart';
+import '../widgets/transfer_form_widget.dart';
+import '../widgets/transfer_list_item.dart';
 
 class TransactionsPage extends StatelessWidget {
   const TransactionsPage({super.key});
@@ -31,10 +34,17 @@ class TransactionsPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          _buildFilterChips(context, controller),
+          Obx(() => TransactionFilterTabs(
+            selectedType: controller.filterType.value,
+            onTypeSelected: (type) {
+              controller.filterType.value = type;
+            },
+          )),
           Expanded(
             child: Obx(() {
-              if (controller.transactions.isEmpty) {
+              final filteredTransactions = controller.getFilteredTransactions();
+              
+              if (filteredTransactions.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -56,10 +66,32 @@ class TransactionsPage extends StatelessWidget {
                 );
               }
               return ListView.builder(
-                padding: EdgeInsets.all(context.responsivePadding),
-                itemCount: controller.transactions.length,
+                padding: EdgeInsets.only(
+                  top: AppDimensions.paddingS,
+                  left: context.responsivePadding,
+                  right: context.responsivePadding,
+                  bottom: 80,
+                ),
+                itemCount: filteredTransactions.length,
                 itemBuilder: (context, index) {
-                  final transaction = controller.transactions[index];
+                  final transaction = filteredTransactions[index];
+                  
+                  if (transaction.type == TransactionType.transfer) {
+                    return TransferListItem(
+                      transaction: transaction,
+                      onTap: () => _showEditTransferBottomSheet(
+                        context,
+                        controller,
+                        accountController,
+                        transaction,
+                      ),
+                      onDelete: () => _showDeleteConfirmation(
+                        context,
+                        transaction,
+                      ),
+                    );
+                  }
+                  
                   final category = controller.getCategoryById(
                     transaction.categoryId ?? '',
                   );
@@ -757,6 +789,25 @@ class TransactionsPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showEditTransferBottomSheet(
+    BuildContext context,
+    TransactionController controller,
+    AccountController accountController,
+    TransactionModel transaction,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => TransferFormWidget(
+        existingTransfer: transaction,
+        onSaved: () {
+          controller.loadTransactions();
+          accountController.loadAccounts();
+        },
       ),
     );
   }

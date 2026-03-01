@@ -276,7 +276,7 @@ class DashboardPage extends StatelessWidget {
                           format.format(account.balance),
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 24 * context.responsiveFontSize,
+                            fontSize: 20 * context.responsiveFontSize,
                             color: theme.colorScheme.primary,
                           ),
                         ),

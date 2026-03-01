@@ -225,11 +225,16 @@ class SettingsPage extends StatelessWidget {
                           ),
                           title: Text(
                             account.name,
-                            style: theme.textTheme.titleMedium,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
                           subtitle: Text(
                             account.type.name.toUpperCase(),
-                            style: theme.textTheme.labelSmall,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
