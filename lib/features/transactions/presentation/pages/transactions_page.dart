@@ -87,7 +87,9 @@ class TransactionsPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
-                          _getCategoryIcon(category?.icon ?? 'category'),
+                          controller.getCategoryIcon(
+                            category?.icon ?? 'category',
+                          ),
                           color: color,
                           size: 20 * context.responsiveFontSize,
                         ),
@@ -343,7 +345,7 @@ class TransactionsPage extends StatelessWidget {
               Obx(
                 () => DropdownButtonFormField<String>(
                   elevation: 0,
-                  
+
                   initialValue: selectedAccountId.value.isEmpty
                       ? null
                       : selectedAccountId.value,
@@ -757,28 +759,5 @@ class TransactionsPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  IconData _getCategoryIcon(String icon) {
-    switch (icon) {
-      case 'restaurant':
-        return Icons.restaurant_outlined;
-      case 'directions_car':
-        return Icons.directions_car_outlined;
-      case 'shopping_bag':
-        return Icons.shopping_bag_outlined;
-      case 'receipt_long':
-        return Icons.receipt_long_outlined;
-      case 'movie':
-        return Icons.movie_outlined;
-      case 'medical_services':
-        return Icons.medical_services_outlined;
-      case 'school':
-        return Icons.school_outlined;
-      case 'work':
-        return Icons.work_outline;
-      default:
-        return Icons.category_outlined;
-    }
   }
 }

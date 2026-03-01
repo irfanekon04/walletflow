@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/models/category_model.dart';
@@ -134,5 +135,29 @@ class TransactionController extends GetxController {
     filterType.value = null;
     filterAccountId.value = '';
     filterCategoryId.value = '';
+  }
+
+
+  IconData getCategoryIcon(String icon) {
+    switch (icon) {
+      case 'restaurant':
+        return Icons.restaurant_outlined;
+      case 'directions_car':
+        return Icons.directions_car_outlined;
+      case 'shopping_bag':
+        return Icons.shopping_bag_outlined;
+      case 'receipt_long':
+        return Icons.receipt_long_outlined;
+      case 'movie':
+        return Icons.movie_outlined;
+      case 'medical_services':
+        return Icons.medical_services_outlined;
+      case 'school':
+        return Icons.school_outlined;
+      case 'work':
+        return Icons.work_outline;
+      default:
+        return Icons.category_outlined;
+    }
   }
 }
