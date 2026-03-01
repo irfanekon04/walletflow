@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:walletflow/app/routes/app_routes.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
 
 class SplashScreen extends StatefulWidget {
