@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../data/models/transaction_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
+import '../dialogs.dart/transaction_dialogs.dart';
+import '../controllers/transaction_controller.dart';
 
 class TransferListItem extends StatelessWidget {
   final TransactionModel transaction;
@@ -19,12 +21,8 @@ class TransferListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final screenWidth = context.screenWidth;
-    final isCompact = screenWidth < 360;
-
-    final numberFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
-    final dateFormat = DateFormat('MMM dd');
+    final theme = Theme.of(context);
+    final currencyFormat = NumberFormat.currency(symbol: '\$');
 
     final accountController = Get.find<AccountController>();
     final fromAccount = accountController.accounts.firstWhereOrNull(
@@ -35,109 +33,61 @@ class TransferListItem extends StatelessWidget {
     );
 
     return Card(
-      margin: EdgeInsets.symmetric(
-        horizontal: context.responsivePadding,
-        vertical: AppDimensions.paddingXS,
-      ),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-        child: Padding(
-          padding: EdgeInsets.all(isCompact ? 10 : 12),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: isCompact ? 18 : 22,
-                backgroundColor: colorScheme.tertiary.withValues(alpha: 0.15),
-                child: Icon(
-                  Icons.swap_horiz,
-                  size: isCompact ? 18 : 22,
-                  color: colorScheme.tertiary,
-                ),
-              ),
-              SizedBox(width: isCompact ? 10 : 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Transfer',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: isCompact ? 13 : 15,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'From ${fromAccount?.name ?? 'Unknown'} → To ${toAccount?.name ?? 'Unknown'}',
-                      style: TextStyle(
-                        color: colorScheme.onSurface.withValues(alpha: 0.7),
-                        fontSize: isCompact ? 11 : 13,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (transaction.note != null &&
-                        transaction.note!.isNotEmpty) ...[
-                      SizedBox(height: 2),
-                      Text(
-                        transaction.note!,
-                        style: TextStyle(
-                          color: colorScheme.onSurface.withValues(alpha: 0.5),
-                          fontSize: isCompact ? 10 : 12,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    numberFormat.format(transaction.amount),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: isCompact ? 14 : 16,
-                      color: colorScheme.tertiary,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    dateFormat.format(transaction.date),
-                    style: TextStyle(
-                      color: colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontSize: isCompact ? 10 : 12,
-                    ),
-                  ),
-                ],
-              ),
-              if (onDelete != null) ...[
-                SizedBox(width: 8),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    size: isCompact ? 18 : 20,
-                    color: Colors.red[400],
-                  ),
-                  onPressed: onDelete,
-                  constraints: BoxConstraints(
-                    minWidth: isCompact ? 32 : 40,
-                    minHeight: isCompact ? 32 : 40,
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-              ],
-            ],
+      margin: const EdgeInsets.only(bottom: 12),
+      color: theme.colorScheme.surfaceContainerLow,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 8,
+        ),
+        leading: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.tertiary.withAlpha(25),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            Icons.swap_horiz,
+            color: theme.colorScheme.tertiary,
+            size: 20 * context.responsiveFontSize,
           ),
         ),
+        title: Text(
+          'Transfer',
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          'From ${fromAccount?.name ?? 'Unknown'} → To ${toAccount?.name ?? 'Unknown'}${transaction.note != null ? '\n${transaction.note}' : ''}',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: Text(
+          currencyFormat.format(transaction.amount),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.tertiary,
+          ),
+        ),
+        onTap: () {
+          final controller = Get.find<TransactionController>();
+          TransactionDialogs.showEditTransactionBottomSheet(
+            context,
+            controller,
+            accountController,
+            transaction,
+          );
+        },
+        onLongPress: () {
+          TransactionDialogs.showDeleteConfirmation(
+            context,
+            transaction,
+          );
+        },
       ),
     );
   }
