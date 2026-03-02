@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../data/models/transaction_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
@@ -51,7 +50,7 @@ class TransferListItem extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: isCompact ? 18 : 22,
-                backgroundColor: colorScheme.tertiary.withOpacity(0.15),
+                backgroundColor: colorScheme.tertiary.withValues(alpha:  0.15),
                 child: Icon(
                   Icons.swap_horiz,
                   size: isCompact ? 18 : 22,
@@ -74,7 +73,7 @@ class TransferListItem extends StatelessWidget {
                     Text(
                       'From ${fromAccount?.name ?? 'Unknown'} → To ${toAccount?.name ?? 'Unknown'}',
                       style: TextStyle(
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha:  0.7),
                         fontSize: isCompact ? 11 : 13,
                       ),
                       maxLines: 1,
@@ -85,7 +84,7 @@ class TransferListItem extends StatelessWidget {
                       Text(
                         transaction.note!,
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.5),
+                          color: colorScheme.onSurface.withValues(alpha:  0.5),
                           fontSize: isCompact ? 10 : 12,
                           fontStyle: FontStyle.italic,
                         ),
@@ -111,7 +110,7 @@ class TransferListItem extends StatelessWidget {
                   Text(
                     dateFormat.format(transaction.date),
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.5),
+                      color: colorScheme.onSurface.withValues(alpha:  0.5),
                       fontSize: isCompact ? 10 : 12,
                     ),
                   ),

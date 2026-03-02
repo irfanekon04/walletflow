@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../data/models/transaction_model.dart';
@@ -95,7 +94,7 @@ class TransactionFilterTabs extends StatelessWidget {
       selected: isSelected,
       onSelected: (_) => onSelected(),
       selectedColor: chipColor,
-      backgroundColor: chipColor.withOpacity(0.1),
+      backgroundColor: chipColor.withValues(alpha: 0.1),
       checkmarkColor: Colors.white,
       showCheckmark: false,
       padding: EdgeInsets.symmetric(
@@ -105,7 +104,7 @@ class TransactionFilterTabs extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),
         side: BorderSide(
-          color: isSelected ? chipColor : chipColor.withOpacity(0.3),
+          color: isSelected ? chipColor : chipColor.withValues(alpha: 0.3),
         ),
       ),
     );

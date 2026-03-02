@@ -179,7 +179,12 @@ class LoansPage extends StatelessWidget {
       }
 
       return ListView.builder(
-        padding: EdgeInsets.all(context.responsivePadding),
+        padding: EdgeInsets.only(
+          top: AppDimensions.paddingS,
+          left: context.responsivePadding,
+          right: context.responsivePadding,
+          bottom: 120,
+        ),
         itemCount: loans.length,
         itemBuilder: (context, index) {
           final loan = loans[index];

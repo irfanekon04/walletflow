@@ -8,7 +8,7 @@ import '../../data/models/transaction_model.dart';
 import '../../data/models/category_model.dart';
 import '../controllers/transaction_controller.dart';
 import '../widgets/transaction_filter_tabs.dart';
-import '../widgets/transfer_form_widget.dart';
+import '../widgets/add_transaction_form_widget.dart';
 import '../widgets/transfer_list_item.dart';
 
 class TransactionsPage extends StatelessWidget {
@@ -34,16 +34,18 @@ class TransactionsPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Obx(() => TransactionFilterTabs(
-            selectedType: controller.filterType.value,
-            onTypeSelected: (type) {
-              controller.filterType.value = type;
-            },
-          )),
+          Obx(
+            () => TransactionFilterTabs(
+              selectedType: controller.filterType.value,
+              onTypeSelected: (type) {
+                controller.filterType.value = type;
+              },
+            ),
+          ),
           Expanded(
             child: Obx(() {
               final filteredTransactions = controller.getFilteredTransactions();
-              
+
               if (filteredTransactions.isEmpty) {
                 return Center(
                   child: Column(
@@ -70,28 +72,26 @@ class TransactionsPage extends StatelessWidget {
                   top: AppDimensions.paddingS,
                   left: context.responsivePadding,
                   right: context.responsivePadding,
-                  bottom: 80,
+                  bottom: 120,
                 ),
                 itemCount: filteredTransactions.length,
                 itemBuilder: (context, index) {
                   final transaction = filteredTransactions[index];
-                  
+
                   if (transaction.type == TransactionType.transfer) {
                     return TransferListItem(
                       transaction: transaction,
-                      onTap: () => _showEditTransferBottomSheet(
+                      onTap: () => _showEditTransactionBottomSheet(
                         context,
                         controller,
                         accountController,
                         transaction,
                       ),
-                      onDelete: () => _showDeleteConfirmation(
-                        context,
-                        transaction,
-                      ),
+                      onDelete: () =>
+                          _showDeleteConfirmation(context, transaction),
                     );
                   }
-                  
+
                   final category = controller.getCategoryById(
                     transaction.categoryId ?? '',
                   );
@@ -163,11 +163,7 @@ class TransactionsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.large(
         heroTag: 'transactions_fab',
-        onPressed: () => _showAddTransactionBottomSheet(
-          context,
-          controller,
-          accountController,
-        ),
+        onPressed: () => _showAddTransactionBottomSheet(context),
         child: const Icon(Icons.add),
       ),
     );
@@ -298,173 +294,16 @@ class TransactionsPage extends StatelessWidget {
     );
   }
 
-  void _showAddTransactionBottomSheet(
-    BuildContext context,
-    TransactionController controller,
-    AccountController accountController,
-  ) {
-    final theme = Theme.of(context);
-    final amountController = TextEditingController();
-    final noteController = TextEditingController();
-    final Rx<TransactionType> selectedType = TransactionType.expense.obs;
-    final RxString selectedAccountId = ''.obs;
-    final RxString selectedCategoryId = ''.obs;
-    final Rx<DateTime> selectedDate = DateTime.now().obs;
-
-    if (accountController.accounts.isNotEmpty) {
-      selectedAccountId.value = accountController.accounts.first.id;
-    }
-
+  void _showAddTransactionBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppStrings.addTransaction,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: context.responsiveHeight(0.025)),
-              Obx(
-                () => SegmentedButton<TransactionType>(
-                  segments: const [
-                    ButtonSegment(
-                      value: TransactionType.expense,
-                      label: Text(AppStrings.expense),
-                    ),
-                    ButtonSegment(
-                      value: TransactionType.income,
-                      label: Text(AppStrings.income),
-                    ),
-                    ButtonSegment(
-                      value: TransactionType.transfer,
-                      label: Text(AppStrings.transfer),
-                    ),
-                  ],
-                  selected: {selectedType.value},
-                  onSelectionChanged: (val) => selectedType.value = val.first,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                style: theme.textTheme.headlineMedium,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  prefixText: '\$ ',
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.3),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Obx(
-                () => DropdownButtonFormField<String>(
-                  elevation: 0,
-
-                  initialValue: selectedAccountId.value.isEmpty
-                      ? null
-                      : selectedAccountId.value,
-                  decoration: const InputDecoration(labelText: 'Account'),
-                  items: accountController.accounts
-                      .map(
-                        (acc) => DropdownMenuItem(
-                          value: acc.id,
-                          child: Text(
-                            acc.name,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => selectedAccountId.value = value ?? '',
-                  borderRadius: BorderRadius.circular(16),
-                  dropdownColor: theme.colorScheme.surfaceDim,
-                ),
-              ),
-              SizedBox(height: context.responsiveHeight(0.015)),
-              Obx(() {
-                final categories = selectedType.value == TransactionType.expense
-                    ? controller.expenseCategories
-                    : controller.incomeCategories;
-                return DropdownButtonFormField<String>(
-                  initialValue: selectedCategoryId.value.isEmpty
-                      ? null
-                      : selectedCategoryId.value,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  items: categories
-                      .map(
-                        (cat) => DropdownMenuItem(
-                          value: cat.id,
-                          child: Text(
-                            cat.name,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => selectedCategoryId.value = value ?? '',
-                  borderRadius: BorderRadius.circular(16),
-                );
-              }),
-              SizedBox(height: context.responsiveHeight(0.015)),
-              TextField(
-                controller: noteController,
-                decoration: const InputDecoration(labelText: 'Note (optional)'),
-              ),
-              SizedBox(height: context.responsiveHeight(0.03)),
-              SizedBox(
-                width: double.infinity,
-                height: 56 * context.responsiveFontSize,
-                child: FilledButton(
-                  onPressed: () async {
-                    final amount = double.tryParse(amountController.text);
-                    if (amount != null &&
-                        amount > 0 &&
-                        selectedAccountId.value.isNotEmpty) {
-                      await controller.addTransaction(
-                        accountId: selectedAccountId.value,
-                        type: selectedType.value,
-                        amount: amount,
-                        categoryId: selectedCategoryId.value.isEmpty
-                            ? null
-                            : selectedCategoryId.value,
-                        note: noteController.text.isEmpty
-                            ? null
-                            : noteController.text,
-                        date: selectedDate.value,
-                      );
-                      accountController.loadAccounts();
-                      if (context.mounted) Get.back();
-                    }
-                  },
-                  child: const Text(AppStrings.save),
-                ),
-              ),
-              SizedBox(height: context.responsiveHeight(0.015)),
-            ],
-          ),
-        ),
+      builder: (context) => AddTransactionFormWidget(
+        onSaved: () {
+          Get.find<TransactionController>().loadTransactions();
+          Get.find<AccountController>().loadAccounts();
+        },
       ),
     );
   }
@@ -601,209 +440,12 @@ class TransactionsPage extends StatelessWidget {
     AccountController accountController,
     TransactionModel transaction,
   ) {
-    final theme = Theme.of(context);
-    final amountController = TextEditingController(
-      text: transaction.amount.toString(),
-    );
-    final noteController = TextEditingController(text: transaction.note ?? '');
-    final Rx<TransactionType> selectedType = transaction.type.obs;
-    final RxString selectedAccountId = transaction.accountId.obs;
-    final RxString selectedCategoryId = (transaction.categoryId ?? '').obs;
-    final Rx<DateTime> selectedDate = transaction.date.obs;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Edit Transaction',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: context.responsiveHeight(0.025)),
-              Obx(
-                () => SegmentedButton<TransactionType>(
-                  segments: const [
-                    ButtonSegment(
-                      value: TransactionType.expense,
-                      label: Text(AppStrings.expense),
-                    ),
-                    ButtonSegment(
-                      value: TransactionType.income,
-                      label: Text(AppStrings.income),
-                    ),
-                    ButtonSegment(
-                      value: TransactionType.transfer,
-                      label: Text(AppStrings.transfer),
-                    ),
-                  ],
-                  selected: {selectedType.value},
-                  onSelectionChanged: (val) => selectedType.value = val.first,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                style: theme.textTheme.headlineMedium,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  prefixText: '\$ ',
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.3),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Obx(
-                () => DropdownButtonFormField<String>(
-                  initialValue: selectedAccountId.value.isEmpty
-                      ? null
-                      : selectedAccountId.value,
-                  decoration: const InputDecoration(labelText: 'Account'),
-                  items: accountController.accounts
-                      .map(
-                        (acc) => DropdownMenuItem(
-                          value: acc.id,
-                          child: Text(
-                            acc.name,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => selectedAccountId.value = value ?? '',
-                ),
-              ),
-              const SizedBox(height: 12),
-              Obx(() {
-                final categories = selectedType.value == TransactionType.expense
-                    ? controller.expenseCategories
-                    : controller.incomeCategories;
-                return DropdownButtonFormField<String>(
-                  initialValue: selectedCategoryId.value.isEmpty
-                      ? null
-                      : selectedCategoryId.value,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  items: categories
-                      .map(
-                        (cat) => DropdownMenuItem(
-                          value: cat.id,
-                          child: Text(
-                            cat.name,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => selectedCategoryId.value = value ?? '',
-                );
-              }),
-              const SizedBox(height: 12),
-              TextField(
-                controller: noteController,
-                decoration: const InputDecoration(labelText: 'Note (optional)'),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: FilledButton(
-                  onPressed: () async {
-                    final amount = double.tryParse(amountController.text);
-                    if (amount != null &&
-                        amount > 0 &&
-                        selectedAccountId.value.isNotEmpty) {
-                      final oldType = transaction.type;
-                      final oldAccountId = transaction.accountId;
-                      final oldAmount = transaction.amount;
-
-                      transaction.accountId = selectedAccountId.value;
-                      transaction.type = selectedType.value;
-                      transaction.amount = amount;
-                      transaction.categoryId = selectedCategoryId.value.isEmpty
-                          ? null
-                          : selectedCategoryId.value;
-                      transaction.note = noteController.text.isEmpty
-                          ? null
-                          : noteController.text;
-                      transaction.date = selectedDate.value;
-
-                      await controller.updateTransaction(transaction);
-
-                      if (oldType == TransactionType.expense) {
-                        await accountController.updateBalance(
-                          oldAccountId,
-                          oldAmount,
-                          isAdd: true,
-                        );
-                      } else if (oldType == TransactionType.income) {
-                        await accountController.updateBalance(
-                          oldAccountId,
-                          oldAmount,
-                          isAdd: false,
-                        );
-                      }
-
-                      if (selectedType.value == TransactionType.expense) {
-                        await accountController.updateBalance(
-                          selectedAccountId.value,
-                          amount,
-                          isAdd: false,
-                        );
-                      } else if (selectedType.value == TransactionType.income) {
-                        await accountController.updateBalance(
-                          selectedAccountId.value,
-                          amount,
-                          isAdd: true,
-                        );
-                      }
-
-                      accountController.loadAccounts();
-                      if (context.mounted) Get.back();
-                    }
-                  },
-                  child: const Text(AppStrings.save),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showEditTransferBottomSheet(
-    BuildContext context,
-    TransactionController controller,
-    AccountController accountController,
-    TransactionModel transaction,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => TransferFormWidget(
-        existingTransfer: transaction,
+      builder: (context) => AddTransactionFormWidget(
+        existingTransaction: transaction,
         onSaved: () {
           controller.loadTransactions();
           accountController.loadAccounts();

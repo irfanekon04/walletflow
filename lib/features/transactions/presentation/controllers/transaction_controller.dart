@@ -97,6 +97,119 @@ class TransactionController extends GetxController {
     loadTransactions();
   }
 
+  Future<void> addTransfer({
+    required String fromAccountId,
+    required String toAccountId,
+    required double amount,
+    String? note,
+    required DateTime date,
+  }) async {
+    if (fromAccountId == toAccountId) {
+      throw Exception('Cannot transfer to the same account');
+    }
+
+    await _transactionRepo.create(
+      accountId: fromAccountId,
+      type: TransactionType.transfer,
+      amount: amount,
+      note: note,
+      date: date,
+      toAccountId: toAccountId,
+    );
+    
+    final accountController = Get.find<AccountController>();
+    await accountController.updateBalance(fromAccountId, amount, isAdd: false);
+    await accountController.updateBalance(toAccountId, amount, isAdd: true);
+    
+    loadTransactions();
+  }
+
+  Future<void> updateTransfer({
+    required TransactionModel transaction,
+    required String newFromAccountId,
+    required String newToAccountId,
+    required double newAmount,
+    String? newNote,
+    required DateTime newDate,
+  }) async {
+    if (newFromAccountId == newToAccountId) {
+      throw Exception('Cannot transfer to the same account');
+    }
+
+    final oldFromAccountId = transaction.accountId;
+    final oldToAccountId = transaction.toAccountId;
+    final oldAmount = transaction.amount;
+
+    final accountController = Get.find<AccountController>();
+    
+    if (oldToAccountId != null) {
+      await accountController.updateBalance(oldFromAccountId, oldAmount, isAdd: true);
+      await accountController.updateBalance(oldToAccountId, oldAmount, isAdd: false);
+    }
+
+    await accountController.updateBalance(newFromAccountId, newAmount, isAdd: false);
+    await accountController.updateBalance(newToAccountId, newAmount, isAdd: true);
+
+    transaction.accountId = newFromAccountId;
+    transaction.toAccountId = newToAccountId;
+    transaction.amount = newAmount;
+    transaction.note = newNote;
+    transaction.date = newDate;
+    
+    await _transactionRepo.update(transaction);
+    loadTransactions();
+  }
+
+  Future<void> updateTransactionWithTypeChange({
+    required TransactionModel transaction,
+    required TransactionType newType,
+    required String newAccountId,
+    required String? newToAccountId,
+    required double newAmount,
+    String? newCategoryId,
+    String? newNote,
+    required DateTime newDate,
+  }) async {
+    final accountController = Get.find<AccountController>();
+    
+    final oldType = transaction.type;
+    final oldAccountId = transaction.accountId;
+    final oldToAccountId = transaction.toAccountId;
+    final oldAmount = transaction.amount;
+    
+    // Reverse old transaction effects
+    if (oldType == TransactionType.expense) {
+      await accountController.updateBalance(oldAccountId, oldAmount, isAdd: true);
+    } else if (oldType == TransactionType.income) {
+      await accountController.updateBalance(oldAccountId, oldAmount, isAdd: false);
+    } else if (oldType == TransactionType.transfer && oldToAccountId != null) {
+      await accountController.updateBalance(oldAccountId, oldAmount, isAdd: true);
+      await accountController.updateBalance(oldToAccountId, oldAmount, isAdd: false);
+    }
+    
+    // Apply new transaction effects
+    if (newType == TransactionType.expense) {
+      await accountController.updateBalance(newAccountId, newAmount, isAdd: false);
+    } else if (newType == TransactionType.income) {
+      await accountController.updateBalance(newAccountId, newAmount, isAdd: true);
+    } else if (newType == TransactionType.transfer && newToAccountId != null) {
+      await accountController.updateBalance(newAccountId, newAmount, isAdd: false);
+      await accountController.updateBalance(newToAccountId, newAmount, isAdd: true);
+    }
+    
+    // Update transaction
+    transaction.type = newType;
+    transaction.accountId = newAccountId;
+    transaction.toAccountId = newToAccountId;
+    transaction.amount = newAmount;
+    transaction.categoryId = newCategoryId;
+    transaction.note = newNote;
+    transaction.date = newDate;
+    
+    await _transactionRepo.update(transaction);
+    loadTransactions();
+  }
+
   TransactionModel? getTransactionById(String id) {
     return _transactionRepo.getById(id);
   }

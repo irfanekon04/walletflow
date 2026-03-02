@@ -50,7 +50,12 @@ class BudgetsPage extends StatelessWidget {
         }
 
         return ListView.builder(
-          padding: EdgeInsets.all(context.responsivePadding),
+          padding: EdgeInsets.only(
+            top: AppDimensions.paddingS,
+            left: context.responsivePadding,
+            right: context.responsivePadding,
+            bottom: 120,
+          ),
           itemCount: controller.budgets.length,
           itemBuilder: (context, index) {
             final budget = controller.budgets[index];
