@@ -109,6 +109,7 @@ class BudgetsPage extends StatelessWidget {
                                 category?.name ?? 'Category',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface,
                                 ),
                               ),
                               Text(

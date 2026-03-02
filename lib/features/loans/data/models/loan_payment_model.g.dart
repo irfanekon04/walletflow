@@ -21,13 +21,14 @@ class LoanPaymentModelAdapter extends TypeAdapter<LoanPaymentModel> {
       createdAt: fields[5] as DateTime,
       isSynced: fields[6] as bool,
       userId: fields[7] as String?,
+      accountId: fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, LoanPaymentModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -43,7 +44,9 @@ class LoanPaymentModelAdapter extends TypeAdapter<LoanPaymentModel> {
       ..writeByte(6)
       ..write(obj.isSynced)
       ..writeByte(7)
-      ..write(obj.userId);
+      ..write(obj.userId)
+      ..writeByte(8)
+      ..write(obj.accountId);
   }
 
   @override

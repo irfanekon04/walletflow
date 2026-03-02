@@ -48,6 +48,9 @@ class LoanModel extends HiveObject {
   @HiveField(11)
   String? userId;
 
+  @HiveField(12)
+  String accountId;
+
   LoanModel({
     required this.id,
     required this.type,
@@ -61,6 +64,7 @@ class LoanModel extends HiveObject {
     required this.updatedAt,
     this.isSynced = false,
     this.userId,
+    required this.accountId,
   });
 
   double get paidAmount => originalAmount - remainingAmount;
@@ -80,6 +84,7 @@ class LoanModel extends HiveObject {
     DateTime? updatedAt,
     bool? isSynced,
     String? userId,
+    String? accountId,
   }) {
     return LoanModel(
       id: id ?? this.id,
@@ -94,6 +99,7 @@ class LoanModel extends HiveObject {
       updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,
       userId: userId ?? this.userId,
+      accountId: accountId ?? this.accountId,
     );
   }
 
@@ -111,6 +117,7 @@ class LoanModel extends HiveObject {
       'updatedAt': updatedAt.toIso8601String(),
       'isSynced': isSynced,
       'userId': userId,
+      'accountId': accountId,
     };
   }
 
@@ -128,6 +135,7 @@ class LoanModel extends HiveObject {
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       isSynced: json['isSynced'] as bool? ?? false,
       userId: json['userId'] as String?,
+      accountId: json['accountId'] as String,
     );
   }
 }

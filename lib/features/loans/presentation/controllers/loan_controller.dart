@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import '../../data/models/loan_model.dart';
 import '../../data/models/loan_payment_model.dart';
 import '../../data/repositories/loan_repository.dart';
+import '../../../accounts/data/models/account_model.dart';
+import '../../../accounts/presentation/controllers/account_controller.dart';
 
 class LoanController extends GetxController {
   final LoanRepository _repository = LoanRepository();
@@ -35,6 +37,7 @@ class LoanController extends GetxController {
     required String personName,
     required double amount,
     required DateTime date,
+    required String accountId,
     String? note,
   }) async {
     await _repository.create(
@@ -42,9 +45,11 @@ class LoanController extends GetxController {
       personName: personName,
       amount: amount,
       date: date,
+      accountId: accountId,
       note: note,
     );
     loadLoans();
+    _refreshAccountBalance(accountId);
   }
 
   Future<void> updateLoan(LoanModel loan) async {
@@ -57,9 +62,26 @@ class LoanController extends GetxController {
     loadLoans();
   }
 
-  Future<void> addPayment(String loanId, double amount, {String? note}) async {
-    await _repository.addPayment(loanId, amount, note: note);
+  Future<void> addPayment({
+    required String loanId,
+    required double amount,
+    required String accountId,
+    String? note,
+  }) async {
+    await _repository.addPayment(
+      loanId: loanId,
+      amount: amount,
+      accountId: accountId,
+      note: note,
+    );
     loadLoans();
+    _refreshAccountBalance(accountId);
+  }
+
+  void _refreshAccountBalance(String accountId) {
+    if (Get.isRegistered<AccountController>()) {
+      Get.find<AccountController>().loadAccounts();
+    }
   }
 
   Future<void> markAsCompleted(String id) async {
@@ -69,6 +91,10 @@ class LoanController extends GetxController {
 
   LoanModel? getLoanById(String id) {
     return _repository.getById(id);
+  }
+
+  AccountModel? getAccountById(String id) {
+    return _repository.getAccountById(id);
   }
 
   List<LoanPaymentModel> getPayments(String loanId) {

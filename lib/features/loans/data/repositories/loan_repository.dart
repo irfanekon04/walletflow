@@ -2,12 +2,14 @@ import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
 import '../models/loan_model.dart';
 import '../models/loan_payment_model.dart';
+import '../../../accounts/data/models/account_model.dart';
 
 class LoanRepository {
   final _uuid = const Uuid();
 
   Box<LoanModel> get _loanBox => Hive.box<LoanModel>('loans');
   Box<LoanPaymentModel> get _paymentBox => Hive.box<LoanPaymentModel>('loan_payments');
+  Box<AccountModel> get _accountBox => Hive.box<AccountModel>('accounts');
 
   List<LoanModel> getAll() {
     return _loanBox.values.toList();
@@ -35,11 +37,20 @@ class LoanRepository {
     }
   }
 
+  AccountModel? getAccountById(String id) {
+    try {
+      return _accountBox.values.firstWhere((a) => a.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<LoanModel> create({
     required LoanType type,
     required String personName,
     required double amount,
     required DateTime date,
+    required String accountId,
     String? note,
   }) async {
     final now = DateTime.now();
@@ -53,8 +64,10 @@ class LoanRepository {
       note: note,
       createdAt: now,
       updatedAt: now,
+      accountId: accountId,
     );
     await _loanBox.put(loan.id, loan);
+    _updateAccountBalance(accountId, amount, type, isCreate: true);
     return loan;
   }
 
@@ -73,7 +86,12 @@ class LoanRepository {
     }
   }
 
-  Future<void> addPayment(String loanId, double amount, {String? note}) async {
+  Future<void> addPayment({
+    required String loanId,
+    required double amount,
+    required String accountId,
+    String? note,
+  }) async {
     final loan = getById(loanId);
     if (loan != null) {
       final payment = LoanPaymentModel(
@@ -83,9 +101,12 @@ class LoanRepository {
         date: DateTime.now(),
         note: note,
         createdAt: DateTime.now(),
+        accountId: accountId,
       );
       await _paymentBox.put(payment.id, payment);
-      
+
+      _updateAccountBalance(accountId, amount, loan.type, isCreate: false);
+
       loan.remainingAmount -= amount;
       if (loan.remainingAmount <= 0) {
         loan.remainingAmount = 0;
@@ -94,6 +115,26 @@ class LoanRepository {
       loan.updatedAt = DateTime.now();
       loan.isSynced = false;
       await _loanBox.put(loan.id, loan);
+    }
+  }
+
+  void _updateAccountBalance(String accountId, double amount, LoanType loanType, {bool isCreate = false}) {
+    final account = getAccountById(accountId);
+    if (account != null) {
+      if (isCreate) {
+        if (loanType == LoanType.lent) {
+          account.balance -= amount;
+        } else {
+          account.balance += amount;
+        }
+      } else {
+        if (loanType == LoanType.lent) {
+          account.balance += amount;
+        } else {
+          account.balance -= amount;
+        }
+      }
+      _accountBox.put(account.id, account);
     }
   }
 

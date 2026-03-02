@@ -28,6 +28,9 @@ class LoanPaymentModel extends HiveObject {
   @HiveField(7)
   String? userId;
 
+  @HiveField(8)
+  String accountId;
+
   LoanPaymentModel({
     required this.id,
     required this.loanId,
@@ -37,6 +40,7 @@ class LoanPaymentModel extends HiveObject {
     required this.createdAt,
     this.isSynced = false,
     this.userId,
+    required this.accountId,
   });
 
   LoanPaymentModel copyWith({
@@ -48,6 +52,7 @@ class LoanPaymentModel extends HiveObject {
     DateTime? createdAt,
     bool? isSynced,
     String? userId,
+    String? accountId,
   }) {
     return LoanPaymentModel(
       id: id ?? this.id,
@@ -58,6 +63,7 @@ class LoanPaymentModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       isSynced: isSynced ?? this.isSynced,
       userId: userId ?? this.userId,
+      accountId: accountId ?? this.accountId,
     );
   }
 
@@ -71,6 +77,7 @@ class LoanPaymentModel extends HiveObject {
       'createdAt': createdAt.toIso8601String(),
       'isSynced': isSynced,
       'userId': userId,
+      'accountId': accountId,
     };
   }
 
@@ -84,6 +91,7 @@ class LoanPaymentModel extends HiveObject {
       createdAt: DateTime.parse(json['createdAt'] as String),
       isSynced: json['isSynced'] as bool? ?? false,
       userId: json['userId'] as String?,
+      accountId: json['accountId'] as String,
     );
   }
 }
