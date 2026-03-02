@@ -285,6 +285,9 @@ class TransactionController extends GetxController {
   }
 
 
+  
+
+
   IconData getCategoryIcon(String icon) {
     switch (icon) {
       case 'restaurant':

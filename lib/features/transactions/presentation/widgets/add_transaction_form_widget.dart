@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:walletflow/features/transactions/presentation/widgets/transaction_form_helpers/amount_field.dart';
+import 'package:walletflow/features/transactions/presentation/widgets/transaction_form_helpers/note_field.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
@@ -84,7 +86,7 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
             _buildTypeSelector(),
             SizedBox(height: 20),
 
-            _buildAmountField(theme),
+            AmountField(amountController: _amountController, theme: theme),
             SizedBox(height: 20),
 
             _buildFromAccountDropdown(accountController),
@@ -100,7 +102,7 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
             ],
 
             SizedBox(height: 16),
-            _buildNoteField(),
+            NoteField(noteController: _noteController),
             SizedBox(height: 24),
 
             _buildSaveButton(transactionController, accountController),
@@ -195,23 +197,6 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildAmountField(ThemeData theme) {
-    return TextField(
-      controller: _amountController,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      style: theme.textTheme.headlineMedium,
-      textAlign: TextAlign.center,
-      decoration: InputDecoration(
-        labelText: 'Amount',
-        prefixText: '\$ ',
-        filled: true,
-        fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.3,
-        ),
-      ),
     );
   }
 
@@ -338,13 +323,6 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
           _selectedCategoryId = value ?? '';
         });
       },
-    );
-  }
-
-  Widget _buildNoteField() {
-    return TextField(
-      controller: _noteController,
-      decoration: const InputDecoration(labelText: 'Note (optional)'),
     );
   }
 
