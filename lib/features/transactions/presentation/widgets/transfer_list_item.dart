@@ -22,22 +22,24 @@ class TransferListItem extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = context.screenWidth;
     final isCompact = screenWidth < 360;
-    
+
     final numberFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('MMM dd');
-    
+
     final accountController = Get.find<AccountController>();
-    final fromAccount = accountController.accounts
-        .firstWhereOrNull((a) => a.id == transaction.accountId);
-    final toAccount = accountController.accounts
-        .firstWhereOrNull((a) => a.id == transaction.toAccountId);
+    final fromAccount = accountController.accounts.firstWhereOrNull(
+      (a) => a.id == transaction.accountId,
+    );
+    final toAccount = accountController.accounts.firstWhereOrNull(
+      (a) => a.id == transaction.toAccountId,
+    );
 
     return Card(
       margin: EdgeInsets.symmetric(
         horizontal: context.responsivePadding,
         vertical: AppDimensions.paddingXS,
       ),
-      elevation: 1,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusM),
       ),
@@ -50,7 +52,7 @@ class TransferListItem extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: isCompact ? 18 : 22,
-                backgroundColor: colorScheme.tertiary.withValues(alpha:  0.15),
+                backgroundColor: colorScheme.tertiary.withValues(alpha: 0.15),
                 child: Icon(
                   Icons.swap_horiz,
                   size: isCompact ? 18 : 22,
@@ -73,18 +75,19 @@ class TransferListItem extends StatelessWidget {
                     Text(
                       'From ${fromAccount?.name ?? 'Unknown'} → To ${toAccount?.name ?? 'Unknown'}',
                       style: TextStyle(
-                        color: colorScheme.onSurface.withValues(alpha:  0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                         fontSize: isCompact ? 11 : 13,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (transaction.note != null && transaction.note!.isNotEmpty) ...[
+                    if (transaction.note != null &&
+                        transaction.note!.isNotEmpty) ...[
                       SizedBox(height: 2),
                       Text(
                         transaction.note!,
                         style: TextStyle(
-                          color: colorScheme.onSurface.withValues(alpha:  0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                           fontSize: isCompact ? 10 : 12,
                           fontStyle: FontStyle.italic,
                         ),
@@ -110,7 +113,7 @@ class TransferListItem extends StatelessWidget {
                   Text(
                     dateFormat.format(transaction.date),
                     style: TextStyle(
-                      color: colorScheme.onSurface.withValues(alpha:  0.5),
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
                       fontSize: isCompact ? 10 : 12,
                     ),
                   ),

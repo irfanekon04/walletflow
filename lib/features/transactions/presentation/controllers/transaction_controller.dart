@@ -251,6 +251,40 @@ class TransactionController extends GetxController {
   }
 
 
+  Future<void> deleteTransactionAndAdjustBalance(TransactionModel tx) async {
+    await deleteTransaction(tx.id);
+
+    final accountController = Get.find<AccountController>();
+
+    if (tx.type == TransactionType.expense) {
+      await accountController.updateBalance(
+        tx.accountId,
+        tx.amount,
+        isAdd: true,
+      );
+    } else if (tx.type == TransactionType.income) {
+      await accountController.updateBalance(
+        tx.accountId,
+        tx.amount,
+        isAdd: false,
+      );
+    } else if (tx.type == TransactionType.transfer && tx.toAccountId != null) {
+      await accountController.updateBalance(
+        tx.accountId,
+        tx.amount,
+        isAdd: true,
+      );
+      await accountController.updateBalance(
+        tx.toAccountId!,
+        tx.amount,
+        isAdd: false,
+      );
+    }
+
+    accountController.loadAccounts();
+  }
+
+
   IconData getCategoryIcon(String icon) {
     switch (icon) {
       case 'restaurant':

@@ -292,17 +292,7 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
         prefixIcon: Icon(Icons.arrow_downward),
       ),
       items: availableAccounts
-          .map(
-            (acc) => DropdownMenuItem(
-              value: acc.id,
-              child: Text(
-                acc.name,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-            ),
-          )
+          .map((acc) => DropdownMenuItem(value: acc.id, child: Text(acc.name)))
           .toList(),
       onChanged: (value) {
         setState(() {
