@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/services/export_service.dart';
+import '../../../../core/services/data_clear_service.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 
@@ -508,26 +509,92 @@ class SettingsPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear All Data'),
-        content: const Text(
-          'This will permanently delete all your data. This action cannot be undone.',
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error),
+            const SizedBox(width: 8),
+            const Text('Clear All Data'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('This will permanently delete all your data including:'),
+            SizedBox(height: 12),
+            Text('• Accounts'),
+            Text('• Transactions'),
+            Text('• Budgets'),
+            Text('• Loans'),
+            SizedBox(height: 12),
+            Text(
+              'This action cannot be undone.',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+            ),
+          ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () => Navigator.pop(context),
             child: const Text(AppStrings.cancel),
           ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _clearLocalData();
+            },
+            child: const Text('Clear Local Data'),
+          ),
           FilledButton(
-            onPressed: () {},
+            onPressed: () async {
+              Navigator.pop(context);
+              await _clearAllData();
+            },
             style: FilledButton.styleFrom(
               backgroundColor: theme.colorScheme.error,
               foregroundColor: theme.colorScheme.onError,
             ),
-            child: const Text('Clear'),
+            child: const Text('Clear All Data'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _clearLocalData() async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+    
+    final dataClearService = DataClearService();
+    await dataClearService.clearAllLocalData();
+    
+    Get.back(); // Close loading dialog
+    
+    // Refresh controllers
+    Get.find<AccountController>().loadAccounts();
+    
+    Get.snackbar(
+      'Success',
+      'All local data has been cleared',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  Future<void> _clearAllData() async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+    
+    final dataClearService = DataClearService();
+    await dataClearService.clearAllDataIncludingCloud();
+    
+    Get.back(); // Close loading dialog
+    
+    // Navigate to login
+    Get.offAllNamed('/login');
   }
 
   IconData _getAccountIcon(AccountType type) {
