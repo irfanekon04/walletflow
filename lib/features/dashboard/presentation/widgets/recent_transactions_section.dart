@@ -18,12 +18,8 @@ class RecentTransactionsSection extends StatelessWidget {
   final BuildContext context;
   final TransactionController controller;
   final NumberFormat format;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    IconData getCategoryIcon(String icon) {
+  
+  IconData getCategoryIcon(String icon) {
       switch (icon) {
         case 'restaurant':
           return Icons.restaurant_outlined;
@@ -45,6 +41,10 @@ class RecentTransactionsSection extends StatelessWidget {
           return Icons.category_outlined;
       }
     }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

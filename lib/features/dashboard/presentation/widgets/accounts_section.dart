@@ -16,12 +16,9 @@ class AccountsSection extends StatelessWidget {
   final BuildContext context;
   final AccountController controller;
   final NumberFormat format;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    IconData getAccountIcon(String type) {
+  
+  
+  IconData getAccountIcon(String type) {
       switch (type) {
         case 'cash':
           return Icons.account_balance_wallet_outlined;
@@ -35,6 +32,10 @@ class AccountsSection extends StatelessWidget {
           return Icons.account_balance_wallet_outlined;
       }
     }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
