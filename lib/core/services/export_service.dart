@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:csv/csv.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:file_saver/file_saver.dart';
 import '../database/database_service.dart';
 import '../../features/accounts/data/models/account_model.dart';
 import '../../features/transactions/data/models/transaction_model.dart';
@@ -46,25 +47,7 @@ class ExportService {
   }
   
   Future<File> saveCSVToFile(String csvContent) async {
-    // Get Downloads directory
-    Directory? directory;
-    
-    if (Platform.isAndroid) {
-      // Try to get external storage directory (Downloads folder)
-      directory = await getExternalStorageDirectory();
-      if (directory != null) {
-        // Navigate to Downloads folder
-        final downloadsPath = directory.path.replaceAll('/Android/data/com.walletflow.app/files', '/Download');
-        directory = Directory(downloadsPath);
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-      }
-    }
-    
-    // Fallback to app documents directory
-    directory ??= await getApplicationDocumentsDirectory();
-    
+    final directory = await getTemporaryDirectory();
     final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
     final file = File('${directory.path}/walletflow_export_$timestamp.csv');
     await file.writeAsString(csvContent);
@@ -73,15 +56,6 @@ class ExportService {
   
   Future<void> saveToDownloads() async {
     try {
-      // Request storage permission for Android
-      if (Platform.isAndroid) {
-        final status = await Permission.storage.request();
-        if (!status.isGranted) {
-          // Try manage external storage for broader access
-          await Permission.manageExternalStorage.request();
-        }
-      }
-      
       final csvContent = await exportTransactionsToCSV();
       
       if (csvContent.split('\n').length <= 1) {
@@ -93,13 +67,20 @@ class ExportService {
         return;
       }
       
-      final file = await saveCSVToFile(csvContent);
+      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      final fileName = 'walletflow_export_$timestamp.csv';
+      
+      final Uint8List bytes = Uint8List.fromList(csvContent.codeUnits);
+      await FileSaver.instance.saveFile(
+        name: fileName,
+        bytes: bytes,
+        mimeType: MimeType.csv,
+      );
       
       Get.snackbar(
         'Export Successful',
-        'Saved to: ${file.path}',
+        'File saved: $fileName',
         snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 4),
       );
     } catch (e) {
       Get.snackbar(
