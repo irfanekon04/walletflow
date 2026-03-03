@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../data/models/loan_model.dart';
 import '../controllers/loan_controller.dart';
 import '../widgets/account_dropdown.dart';
@@ -363,9 +364,9 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.025)),
-                TextFormField(
+                AppTextField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Person Name'),
+                  label: 'Person Name',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a name';
@@ -374,17 +375,9 @@ class LoansPage extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                TextFormField(
+                AppAmountField(
                   controller: amountController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    prefixText: '\$ ',
-                  ),
+                  label: 'Amount',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter an amount';
@@ -406,44 +399,38 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.04)),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56 * context.responsiveFontSize,
-                  child: FilledButton(
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        if (selectedAccountId.value == null) {
-                          Get.snackbar(
-                            'Account Required',
-                            'Please select an account',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                          return;
-                        }
-                        final amount = double.tryParse(amountController.text);
-                        if (amount != null &&
-                            amount > 0 &&
-                            nameController.text.isNotEmpty) {
-                          if (loan == null) {
-                            await controller.addLoan(
-                              personName: nameController.text,
-                              amount: amount,
-                              type: selectedType.value,
-                              date: DateTime.now(),
-                              accountId: selectedAccountId.value!,
-                            );
-                          } else {
-                            loan.personName = nameController.text;
-                            loan.amount = amount;
-                            loan.type = selectedType.value;
-                            await controller.updateLoan(loan);
-                          }
-                          Get.back();
-                        }
+                AppButton(
+                  label: AppStrings.save,
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      if (selectedAccountId.value == null) {
+                        SnackbarHelper.error(
+                          'Please select an account',
+                        );
+                        return;
                       }
-                    },
-                    child: const Text(AppStrings.save),
-                  ),
+                      final amount = double.tryParse(amountController.text);
+                      if (amount != null &&
+                          amount > 0 &&
+                          nameController.text.isNotEmpty) {
+                        if (loan == null) {
+                          await controller.addLoan(
+                            personName: nameController.text,
+                            amount: amount,
+                            type: selectedType.value,
+                            date: DateTime.now(),
+                            accountId: selectedAccountId.value!,
+                          );
+                        } else {
+                          loan.personName = nameController.text;
+                          loan.amount = amount;
+                          loan.type = selectedType.value;
+                          await controller.updateLoan(loan);
+                        }
+                        Get.back();
+                      }
+                    }
+                  },
                 ),
               ],
             ),
@@ -652,17 +639,9 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.03)),
-                TextFormField(
+                AppAmountField(
                   controller: amountController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'Payment Amount',
-                    prefixText: '\$ ',
-                  ),
+                  label: 'Payment Amount',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter an amount';
@@ -689,54 +668,46 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                TextField(
+                AppTextField(
                   controller: noteController,
-                  decoration: const InputDecoration(
-                    labelText: 'Note (optional)',
-                  ),
+                  label: 'Note (optional)',
                 ),
                 SizedBox(height: context.responsiveHeight(0.04)),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56 * context.responsiveFontSize,
-                  child: FilledButton(
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        if (selectedAccountId.value == null) {
-                          Get.snackbar(
-                            'Account Required',
-                            'Please select an account',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                          return;
-                        }
-                        final amount = double.parse(amountController.text);
-                        final account = controller.getAccountById(
-                          selectedAccountId.value!,
+                AppButton(
+                  label: AppStrings.save,
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      if (selectedAccountId.value == null) {
+                        SnackbarHelper.error(
+                          'Please select an account',
                         );
-
-                        final confirmed = await PaymentConfirmationDialog.show(
-                          context: context,
-                          amount: amount,
-                          accountName: account?.name ?? 'Unknown',
-                          isLent: isLent,
-                        );
-
-                        if (confirmed == true) {
-                          await controller.addPayment(
-                            loanId: loan.id,
-                            amount: amount,
-                            accountId: selectedAccountId.value!,
-                            note: noteController.text.isEmpty
-                                ? null
-                                : noteController.text,
-                          );
-                          Get.back();
-                        }
+                        return;
                       }
-                    },
-                    child: const Text('Confirm Payment'),
-                  ),
+                      final amount = double.parse(amountController.text);
+                      final account = controller.getAccountById(
+                        selectedAccountId.value!,
+                      );
+
+                      final confirmed = await PaymentConfirmationDialog.show(
+                        context: context,
+                        amount: amount,
+                        accountName: account?.name ?? 'Unknown',
+                        isLent: isLent,
+                      );
+
+                      if (confirmed == true) {
+                        await controller.addPayment(
+                          loanId: loan.id,
+                          amount: amount,
+                          accountId: selectedAccountId.value!,
+                          note: noteController.text.isEmpty
+                              ? null
+                              : noteController.text,
+                        );
+                        Get.back();
+                      }
+                    }
+                  },
                 ),
               ],
             ),
