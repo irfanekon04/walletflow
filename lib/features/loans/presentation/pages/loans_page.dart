@@ -235,7 +235,8 @@ class LoansPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    controller.getAccountById(loan.accountId)?.name ?? 'Unknown Account',
+                    controller.getAccountById(loan.accountId)?.name ??
+                        'Unknown Account',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.primary,
                       fontSize: 10,
@@ -326,34 +327,41 @@ class LoansPage extends StatelessWidget {
                     onSelectionChanged: (val) => selectedType.value = val.first,
                   ),
                 ),
-                Obx(() => Container(
-                  margin: EdgeInsets.only(top: context.responsiveHeight(0.01)),
-                  padding: EdgeInsets.all(context.responsivePadding * 0.5),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusS),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 14,
-                        color: theme.colorScheme.onSurfaceVariant,
+                Obx(
+                  () => Container(
+                    margin: EdgeInsets.only(
+                      top: context.responsiveHeight(0.01),
+                    ),
+                    padding: EdgeInsets.all(context.responsivePadding * 0.5),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusS,
                       ),
-                      SizedBox(width: context.responsivePadding * 0.25),
-                      Expanded(
-                        child: Text(
-                          selectedType.value == LoanType.lent
-                              ? 'Lent: You give money to someone (deducted from account)'
-                              : 'Owed: You borrow money from someone (added to account)',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 14,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        SizedBox(width: context.responsivePadding * 0.25),
+                        Expanded(
+                          child: Text(
+                            selectedType.value == LoanType.lent
+                                ? 'Lent: You give money to someone (deducted from account)'
+                                : 'Owed: You borrow money from someone (added to account)',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                )),
+                ),
                 SizedBox(height: context.responsiveHeight(0.025)),
                 TextFormField(
                   controller: nameController,
@@ -464,7 +472,7 @@ class LoansPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Total Amount: ${format.format(loan.amount)}',
+              'Total ${isLent ? 'Lent' : 'Owed'} Amount: ${format.format(loan.amount)}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Text('Paid: ${format.format(loan.paidAmount)}'),
@@ -484,7 +492,9 @@ class LoansPage extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(context.responsivePadding * 0.5),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                  color: theme.colorScheme.primaryContainer.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(AppDimensions.radiusS),
                 ),
                 child: Row(
@@ -498,7 +508,9 @@ class LoansPage extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Account: ${controller.getAccountById(loan.accountId)?.name ?? "Unknown"}',
-                        style: theme.textTheme.bodySmall,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -512,9 +524,18 @@ class LoansPage extends StatelessWidget {
             FilledButton.icon(
               onPressed: () {
                 Get.back();
-                _showAddPaymentDialog(context, controller, loan, format, remaining);
+                _showAddPaymentDialog(
+                  context,
+                  controller,
+                  loan,
+                  format,
+                  remaining,
+                );
               },
-              icon: Icon(isLent ? Icons.call_received : Icons.call_made, size: 18),
+              icon: Icon(
+                isLent ? Icons.call_received : Icons.call_made,
+                size: 18,
+              ),
               label: const Text('Add Payment'),
             ),
           TextButton(
@@ -591,10 +612,18 @@ class LoansPage extends StatelessWidget {
                   margin: EdgeInsets.only(top: context.responsiveHeight(0.015)),
                   padding: EdgeInsets.all(context.responsivePadding * 0.5),
                   decoration: BoxDecoration(
-                    color: (isLent ? theme.colorScheme.primary : theme.colorScheme.error).withValues(alpha: 0.1),
+                    color:
+                        (isLent
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.error)
+                            .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppDimensions.radiusS),
                     border: Border.all(
-                      color: (isLent ? theme.colorScheme.primary : theme.colorScheme.error).withValues(alpha: 0.3),
+                      color:
+                          (isLent
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.error)
+                              .withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -602,7 +631,9 @@ class LoansPage extends StatelessWidget {
                       Icon(
                         isLent ? Icons.call_received : Icons.call_made,
                         size: 16,
-                        color: isLent ? theme.colorScheme.primary : theme.colorScheme.error,
+                        color: isLent
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.error,
                       ),
                       SizedBox(width: context.responsivePadding * 0.25),
                       Expanded(
@@ -611,7 +642,9 @@ class LoansPage extends StatelessWidget {
                               ? 'Payment received: Adds money to your account (income)'
                               : 'Payment made: Deducts money from your account (expense)',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: isLent ? theme.colorScheme.primary : theme.colorScheme.error,
+                            color: isLent
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.error,
                           ),
                         ),
                       ),
@@ -621,7 +654,9 @@ class LoansPage extends StatelessWidget {
                 SizedBox(height: context.responsiveHeight(0.03)),
                 TextFormField(
                   controller: amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   style: theme.textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                   decoration: const InputDecoration(
@@ -648,7 +683,9 @@ class LoansPage extends StatelessWidget {
                     selectedAccountId: selectedAccountId.value,
                     onChanged: (value) => selectedAccountId.value = value,
                     isRequired: true,
-                    labelText: isLent ? 'Receive to Account *' : 'Pay from Account *',
+                    labelText: isLent
+                        ? 'Receive to Account *'
+                        : 'Pay from Account *',
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
@@ -674,21 +711,25 @@ class LoansPage extends StatelessWidget {
                           return;
                         }
                         final amount = double.parse(amountController.text);
-                        final account = controller.getAccountById(selectedAccountId.value!);
-                        
+                        final account = controller.getAccountById(
+                          selectedAccountId.value!,
+                        );
+
                         final confirmed = await PaymentConfirmationDialog.show(
                           context: context,
                           amount: amount,
                           accountName: account?.name ?? 'Unknown',
                           isLent: isLent,
                         );
-                        
+
                         if (confirmed == true) {
                           await controller.addPayment(
                             loanId: loan.id,
                             amount: amount,
                             accountId: selectedAccountId.value!,
-                            note: noteController.text.isEmpty ? null : noteController.text,
+                            note: noteController.text.isEmpty
+                                ? null
+                                : noteController.text,
                           );
                           Get.back();
                         }

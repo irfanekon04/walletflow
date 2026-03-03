@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/services/export_service.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 
@@ -67,7 +68,10 @@ class SettingsPage extends StatelessWidget {
                   title: const Text('Export Data'),
                   subtitle: const Text('Download as CSV'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () {
+                    final exportService = ExportService();
+                    exportService.exportAndShare();
+                  },
                 ),
                 const Divider(height: 1),
                 ListTile(

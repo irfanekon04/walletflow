@@ -260,7 +260,7 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     final availableAccounts = accountController.accounts
         .where((a) => a.id != _selectedAccountId)
         .toList();
-    // final theme = Theme.of(context);
+    final theme = Theme.of(context);
     // Validate current value exists in filtered list
     String? validValue;
     if (_selectedToAccountId.isNotEmpty) {
@@ -277,7 +277,17 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
         prefixIcon: Icon(Icons.arrow_downward),
       ),
       items: availableAccounts
-          .map((acc) => DropdownMenuItem(value: acc.id, child: Text(acc.name)))
+          .map(
+            (acc) => DropdownMenuItem(
+              value: acc.id,
+              child: Text(
+                acc.name,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+          )
           .toList(),
       onChanged: (value) {
         setState(() {

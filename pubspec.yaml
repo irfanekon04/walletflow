@@ -32,6 +32,7 @@ dependencies:
   csv: ^6.0.0
   path_provider: ^2.1.5
   share_plus: ^10.1.4
+  permission_handler: ^11.3.1
   
   # Environment
   flutter_dotenv: ^5.2.1

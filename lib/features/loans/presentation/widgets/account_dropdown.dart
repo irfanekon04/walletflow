@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../accounts/data/models/account_model.dart';
+// import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../../../core/utils/responsive.dart';
 
@@ -70,21 +70,27 @@ class AccountDropdown extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: _parseColor(account.color).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    _getAccountIcon(account.type),
-                    size: 18,
-                    color: _parseColor(account.color),
-                  ),
-                ),
-                SizedBox(width: context.responsivePadding * 0.5),
+                // Container(
+                //   padding: const EdgeInsets.all(6),
+                //   decoration: BoxDecoration(
+                //     color: _parseColor(account.color).withValues(alpha: 0.2),
+                //     borderRadius: BorderRadius.circular(8),
+                //   ),
+                //   child: Icon(
+                //     _getAccountIcon(account.type),
+                //     size: 18,
+                //     color: _parseColor(account.color),
+                //   ),
+                // ),
+                // SizedBox(width: context.responsivePadding * 0.5),
                 Flexible(
-                  child: Text(account.name, overflow: TextOverflow.ellipsis),
+                  child: Text(
+                    account.name,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
                 ),
                 SizedBox(width: context.responsivePadding * 0.5),
                 Text(
@@ -116,27 +122,27 @@ class AccountDropdown extends StatelessWidget {
     return isNegative ? '-\$$formatted' : '\$$formatted';
   }
 
-  Color _parseColor(String? colorString) {
-    if (colorString == null || colorString.isEmpty) {
-      return Colors.blue;
-    }
-    try {
-      return Color(int.parse(colorString.replaceFirst('#', '0xFF')));
-    } catch (e) {
-      return Colors.blue;
-    }
-  }
+  // Color _parseColor(String? colorString) {
+  //   if (colorString == null || colorString.isEmpty) {
+  //     return Colors.blue;
+  //   }
+  //   try {
+  //     return Color(int.parse(colorString.replaceFirst('#', '0xFF')));
+  //   } catch (e) {
+  //     return Colors.blue;
+  //   }
+  // }
 
-  IconData _getAccountIcon(AccountType type) {
-    switch (type) {
-      case AccountType.cash:
-        return Icons.money;
-      case AccountType.bank:
-        return Icons.account_balance;
-      case AccountType.mfs:
-        return Icons.phone_android;
-      case AccountType.creditCard:
-        return Icons.credit_card;
-    }
-  }
+  // IconData _getAccountIcon(AccountType type) {
+  //   switch (type) {
+  //     case AccountType.cash:
+  //       return Icons.money;
+  //     case AccountType.bank:
+  //       return Icons.account_balance;
+  //     case AccountType.mfs:
+  //       return Icons.phone_android;
+  //     case AccountType.creditCard:
+  //       return Icons.credit_card;
+  //   }
+  // }
 }
