@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
-import '../../../../core/widgets/widgets.dart';
 import '../../../../core/services/export_service.dart';
 import '../../../../core/services/data_clear_service.dart';
 import '../../../accounts/data/models/account_model.dart';
@@ -330,44 +329,65 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: context.responsiveHeight(0.03)),
-              AppTextField(
+              TextField(
                 controller: nameController,
-                label: 'Account Name',
+                decoration: const InputDecoration(labelText: 'Account Name'),
               ),
               const SizedBox(height: 16),
-              AppAmountField(
+              TextField(
                 controller: balanceController,
-                label: 'Initial Balance',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                style: theme.textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  labelText: 'Initial Balance',
+                  prefixText: '\$ ',
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.3),
+                ),
               ),
               const SizedBox(height: 16),
               Obx(() {
                 if (selectedType.value == AccountType.creditCard) {
-                  return AppAmountField(
+                  return TextField(
                     controller: creditLimitController,
-                    label: 'Credit Limit',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Credit Limit',
+                      prefixText: '\$ ',
+                    ),
                   );
                 }
                 return const SizedBox.shrink();
               }),
               SizedBox(height: context.responsiveHeight(0.04)),
-              AppButton(
-                label: AppStrings.save,
-                onPressed: () async {
-                  if (nameController.text.isNotEmpty) {
-                    final balance =
-                        double.tryParse(balanceController.text) ?? 0;
-                    final creditLimit = double.tryParse(
-                      creditLimitController.text,
-                    );
-                    await controller.addAccount(
-                      name: nameController.text,
-                      type: selectedType.value,
-                      balance: balance,
-                      creditLimit: creditLimit,
-                    );
-                    Get.back();
-                  }
-                },
+              SizedBox(
+                width: double.infinity,
+                height: 56 * context.responsiveFontSize,
+                child: FilledButton(
+                  onPressed: () async {
+                    if (nameController.text.isNotEmpty) {
+                      final balance =
+                          double.tryParse(balanceController.text) ?? 0;
+                      final creditLimit = double.tryParse(
+                        creditLimitController.text,
+                      );
+                      await controller.addAccount(
+                        name: nameController.text,
+                        type: selectedType.value,
+                        balance: balance,
+                        creditLimit: creditLimit,
+                      );
+                      Get.back();
+                    }
+                  },
+                  child: const Text(AppStrings.save),
+                ),
               ),
             ],
           ),
@@ -409,31 +429,41 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              AppTextField(
+              TextField(
                 controller: nameController,
-                label: 'Account Name',
+                decoration: const InputDecoration(labelText: 'Account Name'),
               ),
               const SizedBox(height: 16),
               if (account.type == AccountType.creditCard)
-                AppAmountField(
+                TextField(
                   controller: creditLimitController,
-                  label: 'Credit Limit',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Credit Limit',
+                    prefixText: '\$ ',
+                  ),
                 ),
               SizedBox(height: context.responsiveHeight(0.04)),
-              AppButton(
-                label: AppStrings.save,
-                onPressed: () async {
-                  if (nameController.text.isNotEmpty) {
-                    final updated = account.copyWith(
-                      name: nameController.text,
-                      creditLimit: double.tryParse(
-                        creditLimitController.text,
-                      ),
-                    );
-                    await controller.updateAccount(updated);
-                    Get.back();
-                  }
-                },
+              SizedBox(
+                width: double.infinity,
+                height: 56 * context.responsiveFontSize,
+                child: FilledButton(
+                  onPressed: () async {
+                    if (nameController.text.isNotEmpty) {
+                      final updated = account.copyWith(
+                        name: nameController.text,
+                        creditLimit: double.tryParse(
+                          creditLimitController.text,
+                        ),
+                      );
+                      await controller.updateAccount(updated);
+                      Get.back();
+                    }
+                  },
+                  child: const Text(AppStrings.save),
+                ),
               ),
             ],
           ),
@@ -446,18 +476,32 @@ class SettingsPage extends StatelessWidget {
     BuildContext context,
     AccountController controller,
     AccountModel account,
-  ) async {
-    final confirmed = await ConfirmDialog.show(
-      title: 'Delete Account',
-      message: 'Are you sure you want to delete "${account.name}"?',
-      confirmText: AppStrings.delete,
-      cancelText: AppStrings.cancel,
-      isDestructive: true,
+  ) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: Text('Are you sure you want to delete "${account.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(AppStrings.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              controller.deleteAccount(account.id);
+              Get.back();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
+            child: const Text(AppStrings.delete),
+          ),
+        ],
+      ),
     );
-    
-    if (confirmed == true) {
-      controller.deleteAccount(account.id);
-    }
   }
 
   void _showClearDataDialog(BuildContext context) {

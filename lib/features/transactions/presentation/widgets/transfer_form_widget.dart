@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
-import '../../../../core/widgets/widgets.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../data/models/transaction_model.dart';
 import '../controllers/transaction_controller.dart';
@@ -75,15 +74,23 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_fromAccountId == null || _toAccountId == null) {
-      SnackbarHelper.error(
+      Get.snackbar(
+        'Error',
         'Please select both accounts',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.expenseRed,
+        colorText: Colors.white,
       );
       return;
     }
 
     if (_fromAccountId == _toAccountId) {
-      SnackbarHelper.error(
+      Get.snackbar(
+        'Error',
         'Please select different accounts',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.expenseRed,
+        colorText: Colors.white,
       );
       return;
     }
@@ -155,8 +162,12 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
         widget.onSaved?.call();
       }
     } catch (e) {
-      SnackbarHelper.error(
+      Get.snackbar(
+        'Error',
         'Failed to save transfer: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.expenseRed,
+        colorText: Colors.white,
       );
     } finally {
       if (mounted) {
@@ -205,9 +216,37 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
               ),
               SizedBox(height: AppDimensions.paddingL),
 
-              AppAmountField(
+              TextFormField(
                 controller: _amountController,
-                label: 'Amount',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                style: TextStyle(fontSize: isCompact ? 16 : 18),
+                decoration: InputDecoration(
+                  labelText: 'Amount',
+                  prefixText: '\$ ',
+                  prefixStyle: TextStyle(
+                    fontSize: isCompact ? 16 : 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.paddingM,
+                    vertical: isCompact ? 12 : 16,
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter an amount';
+                  }
+                  final amount = double.tryParse(value);
+                  if (amount == null || amount <= 0) {
+                    return 'Please enter a valid amount';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: AppDimensions.paddingM),
 
@@ -327,18 +366,54 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
               ),
               SizedBox(height: AppDimensions.paddingM),
 
-              AppTextField(
+              TextFormField(
                 controller: _noteController,
-                label: 'Note (optional)',
-                prefixIcon: const Icon(Icons.note),
                 maxLines: 2,
+                style: TextStyle(fontSize: isCompact ? 14 : 16),
+                decoration: InputDecoration(
+                  labelText: 'Note (optional)',
+                  prefixIcon: const Icon(Icons.note),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.paddingM,
+                    vertical: isCompact ? 12 : 16,
+                  ),
+                ),
               ),
               SizedBox(height: AppDimensions.paddingL),
 
-              AppButton(
-                label: AppStrings.save,
-                isLoading: _isLoading,
-                onPressed: _saveTransfer,
+              SizedBox(
+                width: double.infinity,
+                height: AppDimensions.buttonHeight,
+                child: FilledButton(
+                  onPressed: _isLoading ? null : _saveTransfer,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.tertiary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusM,
+                      ),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          AppStrings.save,
+                          style: TextStyle(
+                            fontSize: isCompact ? 14 : 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
               ),
             ],
           ),
