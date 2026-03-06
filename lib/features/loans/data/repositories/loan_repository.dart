@@ -171,4 +171,20 @@ class LoanRepository {
       await _loanBox.put(loan.id, loan);
     }
   }
+
+  Future<void> addMore({
+    required String loanId,
+    required double additionalAmount,
+    required String accountId,
+  }) async {
+    final loan = getById(loanId);
+    if (loan != null) {
+      loan.originalAmount += additionalAmount;
+      loan.remainingAmount += additionalAmount;
+      loan.updatedAt = DateTime.now();
+      loan.isSynced = false;
+      await _loanBox.put(loan.id, loan);
+      _updateAccountBalance(accountId, additionalAmount, loan.type, isCreate: true);
+    }
+  }
 }
