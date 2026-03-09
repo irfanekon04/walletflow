@@ -67,7 +67,6 @@ class LoanRepository {
       accountId: accountId,
     );
     await _loanBox.put(loan.id, loan);
-    _updateAccountBalance(accountId, amount, type, isCreate: true);
     return loan;
   }
 
@@ -105,8 +104,6 @@ class LoanRepository {
       );
       await _paymentBox.put(payment.id, payment);
 
-      _updateAccountBalance(accountId, amount, loan.type, isCreate: false);
-
       loan.remainingAmount -= amount;
       if (loan.remainingAmount <= 0) {
         loan.remainingAmount = 0;
@@ -115,26 +112,6 @@ class LoanRepository {
       loan.updatedAt = DateTime.now();
       loan.isSynced = false;
       await _loanBox.put(loan.id, loan);
-    }
-  }
-
-  void _updateAccountBalance(String accountId, double amount, LoanType loanType, {bool isCreate = false}) {
-    final account = getAccountById(accountId);
-    if (account != null) {
-      if (isCreate) {
-        if (loanType == LoanType.lent) {
-          account.balance -= amount;
-        } else {
-          account.balance += amount;
-        }
-      } else {
-        if (loanType == LoanType.lent) {
-          account.balance += amount;
-        } else {
-          account.balance -= amount;
-        }
-      }
-      _accountBox.put(account.id, account);
     }
   }
 
@@ -184,7 +161,6 @@ class LoanRepository {
       loan.updatedAt = DateTime.now();
       loan.isSynced = false;
       await _loanBox.put(loan.id, loan);
-      _updateAccountBalance(accountId, additionalAmount, loan.type, isCreate: true);
     }
   }
 }

@@ -127,12 +127,34 @@ class LoanController extends GetxController {
     required String accountId,
     String? note,
   }) async {
+    final loan = _repository.getById(loanId);
+    if (loan == null) return;
+
     await _repository.addPayment(
       loanId: loanId,
       amount: amount,
       accountId: accountId,
       note: note,
     );
+
+    if (Get.isRegistered<TransactionController>()) {
+      final transactionController = Get.find<TransactionController>();
+      final isLent = loan.type == LoanType.lent;
+      
+      final transactionNote = isLent
+          ? 'Payment received from ${loan.personName}${note != null ? ' - $note' : ''}'
+          : 'Payment made to ${loan.personName}${note != null ? ' - $note' : ''}';
+      
+      await transactionController.addTransaction(
+        accountId: accountId,
+        type: isLent ? TransactionType.income : TransactionType.expense,
+        amount: amount,
+        categoryId: isLent ? _borrowCategoryId : _lendCategoryId,
+        note: transactionNote,
+        date: DateTime.now(),
+      );
+    }
+
     loadLoans();
     _refreshAccountBalance(accountId);
   }
