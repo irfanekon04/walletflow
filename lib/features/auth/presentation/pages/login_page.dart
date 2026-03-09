@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/snackbar_helper.dart';
 import '../controllers/auth_controller.dart';
 
 class LoginPage extends StatefulWidget {
@@ -49,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                   AppStrings.appName,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 32 * context.responsiveFontSize,
+                    fontSize: 48 * context.responsiveFontSize,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
@@ -64,13 +67,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: context.screenHeight * 0.05),
-                TextFormField(
+                AppTextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
+                  label: 'Email',
+                  prefixIcon: const Icon(Icons.email_outlined),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
@@ -82,24 +83,22 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                TextFormField(
+                AppTextField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                  label: 'Password',
+                  prefixIcon: const Icon(Icons.lock_outlined),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                     ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -113,23 +112,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: context.responsiveHeight(0.03)),
                 Obx(
-                  () => ElevatedButton(
-                    onPressed: _authController.isLoading.value ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: AppDimensions.paddingM,
-                      ),
-                    ),
-                    child: _authController.isLoading.value
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            _isLogin ? 'Sign In' : 'Sign Up',
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                  () => AppButton(
+                    onPressed: _submit,
+                    isLoading: _authController.isLoading.value,
+                    label: _isLogin ? 'Sign In' : 'Sign Up',
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
@@ -167,17 +153,12 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: context.responsiveHeight(0.03)),
                 Obx(
-                  () => OutlinedButton.icon(
-                    onPressed: _authController.isLoading.value
-                        ? null
-                        : _signInWithGoogle,
-                    icon: const Icon(Icons.g_mobiledata, size: 24),
-                    label: const Text('Continue with Google'),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: AppDimensions.paddingM,
-                      ),
-                    ),
+                  () => AppButton(
+                    onPressed: _signInWithGoogle,
+                    isLoading: _authController.isLoading.value,
+                    isOutlined: true,
+                    icon: Icons.g_mobiledata,
+                    label: 'Continue with Google',
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.03)),
@@ -226,23 +207,15 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (success) {
-      Get.snackbar(
-        'Success',
+      SnackbarHelper.success(
         _isLogin ? 'Welcome back!' : 'Account created successfully!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.incomeGreen,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
+        title: 'Success',
       );
       Get.offAllNamed('/home');
     } else {
-      Get.snackbar(
-        'Error',
+      SnackbarHelper.error(
         'Login failed. Please check your credentials.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.expenseRed,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
+        title: 'Error',
       );
     }
   }
@@ -250,14 +223,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signInWithGoogle() async {
     final success = await _authController.signInWithGoogle();
     if (success) {
-      Get.snackbar(
-        'Success',
-        'Welcome!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.incomeGreen,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
-      );
+      SnackbarHelper.success('Welcome!', title: 'Success');
       Get.offAllNamed('/home');
     }
   }

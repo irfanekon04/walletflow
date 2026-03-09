@@ -4,6 +4,9 @@ import 'package:walletflow/features/transactions/presentation/widgets/transactio
 import 'package:walletflow/features/transactions/presentation/widgets/transaction_form_helpers/note_field.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_dropdown.dart';
+import '../../../../core/widgets/snackbar_helper.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../data/models/transaction_model.dart';
 import '../controllers/transaction_controller.dart';
@@ -164,12 +167,9 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
 
             if (newType == TransactionType.transfer &&
                 accountController.accounts.length < 2) {
-              Get.snackbar(
-                'Error',
+              SnackbarHelper.error(
                 'Need at least 2 accounts to create a transfer',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.red[400],
-                colorText: Colors.white,
+                title: 'Error',
               );
               return;
             }
@@ -217,9 +217,9 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
                     : null);
         }
 
-        return DropdownButtonFormField<String>(
-          initialValue: validValue,
-          decoration: const InputDecoration(labelText: 'Account'),
+        return AppDropdown<String>(
+          value: validValue,
+          label: 'Account',
           items: accountController.accounts
               .map(
                 (acc) => DropdownMenuItem(
@@ -249,8 +249,6 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
               }
             });
           },
-          borderRadius: BorderRadius.circular(16),
-          dropdownColor: Theme.of(context).colorScheme.surfaceDim,
         );
       },
     );
@@ -270,12 +268,10 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
           : (availableAccounts.isNotEmpty ? availableAccounts.first.id : null);
     }
 
-    return DropdownButtonFormField<String>(
-      initialValue: validValue,
-      decoration: const InputDecoration(
-        labelText: 'To Account',
-        prefixIcon: Icon(Icons.arrow_downward),
-      ),
+    return AppDropdown<String>(
+      value: validValue,
+      label: 'To Account',
+      prefixIcon: const Icon(Icons.arrow_downward),
       items: availableAccounts
           .map(
             (acc) => DropdownMenuItem(
@@ -312,9 +308,9 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
       validValue = exists ? _selectedCategoryId : null;
     }
 
-    return DropdownButtonFormField<String>(
-      initialValue: validValue,
-      decoration: const InputDecoration(labelText: 'Category'),
+    return AppDropdown<String>(
+      value: validValue,
+      label: 'Category',
       items: categories
           .map(
             (cat) => DropdownMenuItem(
@@ -340,13 +336,9 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     TransactionController transactionController,
     AccountController accountController,
   ) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: FilledButton(
-        onPressed: () => _handleSave(transactionController, accountController),
-        child: const Text(AppStrings.save),
-      ),
+    return AppButton(
+      label: AppStrings.save,
+      onPressed: () => _handleSave(transactionController, accountController),
     );
   }
 
@@ -357,12 +349,9 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     final amount = double.tryParse(_amountController.text);
 
     if (amount == null || amount <= 0 || _selectedAccountId.isEmpty) {
-      Get.snackbar(
-        'Error',
+      SnackbarHelper.error(
         'Please enter a valid amount and select an account',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red[400],
-        colorText: Colors.white,
+        title: 'Error',
       );
       return;
     }
@@ -415,23 +404,17 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     } else {
       if (_selectedType == TransactionType.transfer) {
         if (_selectedToAccountId.isEmpty) {
-          Get.snackbar(
-            'Error',
+          SnackbarHelper.error(
             'Please select a destination account',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red[400],
-            colorText: Colors.white,
+            title: 'Error',
           );
           return;
         }
 
         if (_selectedAccountId == _selectedToAccountId) {
-          Get.snackbar(
-            'Error',
+          SnackbarHelper.error(
             'Cannot transfer to the same account',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red[400],
-            colorText: Colors.white,
+            title: 'Error',
           );
           return;
         }

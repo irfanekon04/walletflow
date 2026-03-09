@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_dropdown.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/snackbar_helper.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../data/models/transaction_model.dart';
 import '../controllers/transaction_controller.dart';
@@ -74,24 +78,12 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_fromAccountId == null || _toAccountId == null) {
-      Get.snackbar(
-        'Error',
-        'Please select both accounts',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.expenseRed,
-        colorText: Colors.white,
-      );
+      SnackbarHelper.error('Please select both accounts', title: 'Error');
       return;
     }
 
     if (_fromAccountId == _toAccountId) {
-      Get.snackbar(
-        'Error',
-        'Please select different accounts',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.expenseRed,
-        colorText: Colors.white,
-      );
+      SnackbarHelper.error('Please select different accounts', title: 'Error');
       return;
     }
 
@@ -162,13 +154,7 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
         widget.onSaved?.call();
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to save transfer: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.expenseRed,
-        colorText: Colors.white,
-      );
+      SnackbarHelper.error('Failed to save transfer: $e', title: 'Error');
     } finally {
       if (mounted) {
         setState(() {
@@ -216,38 +202,7 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
               ),
               SizedBox(height: AppDimensions.paddingL),
 
-              TextFormField(
-                controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                style: TextStyle(fontSize: isCompact ? 16 : 18),
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  prefixText: '\$ ',
-                  prefixStyle: TextStyle(
-                    fontSize: isCompact ? 16 : 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: AppDimensions.paddingM,
-                    vertical: isCompact ? 12 : 16,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount <= 0) {
-                    return 'Please enter a valid amount';
-                  }
-                  return null;
-                },
-              ),
+              AppAmountField(controller: _amountController, label: 'Amount'),
               SizedBox(height: AppDimensions.paddingM),
 
               GetBuilder<AccountController>(
@@ -256,21 +211,10 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
 
                   return Column(
                     children: [
-                      DropdownButtonFormField<String>(
-                        initialValue: _fromAccountId,
-                        decoration: InputDecoration(
-                          labelText: 'From Account',
-                          prefixIcon: const Icon(Icons.arrow_outward),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppDimensions.radiusM,
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: AppDimensions.paddingM,
-                            vertical: isCompact ? 12 : 16,
-                          ),
-                        ),
+                      AppDropdown<String>(
+                        value: _fromAccountId,
+                        label: 'From Account',
+                        prefixIcon: const Icon(Icons.arrow_outward),
                         items: accounts
                             .where((a) => a.id != _toAccountId)
                             .map(
@@ -296,21 +240,10 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
                         },
                       ),
                       SizedBox(height: AppDimensions.paddingM),
-                      DropdownButtonFormField<String>(
-                        initialValue: _toAccountId,
-                        decoration: InputDecoration(
-                          labelText: 'To Account',
-                          prefixIcon: const Icon(Icons.arrow_downward),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppDimensions.radiusM,
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: AppDimensions.paddingM,
-                            vertical: isCompact ? 12 : 16,
-                          ),
-                        ),
+                      AppDropdown<String>(
+                        value: _toAccountId,
+                        label: 'To Account',
+                        prefixIcon: const Icon(Icons.arrow_downward),
                         items: accounts
                             .where((a) => a.id != _fromAccountId)
                             .map(
@@ -366,54 +299,19 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
               ),
               SizedBox(height: AppDimensions.paddingM),
 
-              TextFormField(
+              AppTextField(
                 controller: _noteController,
                 maxLines: 2,
-                style: TextStyle(fontSize: isCompact ? 14 : 16),
-                decoration: InputDecoration(
-                  labelText: 'Note (optional)',
-                  prefixIcon: const Icon(Icons.note),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: AppDimensions.paddingM,
-                    vertical: isCompact ? 12 : 16,
-                  ),
-                ),
+                label: 'Note (optional)',
+                prefixIcon: const Icon(Icons.note),
               ),
               SizedBox(height: AppDimensions.paddingL),
 
-              SizedBox(
-                width: double.infinity,
-                height: AppDimensions.buttonHeight,
-                child: FilledButton(
-                  onPressed: _isLoading ? null : _saveTransfer,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colorScheme.tertiary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusM,
-                      ),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          AppStrings.save,
-                          style: TextStyle(
-                            fontSize: isCompact ? 14 : 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                ),
+              AppButton(
+                label: AppStrings.save,
+                onPressed: _saveTransfer,
+                isLoading: _isLoading,
+                color: colorScheme.tertiary,
               ),
             ],
           ),

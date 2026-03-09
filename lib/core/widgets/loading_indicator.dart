@@ -4,12 +4,9 @@ import 'package:walletflow/core/utils/responsive.dart';
 class LoadingIndicator extends StatelessWidget {
   final String? message;
   final double size;
+  final Color? color;
 
-  const LoadingIndicator({
-    super.key,
-    this.message,
-    this.size = 36,
-  });
+  const LoadingIndicator({super.key, this.message, this.size = 36, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +21,7 @@ class LoadingIndicator extends StatelessWidget {
             child: CircularProgressIndicator(
               strokeWidth: 3,
               valueColor: AlwaysStoppedAnimation<Color>(
-                theme.colorScheme.primary,
+                color ?? theme.colorScheme.primary,
               ),
             ),
           ),
@@ -33,9 +30,9 @@ class LoadingIndicator extends StatelessWidget {
             Text(
               message!,
               style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: 14 * context.responsiveFontSize,
-                  ),
+                color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 14 * context.responsiveFontSize,
+              ),
             ),
           ],
         ],
@@ -47,10 +44,7 @@ class LoadingIndicator extends StatelessWidget {
 class FullScreenLoading extends StatelessWidget {
   final String? message;
 
-  const FullScreenLoading({
-    super.key,
-    this.message,
-  });
+  const FullScreenLoading({super.key, this.message});
 
   @override
   Widget build(BuildContext context) {

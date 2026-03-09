@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/confirm_dialog.dart';
 import '../../../../core/widgets/snackbar_helper.dart';
 import '../../data/models/loan_model.dart';
 import '../controllers/loan_controller.dart';
@@ -394,9 +397,9 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.025)),
-                TextFormField(
+                AppTextField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Person Name'),
+                  label: 'Person Name',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a name';
@@ -405,28 +408,7 @@ class LoansPage extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                TextFormField(
-                  controller: amountController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    prefixText: '\$ ',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
-                    }
-                    final amount = double.tryParse(value);
-                    if (amount == null || amount <= 0) {
-                      return 'Please enter a valid amount';
-                    }
-                    return null;
-                  },
-                ),
+                AppAmountField(controller: amountController, label: 'Amount'),
                 SizedBox(height: context.responsiveHeight(0.02)),
                 Obx(
                   () => AccountDropdown(
@@ -437,44 +419,39 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.04)),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56 * context.responsiveFontSize,
-                  child: FilledButton(
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        if (selectedAccountId.value == null) {
-                          Get.snackbar(
-                            'Account Required',
-                            'Please select an account',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                          return;
-                        }
-                        final amount = double.tryParse(amountController.text);
-                        if (amount != null &&
-                            amount > 0 &&
-                            nameController.text.isNotEmpty) {
-                          if (loan == null) {
-                            await controller.addLoan(
-                              personName: nameController.text,
-                              amount: amount,
-                              type: selectedType.value,
-                              date: DateTime.now(),
-                              accountId: selectedAccountId.value!,
-                            );
-                          } else {
-                            loan.personName = nameController.text;
-                            loan.amount = amount;
-                            loan.type = selectedType.value;
-                            await controller.updateLoan(loan);
-                          }
-                          Get.back();
-                        }
+                AppButton(
+                  label: AppStrings.save,
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      if (selectedAccountId.value == null) {
+                        SnackbarHelper.warning(
+                          'Please select an account',
+                          title: 'Account Required',
+                        );
+                        return;
                       }
-                    },
-                    child: const Text(AppStrings.save),
-                  ),
+                      final amount = double.tryParse(amountController.text);
+                      if (amount != null &&
+                          amount > 0 &&
+                          nameController.text.isNotEmpty) {
+                        if (loan == null) {
+                          await controller.addLoan(
+                            personName: nameController.text,
+                            amount: amount,
+                            type: selectedType.value,
+                            date: DateTime.now(),
+                            accountId: selectedAccountId.value!,
+                          );
+                        } else {
+                          loan.personName = nameController.text;
+                          loan.amount = amount;
+                          loan.type = selectedType.value;
+                          await controller.updateLoan(loan);
+                        }
+                        Get.back();
+                      }
+                    }
+                  },
                 ),
               ],
             ),
@@ -524,8 +501,9 @@ class LoansPage extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(context.responsivePadding * 0.75),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.5),
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
                     borderRadius: BorderRadius.circular(AppDimensions.radiusS),
                   ),
                   child: Row(
@@ -553,16 +531,18 @@ class LoansPage extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(context.responsivePadding * 0.5),
                   decoration: BoxDecoration(
-                    color: (isLent
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.error)
-                        .withValues(alpha: 0.1),
+                    color:
+                        (isLent
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.error)
+                            .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppDimensions.radiusS),
                     border: Border.all(
-                      color: (isLent
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.error)
-                          .withValues(alpha: 0.3),
+                      color:
+                          (isLent
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.error)
+                              .withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -591,27 +571,9 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.025)),
-                TextFormField(
+                AppAmountField(
                   controller: amountController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'Additional Amount',
-                    prefixText: '\$ ',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
-                    }
-                    final amount = double.tryParse(value);
-                    if (amount == null || amount <= 0) {
-                      return 'Please enter a valid amount';
-                    }
-                    return null;
-                  },
+                  label: 'Additional Amount',
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
                 Obx(
@@ -625,44 +587,37 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                TextField(
+                AppTextField(
                   controller: noteController,
-                  decoration: const InputDecoration(
-                    labelText: 'Note (optional)',
-                  ),
+                  label: 'Note (optional)',
                 ),
                 SizedBox(height: context.responsiveHeight(0.04)),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56 * context.responsiveFontSize,
-                  child: FilledButton(
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        if (selectedAccountId.value == null) {
-                          Get.snackbar(
-                            'Account Required',
-                            'Please select an account',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                          return;
-                        }
-                        final amount = double.parse(amountController.text);
-                        await controller.addMoreToLoan(
-                          loan: loan,
-                          additionalAmount: amount,
-                          accountId: selectedAccountId.value!,
-                          note: noteController.text.isEmpty
-                              ? null
-                              : noteController.text,
+                AppButton(
+                  label: 'Add',
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      if (selectedAccountId.value == null) {
+                        SnackbarHelper.warning(
+                          'Please select an account',
+                          title: 'Account Required',
                         );
-                        Get.back();
-                        SnackbarHelper.success(
-                          'Added ${format.format(amount)} to ${loan.personName}\'s loan',
-                        );
+                        return;
                       }
-                    },
-                    child: const Text('Add'),
-                  ),
+                      final amount = double.parse(amountController.text);
+                      await controller.addMoreToLoan(
+                        loan: loan,
+                        additionalAmount: amount,
+                        accountId: selectedAccountId.value!,
+                        note: noteController.text.isEmpty
+                            ? null
+                            : noteController.text,
+                      );
+                      Get.back();
+                      SnackbarHelper.success(
+                        'Added ${format.format(amount)} to ${loan.personName}\'s loan',
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -871,17 +826,9 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.03)),
-                TextFormField(
+                AppAmountField(
                   controller: amountController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'Payment Amount',
-                    prefixText: '\$ ',
-                  ),
+                  label: 'Payment Amount',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter an amount';
@@ -908,54 +855,47 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                TextField(
+                AppTextField(
                   controller: noteController,
-                  decoration: const InputDecoration(
-                    labelText: 'Note (optional)',
-                  ),
+                  label: 'Note (optional)',
                 ),
                 SizedBox(height: context.responsiveHeight(0.04)),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56 * context.responsiveFontSize,
-                  child: FilledButton(
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        if (selectedAccountId.value == null) {
-                          Get.snackbar(
-                            'Account Required',
-                            'Please select an account',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                          return;
-                        }
-                        final amount = double.parse(amountController.text);
-                        final account = controller.getAccountById(
-                          selectedAccountId.value!,
+                AppButton(
+                  label: 'Confirm Payment',
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      if (selectedAccountId.value == null) {
+                        SnackbarHelper.warning(
+                          'Please select an account',
+                          title: 'Account Required',
                         );
-
-                        final confirmed = await PaymentConfirmationDialog.show(
-                          context: context,
-                          amount: amount,
-                          accountName: account?.name ?? 'Unknown',
-                          isLent: isLent,
-                        );
-
-                        if (confirmed == true) {
-                          await controller.addPayment(
-                            loanId: loan.id,
-                            amount: amount,
-                            accountId: selectedAccountId.value!,
-                            note: noteController.text.isEmpty
-                                ? null
-                                : noteController.text,
-                          );
-                          Get.back();
-                        }
+                        return;
                       }
-                    },
-                    child: const Text('Confirm Payment'),
-                  ),
+                      final amount = double.parse(amountController.text);
+                      final account = controller.getAccountById(
+                        selectedAccountId.value!,
+                      );
+
+                      final confirmed = await PaymentConfirmationDialog.show(
+                        context: context,
+                        amount: amount,
+                        accountName: account?.name ?? 'Unknown',
+                        isLent: isLent,
+                      );
+
+                      if (confirmed == true) {
+                        await controller.addPayment(
+                          loanId: loan.id,
+                          amount: amount,
+                          accountId: selectedAccountId.value!,
+                          note: noteController.text.isEmpty
+                              ? null
+                              : noteController.text,
+                        );
+                        Get.back();
+                      }
+                    }
+                  },
                 ),
               ],
             ),
@@ -965,34 +905,20 @@ class LoansPage extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(
+  Future<void> _showDeleteConfirmation(
     BuildContext context,
     LoanController controller,
     LoanModel loan,
-  ) {
-    final theme = Theme.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Loan'),
-        content: const Text(
-          'Are you sure you want to delete this loan record?',
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () async {
-              await controller.deleteLoan(loan.id);
-              Get.back();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+  ) async {
+    final confirmed = await ConfirmDialog.show(
+      title: 'Delete Loan',
+      message: 'Are you sure you want to delete this loan record?',
+      confirmText: 'Delete',
+      isDestructive: true,
     );
+
+    if (confirmed == true) {
+      await controller.deleteLoan(loan.id);
+    }
   }
 }

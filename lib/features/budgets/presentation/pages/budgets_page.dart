@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_dropdown.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/confirm_dialog.dart';
 import '../../../transactions/presentation/controllers/transaction_controller.dart';
 import '../../data/models/budget_model.dart';
 import '../controllers/budget_controller.dart';
@@ -226,9 +230,9 @@ class BudgetsPage extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<int>(
-                    initialValue: controller.selectedMonth.value,
-                    decoration: const InputDecoration(labelText: 'Month'),
+                  child: AppDropdown<int>(
+                    value: controller.selectedMonth.value,
+                    label: 'Month',
                     items: List.generate(12, (index) => index + 1)
                         .map(
                           (m) => DropdownMenuItem(
@@ -243,14 +247,13 @@ class BudgetsPage extends StatelessWidget {
                         )
                         .toList(),
                     onChanged: (val) => controller.selectedMonth.value = val!,
-                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButtonFormField<int>(
-                    initialValue: controller.selectedYear.value,
-                    decoration: const InputDecoration(labelText: 'Year'),
+                  child: AppDropdown<int>(
+                    value: controller.selectedYear.value,
+                    label: 'Year',
                     items:
                         List.generate(
                               5,
@@ -269,22 +272,17 @@ class BudgetsPage extends StatelessWidget {
                             )
                             .toList(),
                     onChanged: (val) => controller.selectedYear.value = val!,
-                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: FilledButton(
-                onPressed: () {
-                  controller.loadBudgets();
-                  Get.back();
-                },
-                child: const Text('Confirm'),
-              ),
+            AppButton(
+              label: 'Confirm',
+              onPressed: () {
+                controller.loadBudgets();
+                Get.back();
+              },
             ),
           ],
         ),
@@ -326,11 +324,11 @@ class BudgetsPage extends StatelessWidget {
             ),
             SizedBox(height: context.responsiveHeight(0.03)),
             Obx(
-              () => DropdownButtonFormField<String>(
-                initialValue: selectedCategoryId.value.isEmpty
+              () => AppDropdown<String>(
+                value: selectedCategoryId.value.isEmpty
                     ? null
                     : selectedCategoryId.value,
-                decoration: const InputDecoration(labelText: 'Category'),
+                label: 'Category',
                 items: transactionController.expenseCategories
                     .map(
                       (cat) => DropdownMenuItem(
@@ -347,48 +345,32 @@ class BudgetsPage extends StatelessWidget {
                 onChanged: budget != null
                     ? null
                     : (val) => selectedCategoryId.value = val ?? '',
-                borderRadius: BorderRadius.circular(16),
               ),
             ),
             SizedBox(height: context.responsiveHeight(0.02)),
-            TextField(
-              controller: amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              style: theme.textTheme.headlineMedium,
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                labelText: 'Limit Amount',
-                prefixText: '\$ ',
-              ),
-            ),
+            AppAmountField(controller: amountController, label: 'Limit Amount'),
             SizedBox(height: context.responsiveHeight(0.04)),
-            SizedBox(
-              width: double.infinity,
-              height: 56 * context.responsiveFontSize,
-              child: FilledButton(
-                onPressed: () async {
-                  final amount = double.tryParse(amountController.text);
-                  if (amount != null &&
-                      amount > 0 &&
-                      selectedCategoryId.value.isNotEmpty) {
-                    if (budget == null) {
-                      await controller.addBudget(
-                        categoryId: selectedCategoryId.value,
-                        amount: amount,
-                        month: controller.selectedMonth.value,
-                        year: controller.selectedYear.value,
-                      );
-                    } else {
-                      budget.amount = amount;
-                      await controller.updateBudget(budget);
-                    }
-                    if (context.mounted) Get.back();
+            AppButton(
+              label: AppStrings.save,
+              onPressed: () async {
+                final amount = double.tryParse(amountController.text);
+                if (amount != null &&
+                    amount > 0 &&
+                    selectedCategoryId.value.isNotEmpty) {
+                  if (budget == null) {
+                    await controller.addBudget(
+                      categoryId: selectedCategoryId.value,
+                      amount: amount,
+                      month: controller.selectedMonth.value,
+                      year: controller.selectedYear.value,
+                    );
+                  } else {
+                    budget.amount = amount;
+                    await controller.updateBudget(budget);
                   }
-                },
-                child: const Text(AppStrings.save),
-              ),
+                  if (context.mounted) Get.back();
+                }
+              },
             ),
           ],
         ),
@@ -396,33 +378,21 @@ class BudgetsPage extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(
+  Future<void> _showDeleteConfirmation(
     BuildContext context,
     BudgetController controller,
     BudgetModel budget,
-  ) {
-    final theme = Theme.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(AppStrings.deleteBudget),
-        content: const Text('Are you sure you want to delete this budget?'),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () async {
-              await controller.deleteBudget(budget.id);
-              Get.back();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+  ) async {
+    final confirmed = await ConfirmDialog.show(
+      title: AppStrings.deleteBudget,
+      message: 'Are you sure you want to delete this budget?',
+      confirmText: 'Delete',
+      isDestructive: true,
     );
+
+    if (confirmed == true) {
+      await controller.deleteBudget(budget.id);
+    }
   }
 
   IconData _getCategoryIcon(String icon) {

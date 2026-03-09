@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:walletflow/app/routes/app_routes.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/loading_indicator.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -45,9 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             SizedBox(height: context.responsiveHeight(0.04)),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
+            const LoadingIndicator(color: Colors.white),
           ],
         ),
       ),

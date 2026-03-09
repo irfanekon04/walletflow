@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 // import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/app_dropdown.dart';
 
 class AccountDropdown extends StatelessWidget {
   final String? selectedAccountId;
@@ -50,20 +51,11 @@ class AccountDropdown extends StatelessWidget {
         );
       }
 
-      return DropdownButtonFormField<String>(
+      return AppDropdown<String>(
         // ignore: deprecated_member_use
         value: selectedAccountId,
-        decoration: InputDecoration(
-          labelText: labelText ?? (isRequired ? 'Account *' : 'Account'),
-          prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-          ),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: context.responsivePadding,
-            vertical: context.responsivePadding * 0.75,
-          ),
-        ),
+        label: labelText ?? (isRequired ? 'Account *' : 'Account'),
+        prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
         items: accounts.map((account) {
           return DropdownMenuItem<String>(
             value: account.id,
