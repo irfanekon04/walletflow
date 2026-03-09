@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
-import '../../../../core/widgets/widgets.dart';
+import '../../../../core/widgets/snackbar_helper.dart';
 import '../../data/models/loan_model.dart';
 import '../controllers/loan_controller.dart';
 import '../widgets/account_dropdown.dart';
@@ -245,23 +245,53 @@ class LoansPage extends StatelessWidget {
                   ),
                 ],
               ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    format.format(loan.amount),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isLent
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.error,
-                    ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        format.format(loan.amount),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isLent
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.error,
+                        ),
+                      ),
+                      Text(
+                        isLent ? AppStrings.lent : AppStrings.owed,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    isLent ? AppStrings.lent : AppStrings.owed,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.add,
+                        size: 20,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                      onPressed: () => _showAddMoreBottomSheet(
+                        context,
+                        controller,
+                        loan,
+                        format,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
+                      padding: EdgeInsets.zero,
                     ),
                   ),
                 ],
@@ -364,9 +394,9 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.025)),
-                AppTextField(
+                TextFormField(
                   controller: nameController,
-                  label: 'Person Name',
+                  decoration: const InputDecoration(labelText: 'Person Name'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a name';
@@ -375,9 +405,17 @@ class LoansPage extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                AppAmountField(
+                TextFormField(
                   controller: amountController,
-                  label: 'Amount',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  style: theme.textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    labelText: 'Amount',
+                    prefixText: '\$ ',
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter an amount';
@@ -399,38 +437,232 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.04)),
-                AppButton(
-                  label: AppStrings.save,
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      if (selectedAccountId.value == null) {
-                        SnackbarHelper.error(
-                          'Please select an account',
-                        );
-                        return;
-                      }
-                      final amount = double.tryParse(amountController.text);
-                      if (amount != null &&
-                          amount > 0 &&
-                          nameController.text.isNotEmpty) {
-                        if (loan == null) {
-                          await controller.addLoan(
-                            personName: nameController.text,
-                            amount: amount,
-                            type: selectedType.value,
-                            date: DateTime.now(),
-                            accountId: selectedAccountId.value!,
+                SizedBox(
+                  width: double.infinity,
+                  height: 56 * context.responsiveFontSize,
+                  child: FilledButton(
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        if (selectedAccountId.value == null) {
+                          Get.snackbar(
+                            'Account Required',
+                            'Please select an account',
+                            snackPosition: SnackPosition.BOTTOM,
                           );
-                        } else {
-                          loan.personName = nameController.text;
-                          loan.amount = amount;
-                          loan.type = selectedType.value;
-                          await controller.updateLoan(loan);
+                          return;
                         }
-                        Get.back();
+                        final amount = double.tryParse(amountController.text);
+                        if (amount != null &&
+                            amount > 0 &&
+                            nameController.text.isNotEmpty) {
+                          if (loan == null) {
+                            await controller.addLoan(
+                              personName: nameController.text,
+                              amount: amount,
+                              type: selectedType.value,
+                              date: DateTime.now(),
+                              accountId: selectedAccountId.value!,
+                            );
+                          } else {
+                            loan.personName = nameController.text;
+                            loan.amount = amount;
+                            loan.type = selectedType.value;
+                            await controller.updateLoan(loan);
+                          }
+                          Get.back();
+                        }
                       }
+                    },
+                    child: const Text(AppStrings.save),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAddMoreBottomSheet(
+    BuildContext context,
+    LoanController controller,
+    LoanModel loan,
+    NumberFormat format,
+  ) {
+    final theme = Theme.of(context);
+    final isLent = loan.type == LoanType.lent;
+    final amountController = TextEditingController();
+    final noteController = TextEditingController();
+    final Rx<String?> selectedAccountId = Rx<String?>(loan.accountId);
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Add More ${isLent ? AppStrings.lent : AppStrings.owed}',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: context.responsiveHeight(0.01)),
+                Container(
+                  padding: EdgeInsets.all(context.responsivePadding * 0.75),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusS),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Current Amount:',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Text(
+                        format.format(loan.amount),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isLent
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: context.responsiveHeight(0.025)),
+                Container(
+                  padding: EdgeInsets.all(context.responsivePadding * 0.5),
+                  decoration: BoxDecoration(
+                    color: (isLent
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.error)
+                        .withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusS),
+                    border: Border.all(
+                      color: (isLent
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.error)
+                          .withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isLent ? Icons.arrow_outward : Icons.arrow_downward,
+                        size: 16,
+                        color: isLent
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.error,
+                      ),
+                      SizedBox(width: context.responsivePadding * 0.25),
+                      Expanded(
+                        child: Text(
+                          isLent
+                              ? 'This will add to the amount they owe you. Money will be deducted from account.'
+                              : 'This will add to what you owe them. Money will be added to your account.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: isLent
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.error,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: context.responsiveHeight(0.025)),
+                TextFormField(
+                  controller: amountController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  style: theme.textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    labelText: 'Additional Amount',
+                    prefixText: '\$ ',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount';
                     }
+                    final amount = double.tryParse(value);
+                    if (amount == null || amount <= 0) {
+                      return 'Please enter a valid amount';
+                    }
+                    return null;
                   },
+                ),
+                SizedBox(height: context.responsiveHeight(0.02)),
+                Obx(
+                  () => AccountDropdown(
+                    selectedAccountId: selectedAccountId.value,
+                    onChanged: (value) => selectedAccountId.value = value,
+                    isRequired: true,
+                    labelText: isLent
+                        ? 'Deduct from Account *'
+                        : 'Add to Account *',
+                  ),
+                ),
+                SizedBox(height: context.responsiveHeight(0.02)),
+                TextField(
+                  controller: noteController,
+                  decoration: const InputDecoration(
+                    labelText: 'Note (optional)',
+                  ),
+                ),
+                SizedBox(height: context.responsiveHeight(0.04)),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56 * context.responsiveFontSize,
+                  child: FilledButton(
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        if (selectedAccountId.value == null) {
+                          Get.snackbar(
+                            'Account Required',
+                            'Please select an account',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                          return;
+                        }
+                        final amount = double.parse(amountController.text);
+                        await controller.addMoreToLoan(
+                          loan: loan,
+                          additionalAmount: amount,
+                          accountId: selectedAccountId.value!,
+                          note: noteController.text.isEmpty
+                              ? null
+                              : noteController.text,
+                        );
+                        Get.back();
+                        SnackbarHelper.success(
+                          'Added ${format.format(amount)} to ${loan.personName}\'s loan',
+                        );
+                      }
+                    },
+                    child: const Text('Add'),
+                  ),
                 ),
               ],
             ),
@@ -639,9 +871,17 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.03)),
-                AppAmountField(
+                TextFormField(
                   controller: amountController,
-                  label: 'Payment Amount',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  style: theme.textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    labelText: 'Payment Amount',
+                    prefixText: '\$ ',
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter an amount';
@@ -668,46 +908,54 @@ class LoansPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
-                AppTextField(
+                TextField(
                   controller: noteController,
-                  label: 'Note (optional)',
+                  decoration: const InputDecoration(
+                    labelText: 'Note (optional)',
+                  ),
                 ),
                 SizedBox(height: context.responsiveHeight(0.04)),
-                AppButton(
-                  label: AppStrings.save,
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      if (selectedAccountId.value == null) {
-                        SnackbarHelper.error(
-                          'Please select an account',
+                SizedBox(
+                  width: double.infinity,
+                  height: 56 * context.responsiveFontSize,
+                  child: FilledButton(
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        if (selectedAccountId.value == null) {
+                          Get.snackbar(
+                            'Account Required',
+                            'Please select an account',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                          return;
+                        }
+                        final amount = double.parse(amountController.text);
+                        final account = controller.getAccountById(
+                          selectedAccountId.value!,
                         );
-                        return;
-                      }
-                      final amount = double.parse(amountController.text);
-                      final account = controller.getAccountById(
-                        selectedAccountId.value!,
-                      );
 
-                      final confirmed = await PaymentConfirmationDialog.show(
-                        context: context,
-                        amount: amount,
-                        accountName: account?.name ?? 'Unknown',
-                        isLent: isLent,
-                      );
-
-                      if (confirmed == true) {
-                        await controller.addPayment(
-                          loanId: loan.id,
+                        final confirmed = await PaymentConfirmationDialog.show(
+                          context: context,
                           amount: amount,
-                          accountId: selectedAccountId.value!,
-                          note: noteController.text.isEmpty
-                              ? null
-                              : noteController.text,
+                          accountName: account?.name ?? 'Unknown',
+                          isLent: isLent,
                         );
-                        Get.back();
+
+                        if (confirmed == true) {
+                          await controller.addPayment(
+                            loanId: loan.id,
+                            amount: amount,
+                            accountId: selectedAccountId.value!,
+                            note: noteController.text.isEmpty
+                                ? null
+                                : noteController.text,
+                          );
+                          Get.back();
+                        }
                       }
-                    }
-                  },
+                    },
+                    child: const Text('Confirm Payment'),
+                  ),
                 ),
               ],
             ),

@@ -4,7 +4,6 @@ import 'package:walletflow/features/transactions/presentation/widgets/transactio
 import 'package:walletflow/features/transactions/presentation/widgets/transaction_form_helpers/note_field.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
-import '../../../../core/widgets/widgets.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../data/models/transaction_model.dart';
 import '../controllers/transaction_controller.dart';
@@ -165,8 +164,12 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
 
             if (newType == TransactionType.transfer &&
                 accountController.accounts.length < 2) {
-              SnackbarHelper.error(
+              Get.snackbar(
+                'Error',
                 'Need at least 2 accounts to create a transfer',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.red[400],
+                colorText: Colors.white,
               );
               return;
             }
@@ -337,9 +340,13 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     TransactionController transactionController,
     AccountController accountController,
   ) {
-    return AppButton(
-      label: AppStrings.save,
-      onPressed: () => _handleSave(transactionController, accountController),
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: FilledButton(
+        onPressed: () => _handleSave(transactionController, accountController),
+        child: const Text(AppStrings.save),
+      ),
     );
   }
 
@@ -350,8 +357,12 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     final amount = double.tryParse(_amountController.text);
 
     if (amount == null || amount <= 0 || _selectedAccountId.isEmpty) {
-      SnackbarHelper.error(
+      Get.snackbar(
+        'Error',
         'Please enter a valid amount and select an account',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[400],
+        colorText: Colors.white,
       );
       return;
     }
@@ -404,15 +415,23 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     } else {
       if (_selectedType == TransactionType.transfer) {
         if (_selectedToAccountId.isEmpty) {
-          SnackbarHelper.error(
+          Get.snackbar(
+            'Error',
             'Please select a destination account',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red[400],
+            colorText: Colors.white,
           );
           return;
         }
 
         if (_selectedAccountId == _selectedToAccountId) {
-          SnackbarHelper.error(
+          Get.snackbar(
+            'Error',
             'Cannot transfer to the same account',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red[400],
+            colorText: Colors.white,
           );
           return;
         }
