@@ -33,11 +33,6 @@ class SnackbarHelper {
         textColor = Colors.white;
         icon = Icons.info;
         break;
-      default:
-        backgroundColor = Colors.blue;
-        textColor = Colors.white;
-        icon = Icons.info;
-        break;
     }
 
     Get.snackbar(
