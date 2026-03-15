@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:walletflow/core/utils/responsive.dart';
 
 import 'package:flutter/services.dart';
@@ -35,23 +36,19 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
   final GlobalKey<FormFieldState<T>> _fieldKey = GlobalKey<FormFieldState<T>>();
 
   @override
-  void didUpdateWidget(AppDropdown<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
-      _fieldKey.currentState?.didChange(widget.value);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final responsiveScale = context.responsiveFontSize;
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     // Find current selected item child to display in the field
     Widget? selectedChild;
     try {
-      selectedChild = widget.items
-          .firstWhere((item) => item.value == widget.value)
-          .child;
+      selectedChild =
+          widget.items
+              .firstWhereOrNull((item) => item.value == widget.value)
+              ?.child;
     } catch (_) {
       selectedChild = null;
     }
@@ -61,6 +58,9 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
       initialValue: widget.value,
       validator: widget.validator,
       builder: (FormFieldState<T> state) {
+        final hasError = state.hasError;
+        final errorText = state.errorText;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -69,10 +69,11 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
                 padding: const EdgeInsets.only(left: 4, bottom: 8),
                 child: Text(
                   widget.label!,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: state.hasError
-                        ? theme.colorScheme.error
-                        : theme.colorScheme.onSurfaceVariant,
+                  style: textTheme.labelLarge?.copyWith(
+                    color:
+                        hasError
+                            ? colorScheme.error
+                            : colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -87,18 +88,17 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: EdgeInsets.symmetric(
-                  horizontal: 20 * context.responsiveFontSize,
-                  vertical: 16 * context.responsiveFontSize,
+                  horizontal: 20 * responsiveScale,
+                  vertical: 16 * responsiveScale,
                 ),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerLow,
+                  color: colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: state.hasError
-                        ? theme.colorScheme.error
-                        : theme.colorScheme.outlineVariant.withValues(
-                            alpha: 0.5,
-                          ),
+                    color:
+                        hasError
+                            ? colorScheme.error
+                            : colorScheme.outlineVariant.withValues(alpha: 0.5),
                     width: 1.5,
                   ),
                 ),
@@ -107,8 +107,8 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
                     if (widget.prefixIcon != null) ...[
                       IconTheme(
                         data: IconThemeData(
-                          color: theme.colorScheme.primary,
-                          size: 20 * context.responsiveFontSize,
+                          color: colorScheme.primary,
+                          size: 20 * responsiveScale,
                         ),
                         child: widget.prefixIcon!,
                       ),
@@ -119,29 +119,28 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
                           selectedChild ??
                           Text(
                             widget.hint ?? 'Select an option',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant
-                                  .withValues(alpha: 0.6),
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                     ),
                     Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: theme.colorScheme.onSurfaceVariant,
-                      size: 24 * context.responsiveFontSize,
+                      color: colorScheme.onSurfaceVariant,
+                      size: 24 * responsiveScale,
                     ),
                   ],
                 ),
               ),
             ),
-            if (state.hasError)
+            if (hasError && errorText != null)
               Padding(
                 padding: const EdgeInsets.only(left: 12, top: 4),
                 child: Text(
-                  state.errorText!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.error,
-                  ),
+                  errorText,
+                  style: textTheme.bodySmall?.copyWith(color: colorScheme.error),
                 ),
               ),
           ],
@@ -204,11 +203,14 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
                     return InkWell(
                       onTap: () {
                         HapticFeedback.mediumImpact();
+                        // Dismiss the sheet FIRST to avoid context/rebuild issues
+                        Navigator.of(context).pop();
+                        
+                        // Update state AFTER dismissing
                         state.didChange(item.value);
                         if (widget.onChanged != null) {
                           widget.onChanged!(item.value);
                         }
-                        Navigator.pop(context);
                       },
                       borderRadius: BorderRadius.circular(16),
                       child: AnimatedContainer(

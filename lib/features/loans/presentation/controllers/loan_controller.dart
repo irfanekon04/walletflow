@@ -15,6 +15,8 @@ class LoanController extends GetxController {
 
   String? _lendCategoryId;
   String? _borrowCategoryId;
+  String? _repaymentCategoryId;
+  String? _collectionCategoryId;
   
   final RxList<LoanModel> lentLoans = <LoanModel>[].obs;
   final RxList<LoanModel> owedLoans = <LoanModel>[].obs;
@@ -35,30 +37,56 @@ class LoanController extends GetxController {
     final expenseCategories = _categoryRepo.getByType(CategoryType.expense);
     final incomeCategories = _categoryRepo.getByType(CategoryType.income);
 
-    final lendCat = expenseCategories.where((c) => c.name.toLowerCase() == 'lend').firstOrNull;
+    final lendCat = expenseCategories.where((c) => c.name.toLowerCase() == 'lending').firstOrNull;
     if (lendCat != null) {
       _lendCategoryId = lendCat.id;
     } else {
       final created = await _categoryRepo.create(
-        name: 'Lend',
+        name: 'Lending',
         type: CategoryType.expense,
-        icon: 'arrow_upward',
+        icon: 'handshake',
         color: '#2196F3',
       );
       _lendCategoryId = created.id;
     }
 
-    final borrowCat = incomeCategories.where((c) => c.name.toLowerCase() == 'borrow').firstOrNull;
+    final borrowCat = incomeCategories.where((c) => c.name.toLowerCase() == 'borrowing').firstOrNull;
     if (borrowCat != null) {
       _borrowCategoryId = borrowCat.id;
     } else {
       final created = await _categoryRepo.create(
-        name: 'Borrow',
+        name: 'Borrowing',
         type: CategoryType.income,
-        icon: 'arrow_downward',
+        icon: 'request_quote',
         color: '#FF9800',
       );
       _borrowCategoryId = created.id;
+    }
+
+    final repaymentCat = expenseCategories.where((c) => c.name.toLowerCase() == 'debt repayment').firstOrNull;
+    if (repaymentCat != null) {
+      _repaymentCategoryId = repaymentCat.id;
+    } else {
+      final created = await _categoryRepo.create(
+        name: 'Debt Repayment',
+        type: CategoryType.expense,
+        icon: 'account_balance_wallet',
+        color: '#F44336',
+      );
+      _repaymentCategoryId = created.id;
+    }
+
+    final collectionCat = incomeCategories.where((c) => c.name.toLowerCase() == 'debt collection').firstOrNull;
+    if (collectionCat != null) {
+      _collectionCategoryId = collectionCat.id;
+    } else {
+      final created = await _categoryRepo.create(
+        name: 'Debt Collection',
+        type: CategoryType.income,
+        icon: 'account_balance_wallet',
+        color: '#4CAF50',
+      );
+      _collectionCategoryId = created.id;
     }
   }
 
@@ -149,7 +177,7 @@ class LoanController extends GetxController {
         accountId: accountId,
         type: isLent ? TransactionType.income : TransactionType.expense,
         amount: amount,
-        categoryId: isLent ? _borrowCategoryId : _lendCategoryId,
+        categoryId: isLent ? _collectionCategoryId : _repaymentCategoryId,
         note: transactionNote,
         date: DateTime.now(),
       );

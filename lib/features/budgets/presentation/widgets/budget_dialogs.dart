@@ -6,7 +6,7 @@ import 'package:walletflow/core/widgets/app_button.dart';
 import 'package:walletflow/core/widgets/app_dropdown.dart';
 import 'package:walletflow/core/widgets/app_text_field.dart';
 import 'package:walletflow/core/widgets/confirm_dialog.dart';
-import '../../../transactions/presentation/controllers/transaction_controller.dart';
+import '../../../transactions/presentation/controllers/category_controller.dart';
 import '../../data/models/budget_model.dart';
 import '../controllers/budget_controller.dart';
 
@@ -99,7 +99,7 @@ class BudgetDialogs {
       text: budget?.amount.toString() ?? '',
     );
     final RxString selectedCategoryId = (budget?.categoryId ?? '').obs;
-    final transactionController = Get.find<TransactionController>();
+    final categoryController = Get.find<CategoryController>();
 
     showModalBottomSheet(
       context: context,
@@ -129,14 +129,14 @@ class BudgetDialogs {
                     : selectedCategoryId.value,
                 label: 'Category',
                 prefixIcon: const Icon(Icons.category_outlined),
-                items: transactionController.expenseCategories
+                items: categoryController.expenseCategories
                     .map(
                       (cat) => DropdownMenuItem(
                         value: cat.id,
                         child: Row(
                           children: [
                             Icon(
-                              transactionController.getCategoryIcon(cat.icon),
+                              categoryController.getIconData(cat.icon),
                               size: 18 * context.responsiveFontSize,
                               color: theme.colorScheme.primary,
                             ),

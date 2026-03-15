@@ -11,6 +11,7 @@ import '../../../../core/widgets/snackbar_helper.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../data/models/transaction_model.dart';
 import '../controllers/transaction_controller.dart';
+import '../controllers/category_controller.dart';
 
 class AddTransactionFormWidget extends StatefulWidget {
   final VoidCallback onSaved;
@@ -316,9 +317,10 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
   }
 
   Widget _buildCategoryDropdown(TransactionController transactionController) {
+    final categoryController = Get.find<CategoryController>();
     final categories = _selectedType == TransactionType.expense
-        ? transactionController.expenseCategories
-        : transactionController.incomeCategories;
+        ? categoryController.expenseCategories
+        : categoryController.incomeCategories;
     final theme = Theme.of(context);
 
     if (categories.isEmpty) return const SizedBox.shrink();

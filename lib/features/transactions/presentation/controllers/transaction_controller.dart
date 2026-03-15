@@ -3,17 +3,14 @@ import 'package:get/get.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/models/category_model.dart';
 import '../../data/repositories/transaction_repository.dart';
-import '../../data/repositories/category_repository.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
+import 'category_controller.dart';
 
 class TransactionController extends GetxController {
   final TransactionRepository _transactionRepo = TransactionRepository();
-  final CategoryRepository _categoryRepo = CategoryRepository();
+  late final CategoryController _categoryController;
   
   final RxList<TransactionModel> transactions = <TransactionModel>[].obs;
-  final RxList<CategoryModel> categories = <CategoryModel>[].obs;
-  final RxList<CategoryModel> expenseCategories = <CategoryModel>[].obs;
-  final RxList<CategoryModel> incomeCategories = <CategoryModel>[].obs;
   final RxDouble totalIncome = 0.0.obs;
   final RxDouble totalExpense = 0.0.obs;
   final RxBool isLoading = false.obs;
@@ -28,7 +25,7 @@ class TransactionController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadCategories();
+    _categoryController = Get.find<CategoryController>();
     loadTransactions();
 
     // Re-flatten transactions whenever data or filters change
@@ -63,12 +60,6 @@ class TransactionController extends GetxController {
     }
 
     flattenedTransactions.value = flat;
-  }
-
-  void loadCategories() {
-    categories.value = _categoryRepo.getAll();
-    expenseCategories.value = _categoryRepo.getByType(CategoryType.expense);
-    incomeCategories.value = _categoryRepo.getByType(CategoryType.income);
   }
 
   void loadTransactions() {
@@ -252,7 +243,7 @@ class TransactionController extends GetxController {
   }
 
   CategoryModel? getCategoryById(String id) {
-    return _categoryRepo.getById(id);
+    return _categoryController.getCategoryById(id);
   }
 
   List<TransactionModel> getRecentTransactions({int limit = 5}) {
@@ -287,7 +278,6 @@ class TransactionController extends GetxController {
     filterCategoryId.value = '';
   }
 
-
   Future<void> deleteTransactionAndAdjustBalance(TransactionModel tx) async {
     await deleteTransaction(tx.id);
 
@@ -321,30 +311,7 @@ class TransactionController extends GetxController {
     accountController.loadAccounts();
   }
 
-
-  
-
-
   IconData getCategoryIcon(String icon) {
-    switch (icon) {
-      case 'restaurant':
-        return Icons.restaurant_outlined;
-      case 'directions_car':
-        return Icons.directions_car_outlined;
-      case 'shopping_bag':
-        return Icons.shopping_bag_outlined;
-      case 'receipt_long':
-        return Icons.receipt_long_outlined;
-      case 'movie':
-        return Icons.movie_outlined;
-      case 'medical_services':
-        return Icons.medical_services_outlined;
-      case 'school':
-        return Icons.school_outlined;
-      case 'work':
-        return Icons.work_outline;
-      default:
-        return Icons.category_outlined;
-    }
+    return _categoryController.getIconData(icon);
   }
 }

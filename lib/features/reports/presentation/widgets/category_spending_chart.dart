@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reports_controller.dart';
-import '../../../../features/transactions/presentation/controllers/transaction_controller.dart';
+import '../../../../features/transactions/presentation/controllers/category_controller.dart';
 import '../../../../core/constants/app_constants.dart';
 
 class CategorySpendingChart extends StatelessWidget {
@@ -11,7 +11,7 @@ class CategorySpendingChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reportsController = Get.find<ReportsController>();
-    final txController = Get.find<TransactionController>();
+    final categoryController = Get.find<CategoryController>();
     final theme = Theme.of(context);
 
     return Obx(() {
@@ -24,7 +24,7 @@ class CategorySpendingChart extends StatelessWidget {
       final List<Widget> legends = [];
 
       spendingMap.forEach((categoryId, amount) {
-        final category = txController.categories.firstWhereOrNull((c) => c.id == categoryId);
+        final category = categoryController.categories.firstWhereOrNull((c) => c.id == categoryId);
         final color = category != null ? AppColors.fromHex(category.color) : Colors.grey;
         final name = category?.name ?? 'Other';
 

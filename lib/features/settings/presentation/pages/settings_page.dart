@@ -11,6 +11,7 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/snackbar_helper.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
+import '../../../transactions/presentation/pages/category_list_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -39,6 +40,13 @@ class SettingsPage extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () =>
                       _showAccountsManagement(context, accountController),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.category_outlined),
+                  title: const Text('Manage Categories'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Get.to(() => const CategoryListPage()),
                 ),
               ],
             ),

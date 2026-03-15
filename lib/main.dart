@@ -17,6 +17,8 @@ import 'features/settings/presentation/controllers/settings_controller.dart';
 
 import 'app/routes/app_pages.dart';
 
+import 'features/transactions/presentation/controllers/category_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -46,6 +48,7 @@ void main() async {
 
   // Initialize Controllers
   Get.put(AccountController(), permanent: true);
+  Get.put(CategoryController(), permanent: true);
   Get.put(TransactionController(), permanent: true);
   Get.put(BudgetController(), permanent: true);
   Get.put(LoanController(), permanent: true);

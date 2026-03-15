@@ -117,47 +117,52 @@ class LoanDialogs {
                 AppAmountField(controller: amountController, label: 'Amount'),
                 SizedBox(height: context.responsiveHeight(0.02)),
                 Obx(
-                  () => AccountDropdown(
-                    selectedAccountId: selectedAccountId.value,
-                    onChanged: (value) => selectedAccountId.value = value,
-                    isRequired: true,
-                    labelText: 'Select Account *',
+                  () => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AccountDropdown(
+                        selectedAccountId: selectedAccountId.value,
+                        onChanged: (value) => selectedAccountId.value = value,
+                        isRequired: true,
+                        labelText: 'Select Account *',
+                      ),
+                      SizedBox(height: context.responsiveHeight(0.04)),
+                      AppButton(
+                        label: AppStrings.save,
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            if (selectedAccountId.value == null) {
+                              SnackbarHelper.warning(
+                                'Please select an account',
+                                title: 'Account Required',
+                              );
+                              return;
+                            }
+                            final amount = double.tryParse(amountController.text);
+                            if (amount != null &&
+                                amount > 0 &&
+                                nameController.text.isNotEmpty) {
+                              if (loan == null) {
+                                await controller.addLoan(
+                                  personName: nameController.text,
+                                  amount: amount,
+                                  type: selectedType.value,
+                                  date: DateTime.now(),
+                                  accountId: selectedAccountId.value!,
+                                );
+                              } else {
+                                loan.personName = nameController.text;
+                                loan.amount = amount;
+                                loan.type = selectedType.value;
+                                await controller.updateLoan(loan);
+                              }
+                              Get.back();
+                            }
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: context.responsiveHeight(0.04)),
-                AppButton(
-                  label: AppStrings.save,
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      if (selectedAccountId.value == null) {
-                        SnackbarHelper.warning(
-                          'Please select an account',
-                          title: 'Account Required',
-                        );
-                        return;
-                      }
-                      final amount = double.tryParse(amountController.text);
-                      if (amount != null &&
-                          amount > 0 &&
-                          nameController.text.isNotEmpty) {
-                        if (loan == null) {
-                          await controller.addLoan(
-                            personName: nameController.text,
-                            amount: amount,
-                            type: selectedType.value,
-                            date: DateTime.now(),
-                            accountId: selectedAccountId.value!,
-                          );
-                        } else {
-                          loan.personName = nameController.text;
-                          loan.amount = amount;
-                          loan.type = selectedType.value;
-                          await controller.updateLoan(loan);
-                        }
-                        Get.back();
-                      }
-                    }
-                  },
                 ),
               ],
             ),
@@ -283,47 +288,51 @@ class LoanDialogs {
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
                 Obx(
-                  () => AccountDropdown(
-                    selectedAccountId: selectedAccountId.value,
-                    onChanged: (value) => selectedAccountId.value = value,
-                    isRequired: true,
-                    labelText: isLent
-                        ? 'Deduct from Account *'
-                        : 'Add to Account *',
+                  () => Column(
+                    children: [
+                      AccountDropdown(
+                        selectedAccountId: selectedAccountId.value,
+                        onChanged: (value) => selectedAccountId.value = value,
+                        isRequired: true,
+                        labelText:
+                            isLent ? 'Deduct from Account *' : 'Add to Account *',
+                      ),
+                      SizedBox(height: context.responsiveHeight(0.02)),
+                      AppTextField(
+                        controller: noteController,
+                        label: 'Note (optional)',
+                      ),
+                      SizedBox(height: context.responsiveHeight(0.04)),
+                      AppButton(
+                        label: 'Add',
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            if (selectedAccountId.value == null) {
+                              SnackbarHelper.warning(
+                                'Please select an account',
+                                title: 'Account Required',
+                              );
+                              return;
+                            }
+                            final amount = double.parse(amountController.text);
+                            await controller.addMoreToLoan(
+                              loan: loan,
+                              additionalAmount: amount,
+                              accountId: selectedAccountId.value!,
+                              note:
+                                  noteController.text.isEmpty
+                                      ? null
+                                      : noteController.text,
+                            );
+                            Get.back();
+                            SnackbarHelper.success(
+                              'Added ${format.format(amount)} to ${loan.personName}\'s loan',
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: context.responsiveHeight(0.02)),
-                AppTextField(
-                  controller: noteController,
-                  label: 'Note (optional)',
-                ),
-                SizedBox(height: context.responsiveHeight(0.04)),
-                AppButton(
-                  label: 'Add',
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      if (selectedAccountId.value == null) {
-                        SnackbarHelper.warning(
-                          'Please select an account',
-                          title: 'Account Required',
-                        );
-                        return;
-                      }
-                      final amount = double.parse(amountController.text);
-                      await controller.addMoreToLoan(
-                        loan: loan,
-                        additionalAmount: amount,
-                        accountId: selectedAccountId.value!,
-                        note: noteController.text.isEmpty
-                            ? null
-                            : noteController.text,
-                      );
-                      Get.back();
-                      SnackbarHelper.success(
-                        'Added ${format.format(amount)} to ${loan.personName}\'s loan',
-                      );
-                    }
-                  },
                 ),
               ],
             ),
@@ -551,57 +560,61 @@ class LoanDialogs {
                 ),
                 SizedBox(height: context.responsiveHeight(0.02)),
                 Obx(
-                  () => AccountDropdown(
-                    selectedAccountId: selectedAccountId.value,
-                    onChanged: (value) => selectedAccountId.value = value,
-                    isRequired: true,
-                    labelText: isLent
-                        ? 'Receive to Account *'
-                        : 'Pay from Account *',
+                  () => Column(
+                    children: [
+                      AccountDropdown(
+                        selectedAccountId: selectedAccountId.value,
+                        onChanged: (value) => selectedAccountId.value = value,
+                        isRequired: true,
+                        labelText:
+                            isLent ? 'Receive to Account *' : 'Pay from Account *',
+                      ),
+                      SizedBox(height: context.responsiveHeight(0.02)),
+                      AppTextField(
+                        controller: noteController,
+                        label: 'Note (optional)',
+                      ),
+                      SizedBox(height: context.responsiveHeight(0.04)),
+                      AppButton(
+                        label: 'Confirm Payment',
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            if (selectedAccountId.value == null) {
+                              SnackbarHelper.warning(
+                                'Please select an account',
+                                title: 'Account Required',
+                              );
+                              return;
+                            }
+                            final amount = double.parse(amountController.text);
+                            final account = controller.getAccountById(
+                              selectedAccountId.value!,
+                            );
+
+                            final confirmed = await PaymentConfirmationDialog.show(
+                              context: context,
+                              amount: amount,
+                              accountName: account?.name ?? 'Unknown',
+                              isLent: isLent,
+                            );
+
+                            if (confirmed == true) {
+                              await controller.addPayment(
+                                loanId: loan.id,
+                                amount: amount,
+                                accountId: selectedAccountId.value!,
+                                note:
+                                    noteController.text.isEmpty
+                                        ? null
+                                        : noteController.text,
+                              );
+                              Get.back();
+                            }
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: context.responsiveHeight(0.02)),
-                AppTextField(
-                  controller: noteController,
-                  label: 'Note (optional)',
-                ),
-                SizedBox(height: context.responsiveHeight(0.04)),
-                AppButton(
-                  label: 'Confirm Payment',
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      if (selectedAccountId.value == null) {
-                        SnackbarHelper.warning(
-                          'Please select an account',
-                          title: 'Account Required',
-                        );
-                        return;
-                      }
-                      final amount = double.parse(amountController.text);
-                      final account = controller.getAccountById(
-                        selectedAccountId.value!,
-                      );
-
-                      final confirmed = await PaymentConfirmationDialog.show(
-                        context: context,
-                        amount: amount,
-                        accountName: account?.name ?? 'Unknown',
-                        isLent: isLent,
-                      );
-
-                      if (confirmed == true) {
-                        await controller.addPayment(
-                          loanId: loan.id,
-                          amount: amount,
-                          accountId: selectedAccountId.value!,
-                          note: noteController.text.isEmpty
-                              ? null
-                              : noteController.text,
-                        );
-                        Get.back();
-                      }
-                    }
-                  },
                 ),
               ],
             ),
