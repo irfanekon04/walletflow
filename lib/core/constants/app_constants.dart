@@ -62,7 +62,7 @@ class AppColors {
 }
 
 class AppStrings {
-  static const String appName = 'WalletFlow';
+  static const String appName = 'Walletflow';
   static const String dashboard = 'Dashboard';
   static const String transactions = 'Transactions';
   static const String budgets = 'Budgets';

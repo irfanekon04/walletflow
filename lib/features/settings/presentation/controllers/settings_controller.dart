@@ -32,6 +32,7 @@ class SettingsController extends GetxController {
     themeMode.value = mode;
     Get.changeThemeMode(mode);
     await DatabaseService.settings.put('themeMode', mode.index);
+    debugPrint("Theme changed");
   }
 
   bool get isDarkMode {

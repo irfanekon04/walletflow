@@ -43,27 +43,38 @@ class CategorySpendingChart extends StatelessWidget {
         legends.add(_LegendItem(color: color, name: name, amount: amount));
       });
 
-      return Column(
-        children: [
-          SizedBox(
-            height: 200.h,
-            child: PieChart(
-              PieChartData(
-                sections: sections,
-                centerSpaceRadius: 40.sp,
-                sectionsSpace: 2,
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(24.r),
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+        padding: EdgeInsets.all(16.r),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200.h,
+              child: PieChart(
+                PieChartData(
+                  sections: sections,
+                  centerSpaceRadius: 40.sp,
+                  sectionsSpace: 2,
+                ),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeInOutCirc,
               ),
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.easeInOutCirc,
             ),
-          ),
-          24.h.verticalSpacer,
-          Wrap(
-            spacing: 16.sp,
-            runSpacing: 8.sp,
-            children: legends,
-          ),
-        ],
+            24.h.verticalSpacer,
+            Wrap(
+              spacing: 16.sp,
+              runSpacing: 8.sp,
+              children: legends,
+            ),
+          ],
+        ),
       );
     });
   }

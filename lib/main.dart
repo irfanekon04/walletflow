@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,13 +8,24 @@ import 'core/database/database_service.dart';
 import 'app/bindings/initial_binding.dart';
 import 'features/settings/presentation/controllers/settings_controller.dart';
 import 'features/transactions/data/repositories/category_repository.dart';
-
 import 'app/routes/app_pages.dart';
+import 'core/widgets/error_page.dart';
 
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Global error handlers
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    _handleError(details);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    _handlePlatformError(error, stack);
+    return true;
+  };
 
   // Load environment variables
   try {
@@ -33,6 +45,14 @@ void main() async {
   Get.put(SettingsController(), permanent: true);
 
   runApp(const WalletFlowApp());
+}
+
+void _handleError(FlutterErrorDetails details) {
+  debugPrint('FLUTTER ERROR: ${details.exceptionAsString()}');
+}
+
+void _handlePlatformError(Object error, StackTrace stack) {
+  debugPrint('PLATFORM ERROR: $error');
 }
 
 class WalletFlowApp extends StatelessWidget {
@@ -60,6 +80,10 @@ class WalletFlowApp extends StatelessWidget {
             getPages: AppPages.routes,
             defaultTransition: Transition.cupertino,
             transitionDuration: const Duration(milliseconds: 400),
+            builder: (context, widget) {
+              ErrorWidget.builder = (details) => ErrorPage(details: details);
+              return widget ?? const SizedBox.shrink();
+            },
           );
         },
       );

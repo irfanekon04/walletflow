@@ -9,26 +9,15 @@ import '../../../../core/widgets/snackbar_helper.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../../accounts/presentation/pages/account_list_page.dart';
 import '../../../transactions/presentation/pages/category_list_page.dart';
+import '../controllers/settings_controller.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
-
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  late RxBool isDarkMode;
-
-  @override
-  void initState() {
-    super.initState();
-    isDarkMode = Get.isDarkMode.obs;
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settingsController = Get.find<SettingsController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -71,18 +60,16 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Obx(
               () => SwitchListTile(
                 secondary: Icon(
-                  isDarkMode.value
+                  settingsController.isDarkMode
                       ? Icons.dark_mode_outlined
                       : Icons.light_mode_outlined,
                 ),
-                title: Text(
-                  'Dark Mode',
-                  style: TextStyle(fontSize: 14.sp),
-                ),
-                value: isDarkMode.value,
+                title: Text('Dark Mode', style: TextStyle(fontSize: 14.sp)),
+                value: settingsController.isDarkMode,
                 onChanged: (value) {
-                  isDarkMode.value = value;
-                  Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+                  settingsController.setThemeMode(
+                    value ? ThemeMode.dark : ThemeMode.light,
+                  );
                 },
               ),
             ),
@@ -95,10 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.file_download_outlined),
-                  title: Text(
-                    'Export Data',
-                    style: TextStyle(fontSize: 14.sp),
-                  ),
+                  title: Text('Export Data', style: TextStyle(fontSize: 14.sp)),
                   subtitle: Text(
                     'Download as CSV',
                     style: TextStyle(fontSize: 12.sp),
@@ -135,22 +119,13 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.info_outline),
-                  title: Text(
-                    'App Version',
-                    style: TextStyle(fontSize: 14.sp),
-                  ),
-                  subtitle: Text(
-                    '1.0.0',
-                    style: TextStyle(fontSize: 12.sp),
-                  ),
+                  title: Text('App Version', style: TextStyle(fontSize: 14.sp)),
+                  subtitle: Text('1.0.0', style: TextStyle(fontSize: 12.sp)),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.description_outlined),
-                  title: Text(
-                    'Licenses',
-                    style: TextStyle(fontSize: 14.sp),
-                  ),
+                  title: Text('Licenses', style: TextStyle(fontSize: 14.sp)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => showLicensePage(context: context),
                 ),
@@ -176,12 +151,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSectionTitle(BuildContext context, String title) {
     final theme = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        16.r,
-        0,
-        16.r,
-        8.h,
-      ),
+      padding: EdgeInsets.fromLTRB(16.r, 0, 16.r, 8.h),
       child: Text(
         title.toUpperCase(),
         style: theme.textTheme.labelMedium?.copyWith(

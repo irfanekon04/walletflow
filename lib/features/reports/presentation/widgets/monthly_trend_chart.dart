@@ -17,9 +17,19 @@ class MonthlyTrendChart extends StatelessWidget {
       final trends = controller.monthlyTrends;
       if (trends.isEmpty) return const SizedBox.shrink();
 
-      return SizedBox(
-        height: 280.h,
-        child: BarChart(
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(24.r),
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+        padding: EdgeInsets.all(16.r),
+        child: SizedBox(
+          height: 248.h,
+          child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
             maxY: _getMaxY(trends),
@@ -81,6 +91,7 @@ class MonthlyTrendChart extends StatelessWidget {
           ),
           duration: const Duration(milliseconds: 600),
           curve: Curves.linear,
+        ),
         ),
       );
     });
