@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:walletflow/app/routes/app_routes.dart';
+import '../../../../core/database/database_service.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 
@@ -19,8 +20,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    Get.offAllNamed(Routes.home);
+    await Future.delayed(const Duration(milliseconds: 1500));
+    
+    // Check if onboarding is completed
+    final bool onboardingCompleted = 
+        DatabaseService.settings.get('onboarding_completed', defaultValue: false);
+
+    if (onboardingCompleted) {
+      Get.offAllNamed(Routes.home);
+    } else {
+      Get.offAllNamed(Routes.onboarding);
+    }
   }
 
   @override

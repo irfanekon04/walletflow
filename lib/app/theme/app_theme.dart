@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // User provided palette
@@ -39,30 +38,42 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(
+      fontFamily: 'Outfit',
+      textTheme: TextTheme(
+        displayLarge: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 32,
           letterSpacing: -0.5,
+          color: colorScheme.onSurface,
         ),
-        headlineMedium: GoogleFonts.inter(
+        headlineMedium: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 28,
           color: colorScheme.onSurface,
         ),
-        headlineSmall: GoogleFonts.inter(
+        headlineSmall: TextStyle(
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 20,
+          color: colorScheme.onSurface,
         ),
-        bodyLarge: GoogleFonts.inter(fontSize: 16, letterSpacing: 0.15),
-        bodyMedium: GoogleFonts.inter(fontSize: 14, letterSpacing: 0.25),
-        labelLarge: GoogleFonts.inter(
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          letterSpacing: 0.15,
+          color: colorScheme.onSurface,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          letterSpacing: 0.25,
+          color: colorScheme.onSurface,
+        ),
+        labelLarge: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14,
+          color: colorScheme.onSurface,
         ),
       ),
       appBarTheme: AppBarTheme(
@@ -70,7 +81,8 @@ class AppTheme {
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: TextStyle(
+          fontFamily: 'Outfit',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
@@ -123,17 +135,9 @@ class AppTheme {
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            );
+            return const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
           }
-          return GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurfaceVariant,
-          );
+          return const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
         }),
       ),
       filledButtonTheme: FilledButtonThemeData(

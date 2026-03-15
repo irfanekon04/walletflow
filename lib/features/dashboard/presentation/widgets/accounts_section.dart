@@ -8,12 +8,10 @@ import 'package:walletflow/features/accounts/presentation/controllers/account_co
 class AccountsSection extends StatelessWidget {
   const AccountsSection({
     super.key,
-    required this.context,
     required this.controller,
     required this.format,
   });
 
-  final BuildContext context;
   final AccountController controller;
   final NumberFormat format;
   

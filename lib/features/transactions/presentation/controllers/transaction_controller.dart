@@ -22,11 +22,47 @@ class TransactionController extends GetxController {
   final RxString filterAccountId = ''.obs;
   final RxString filterCategoryId = ''.obs;
 
+  /// Flattened list of transactions and date headers for optimized ListView rendering
+  final RxList<dynamic> flattenedTransactions = <dynamic>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     loadCategories();
     loadTransactions();
+
+    // Re-flatten transactions whenever data or filters change
+    everAll([transactions, filterType, filterAccountId, filterCategoryId], (_) {
+      _updateFlattenedTransactions();
+    });
+  }
+
+  void _updateFlattenedTransactions() {
+    final filtered = getFilteredTransactions();
+    if (filtered.isEmpty) {
+      flattenedTransactions.clear();
+      return;
+    }
+
+    // Group by date
+    final Map<String, List<TransactionModel>> grouped = {};
+    for (final tx in filtered) {
+      final dateKey = DateTime(tx.date.year, tx.date.month, tx.date.day).toIso8601String();
+      grouped.putIfAbsent(dateKey, () => []);
+      grouped[dateKey]!.add(tx);
+    }
+
+    // Sort dates descending
+    final sortedDates = grouped.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    final List<dynamic> flat = [];
+    for (final dateKey in sortedDates) {
+      flat.add(DateTime.parse(dateKey)); // Header
+      flat.addAll(grouped[dateKey]!); // Items
+    }
+
+    flattenedTransactions.value = flat;
   }
 
   void loadCategories() {
@@ -38,6 +74,7 @@ class TransactionController extends GetxController {
   void loadTransactions() {
     isLoading.value = true;
     transactions.value = _transactionRepo.getAll();
+    _updateFlattenedTransactions(); // Initial flatten
     
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);

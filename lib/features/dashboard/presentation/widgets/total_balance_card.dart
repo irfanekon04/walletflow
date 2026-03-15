@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:walletflow/core/constants/app_constants.dart';
 import 'package:walletflow/core/utils/responsive.dart';
 
-
 class TotalBalanceCard extends StatelessWidget {
   const TotalBalanceCard({
     super.key,
-    required this.context,
     required this.balance,
   });
 
-  final BuildContext context;
   final String balance;
 
   @override

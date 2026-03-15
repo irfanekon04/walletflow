@@ -5,12 +5,10 @@ import 'package:walletflow/core/utils/responsive.dart';
 class IncomeExpenseSummary extends StatelessWidget {
   const IncomeExpenseSummary({
     super.key,
-    required this.context,
     required this.income,
     required this.expense,
   });
 
-  final BuildContext context;
   final String income;
   final String expense;
 

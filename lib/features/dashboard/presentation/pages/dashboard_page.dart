@@ -49,43 +49,39 @@ class DashboardPage extends StatelessWidget {
             children: [
               Obx(
                 () => TotalBalanceCard(
-                  context: context,
                   balance: currencyFormat.format(
                     accountController.totalBalance.value,
                   ),
                 ),
               ),
               SizedBox(height: context.responsiveHeight(0.02)),
-              IncomeExpenseSummary(
-                context: context,
-                income: currencyFormat.format(
-                  transactionController.totalIncome.value,
-                ),
-                expense: currencyFormat.format(
-                  transactionController.totalExpense.value,
+              Obx(
+                () => IncomeExpenseSummary(
+                  income: currencyFormat.format(
+                    transactionController.totalIncome.value,
+                  ),
+                  expense: currencyFormat.format(
+                    transactionController.totalExpense.value,
+                  ),
                 ),
               ),
               SizedBox(height: context.responsiveHeight(0.03)),
               AccountsSection(
-                context: context,
                 controller: accountController,
                 format: currencyFormat,
               ),
               SizedBox(height: context.responsiveHeight(0.03)),
               RecentTransactionsSection(
-                context: context,
                 controller: transactionController,
                 format: currencyFormat,
               ),
               SizedBox(height: context.responsiveHeight(0.03)),
               BudgetOverviewSection(
-                context: context,
                 controller: budgetController,
                 format: currencyFormat,
               ),
               SizedBox(height: context.responsiveHeight(0.03)),
               LoanSummarySection(
-                context: context,
                 controller: loanController,
                 format: currencyFormat,
               ),

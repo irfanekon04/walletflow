@@ -8,12 +8,10 @@ import 'package:walletflow/features/budgets/presentation/controllers/budget_cont
 class BudgetOverviewSection extends StatelessWidget {
   const BudgetOverviewSection({
     super.key,
-    required this.context,
     required this.controller,
     required this.format,
   });
 
-  final BuildContext context;
   final BudgetController controller;
   final NumberFormat format;
 

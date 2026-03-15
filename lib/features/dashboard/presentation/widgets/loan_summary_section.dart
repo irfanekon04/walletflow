@@ -8,12 +8,10 @@ import 'package:walletflow/features/loans/presentation/controllers/loan_controll
 class LoanSummarySection extends StatelessWidget {
   const LoanSummarySection({
     super.key,
-    required this.context,
     required this.controller,
     required this.format,
   });
 
-  final BuildContext context;
   final LoanController controller;
   final NumberFormat format;
 
