@@ -42,9 +42,15 @@ class MonthlyTrendChart extends StatelessWidget {
                   },
                 ),
               ),
-              leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
             ),
             gridData: const FlGridData(show: false),
             borderData: FlBorderData(show: false),
@@ -70,8 +76,8 @@ class MonthlyTrendChart extends StatelessWidget {
               );
             }).toList(),
           ),
-          swapAnimationDuration: const Duration(milliseconds: 600),
-          swapAnimationCurve: Curves.linear,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.linear,
         ),
       );
     });
