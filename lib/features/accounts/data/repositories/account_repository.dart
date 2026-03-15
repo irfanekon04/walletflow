@@ -75,7 +75,7 @@ class AccountRepository {
   double getTotalBalance() {
     double total = 0;
     for (final account in getAll()) {
-      if (account.type != AccountType.creditCard) {
+      if (account.type != AccountType.card) {
         total += account.balance;
       } else {
         total -= account.balance;
@@ -92,7 +92,7 @@ class AccountRepository {
         return 'account_balance';
       case AccountType.mfs:
         return 'phone_android';
-      case AccountType.creditCard:
+      case AccountType.card:
         return 'credit_card';
     }
   }
@@ -105,7 +105,7 @@ class AccountRepository {
         return '#2196F3';
       case AccountType.mfs:
         return '#9C27B0';
-      case AccountType.creditCard:
+      case AccountType.card:
         return '#FF9800';
     }
   }

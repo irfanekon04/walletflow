@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 // import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/app_dropdown.dart';
 
 class AccountDropdown extends StatelessWidget {
   final String? selectedAccountId;
@@ -50,53 +51,37 @@ class AccountDropdown extends StatelessWidget {
         );
       }
 
-      return DropdownButtonFormField<String>(
-        // ignore: deprecated_member_use
+      return AppDropdown<String>(
         value: selectedAccountId,
-        decoration: InputDecoration(
-          labelText: labelText ?? (isRequired ? 'Account *' : 'Account'),
-          prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-          ),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: context.responsivePadding,
-            vertical: context.responsivePadding * 0.75,
-          ),
-        ),
+        label: labelText ?? (isRequired ? 'Account *' : 'Account'),
+        prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
         items: accounts.map((account) {
           return DropdownMenuItem<String>(
             value: account.id,
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                // Container(
-                //   padding: const EdgeInsets.all(6),
-                //   decoration: BoxDecoration(
-                //     color: _parseColor(account.color).withValues(alpha: 0.2),
-                //     borderRadius: BorderRadius.circular(8),
-                //   ),
-                //   child: Icon(
-                //     _getAccountIcon(account.type),
-                //     size: 18,
-                //     color: _parseColor(account.color),
-                //   ),
-                // ),
-                // SizedBox(width: context.responsivePadding * 0.5),
-                Flexible(
-                  child: Text(
-                    account.name,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
+                Icon(
+                  accountController.getAccountIcon(account.type.name),
+                  size: 18 * context.responsiveFontSize,
+                  color: theme.colorScheme.primary,
                 ),
                 SizedBox(width: context.responsivePadding * 0.5),
-                Text(
-                  _formatBalance(account.balance),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        account.name,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      Text(
+                        _formatBalance(account.balance),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -121,28 +106,4 @@ class AccountDropdown extends StatelessWidget {
     final formatted = balance.abs().toStringAsFixed(2);
     return isNegative ? '-\$$formatted' : '\$$formatted';
   }
-
-  // Color _parseColor(String? colorString) {
-  //   if (colorString == null || colorString.isEmpty) {
-  //     return Colors.blue;
-  //   }
-  //   try {
-  //     return Color(int.parse(colorString.replaceFirst('#', '0xFF')));
-  //   } catch (e) {
-  //     return Colors.blue;
-  //   }
-  // }
-
-  // IconData _getAccountIcon(AccountType type) {
-  //   switch (type) {
-  //     case AccountType.cash:
-  //       return Icons.money;
-  //     case AccountType.bank:
-  //       return Icons.account_balance;
-  //     case AccountType.mfs:
-  //       return Icons.phone_android;
-  //     case AccountType.creditCard:
-  //       return Icons.credit_card;
-  //   }
-  // }
 }

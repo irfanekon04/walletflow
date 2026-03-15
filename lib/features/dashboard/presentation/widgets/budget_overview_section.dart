@@ -8,12 +8,10 @@ import 'package:walletflow/features/budgets/presentation/controllers/budget_cont
 class BudgetOverviewSection extends StatelessWidget {
   const BudgetOverviewSection({
     super.key,
-    required this.context,
     required this.controller,
     required this.format,
   });
 
-  final BuildContext context;
   final BudgetController controller;
   final NumberFormat format;
 
@@ -24,25 +22,27 @@ class BudgetOverviewSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
           child: Text(
             'Budget Overview',
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 24.sp,
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        12.h.verticalSpacer,
         Obx(() {
           if (controller.budgets.isEmpty) {
             return Card(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(16.r),
                 child: Center(
                   child: Text(
                     AppStrings.noBudgets,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ),
@@ -58,7 +58,7 @@ class BudgetOverviewSection extends StatelessWidget {
           return Card(
             color: theme.colorScheme.surfaceContainerLow,
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(16.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -67,7 +67,9 @@ class BudgetOverviewSection extends StatelessWidget {
                     children: [
                       Text(
                         '${controller.getMonthName(controller.selectedMonth.value)} ${controller.selectedYear.value}',
-                        style: theme.textTheme.labelLarge,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontSize: 14.sp,
+                        ),
                       ),
                       Text(
                         '${format.format(controller.totalSpent.value)} / ${format.format(controller.totalBudget.value)}',
@@ -75,16 +77,17 @@ class BudgetOverviewSection extends StatelessWidget {
                           color: isOver
                               ? theme.colorScheme.error
                               : theme.colorScheme.onSurface,
+                          fontSize: 14.sp,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  12.h.verticalSpacer,
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
                       value: percent.clamp(0.0, 1.0),
-                      minHeight: 8 * context.responsiveFontSize,
+                      minHeight: 8.r,
                       backgroundColor: theme.colorScheme.onSurface.withValues(
                         alpha: .3,
                       ),

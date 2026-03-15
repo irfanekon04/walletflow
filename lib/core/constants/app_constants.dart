@@ -29,6 +29,29 @@ class AppColors {
   static const Color onBackgroundDark = Color(0xFFE0E0E0);
   static const Color onSurfaceDark = Color(0xFF9E9E9E);
 
+  static const List<String> categoryColors = [
+    '#F44336', // Red
+    '#E91E63', // Pink
+    '#9C27B0', // Purple
+    '#673AB7', // Deep Purple
+    '#3F51B5', // Indigo
+    '#2196F3', // Blue
+    '#03A9F4', // Light Blue
+    '#00BCD4', // Cyan
+    '#009688', // Teal
+    '#4CAF50', // Green
+    '#8BC34A', // Light Green
+    '#CDDC39', // Lime
+    '#FFEB3B', // Yellow
+    '#FFC107', // Amber
+    '#FF9800', // Orange
+    '#FF5722', // Deep Orange
+    '#795548', // Brown
+    '#9E9E9E', // Grey
+    '#607D8B', // Blue Grey
+    '#000000', // Black
+  ];
+
   static Color fromHex(String hex) {
     hex = hex.replaceAll('#', '');
     if (hex.length == 6) {
@@ -39,7 +62,7 @@ class AppColors {
 }
 
 class AppStrings {
-  static const String appName = 'WalletFlow';
+  static const String appName = 'Walletflow';
   static const String dashboard = 'Dashboard';
   static const String transactions = 'Transactions';
   static const String budgets = 'Budgets';
@@ -67,4 +90,38 @@ class AppStrings {
   static const String delete = 'Delete';
   static const String edit = 'Edit';
   static const String deleteBudget = 'Delete Budget';
+}
+
+class AppIcons {
+  static const Map<String, IconData> categoryIcons = {
+    'category': Icons.category_outlined,
+    'restaurant': Icons.restaurant_outlined,
+    'shopping_cart': Icons.shopping_cart_outlined,
+    'shopping_bag': Icons.shopping_bag_outlined,
+    'directions_car': Icons.directions_car_outlined,
+    'home': Icons.home_outlined,
+    'bolt': Icons.bolt_outlined,
+    'water_drop': Icons.water_drop_outlined,
+    'wifi': Icons.wifi_outlined,
+    'phone_android': Icons.phone_android_outlined,
+    'movie': Icons.movie_outlined,
+    'fitness_center': Icons.fitness_center_outlined,
+    'medical_services': Icons.medical_services_outlined,
+    'school': Icons.school_outlined,
+    'work': Icons.work_outline,
+    'payments': Icons.payments_outlined,
+    'account_balance': Icons.account_balance_outlined,
+    'trending_up': Icons.trending_up_outlined,
+    'savings': Icons.savings_outlined,
+    'card_giftcard': Icons.card_giftcard_outlined,
+    'flight': Icons.flight_outlined,
+    'pets': Icons.pets_outlined,
+    'checkroom': Icons.checkroom_outlined,
+    'local_gas_station': Icons.local_gas_station_outlined,
+    'build': Icons.build_outlined,
+    'star': Icons.star_outline,
+    'handshake': Icons.handshake_outlined,
+    'request_quote': Icons.request_quote_outlined,
+    'account_balance_wallet': Icons.account_balance_wallet_outlined,
+  };
 }

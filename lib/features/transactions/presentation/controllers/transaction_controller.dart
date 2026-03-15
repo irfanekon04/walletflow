@@ -3,17 +3,14 @@ import 'package:get/get.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/models/category_model.dart';
 import '../../data/repositories/transaction_repository.dart';
-import '../../data/repositories/category_repository.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
+import 'category_controller.dart';
 
 class TransactionController extends GetxController {
   final TransactionRepository _transactionRepo = TransactionRepository();
-  final CategoryRepository _categoryRepo = CategoryRepository();
+  late final CategoryController _categoryController;
   
   final RxList<TransactionModel> transactions = <TransactionModel>[].obs;
-  final RxList<CategoryModel> categories = <CategoryModel>[].obs;
-  final RxList<CategoryModel> expenseCategories = <CategoryModel>[].obs;
-  final RxList<CategoryModel> incomeCategories = <CategoryModel>[].obs;
   final RxDouble totalIncome = 0.0.obs;
   final RxDouble totalExpense = 0.0.obs;
   final RxBool isLoading = false.obs;
@@ -22,22 +19,56 @@ class TransactionController extends GetxController {
   final RxString filterAccountId = ''.obs;
   final RxString filterCategoryId = ''.obs;
 
+  final Rx<CategoryModel?> topSpendingCategory = Rx<CategoryModel?>(null);
+  final RxDouble topSpendingAmount = 0.0.obs;
+
+  /// Flattened list of transactions and date headers for optimized ListView rendering
+  final RxList<dynamic> flattenedTransactions = <dynamic>[].obs;
+
   @override
   void onInit() {
     super.onInit();
-    loadCategories();
+    _categoryController = Get.find<CategoryController>();
     loadTransactions();
+
+    // Re-flatten transactions whenever data or filters change
+    everAll([transactions, filterType, filterAccountId, filterCategoryId], (_) {
+      _updateFlattenedTransactions();
+    });
   }
 
-  void loadCategories() {
-    categories.value = _categoryRepo.getAll();
-    expenseCategories.value = _categoryRepo.getByType(CategoryType.expense);
-    incomeCategories.value = _categoryRepo.getByType(CategoryType.income);
+  void _updateFlattenedTransactions() {
+    final filtered = getFilteredTransactions();
+    if (filtered.isEmpty) {
+      flattenedTransactions.clear();
+      return;
+    }
+
+    // Group by date
+    final Map<String, List<TransactionModel>> grouped = {};
+    for (final tx in filtered) {
+      final dateKey = DateTime(tx.date.year, tx.date.month, tx.date.day).toIso8601String();
+      grouped.putIfAbsent(dateKey, () => []);
+      grouped[dateKey]!.add(tx);
+    }
+
+    // Sort dates descending
+    final sortedDates = grouped.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    final List<dynamic> flat = [];
+    for (final dateKey in sortedDates) {
+      flat.add(DateTime.parse(dateKey)); // Header
+      flat.addAll(grouped[dateKey]!); // Items
+    }
+
+    flattenedTransactions.value = flat;
   }
 
   void loadTransactions() {
     isLoading.value = true;
     transactions.value = _transactionRepo.getAll();
+    _updateFlattenedTransactions(); // Initial flatten
     
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
@@ -51,7 +82,41 @@ class TransactionController extends GetxController {
       start: startOfMonth,
       end: endOfMonth,
     );
+
+    // Calculate top spending category for current month
+    _calculateTopSpending(startOfMonth, endOfMonth);
+    
     isLoading.value = false;
+  }
+
+  void _calculateTopSpending(DateTime start, DateTime end) {
+    final monthTransactions = transactions.where((t) => 
+      t.type == TransactionType.expense && 
+      t.date.isAfter(start.subtract(const Duration(seconds: 1))) && 
+      t.date.isBefore(end.add(const Duration(seconds: 1)))
+    ).toList();
+
+    if (monthTransactions.isEmpty) {
+      topSpendingCategory.value = null;
+      topSpendingAmount.value = 0.0;
+      return;
+    }
+
+    final Map<String, double> categoryTotals = {};
+    for (final tx in monthTransactions) {
+      final catId = tx.categoryId ?? 'uncategorized';
+      categoryTotals[catId] = (categoryTotals[catId] ?? 0) + tx.amount;
+    }
+
+    if (categoryTotals.isEmpty) {
+      topSpendingCategory.value = null;
+      topSpendingAmount.value = 0.0;
+      return;
+    }
+
+    final topEntry = categoryTotals.entries.reduce((a, b) => a.value > b.value ? a : b);
+    topSpendingCategory.value = getCategoryById(topEntry.key);
+    topSpendingAmount.value = topEntry.value;
   }
 
   Future<void> addTransaction({
@@ -215,7 +280,7 @@ class TransactionController extends GetxController {
   }
 
   CategoryModel? getCategoryById(String id) {
-    return _categoryRepo.getById(id);
+    return _categoryController.getCategoryById(id);
   }
 
   List<TransactionModel> getRecentTransactions({int limit = 5}) {
@@ -250,7 +315,6 @@ class TransactionController extends GetxController {
     filterCategoryId.value = '';
   }
 
-
   Future<void> deleteTransactionAndAdjustBalance(TransactionModel tx) async {
     await deleteTransaction(tx.id);
 
@@ -284,30 +348,7 @@ class TransactionController extends GetxController {
     accountController.loadAccounts();
   }
 
-
-  
-
-
   IconData getCategoryIcon(String icon) {
-    switch (icon) {
-      case 'restaurant':
-        return Icons.restaurant_outlined;
-      case 'directions_car':
-        return Icons.directions_car_outlined;
-      case 'shopping_bag':
-        return Icons.shopping_bag_outlined;
-      case 'receipt_long':
-        return Icons.receipt_long_outlined;
-      case 'movie':
-        return Icons.movie_outlined;
-      case 'medical_services':
-        return Icons.medical_services_outlined;
-      case 'school':
-        return Icons.school_outlined;
-      case 'work':
-        return Icons.work_outline;
-      default:
-        return Icons.category_outlined;
-    }
+    return _categoryController.getIconData(icon);
   }
 }

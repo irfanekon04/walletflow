@@ -10,37 +10,12 @@ import 'package:walletflow/features/transactions/presentation/controllers/transa
 class RecentTransactionsSection extends StatelessWidget {
   const RecentTransactionsSection({
     super.key,
-    required this.context,
     required this.controller,
     required this.format,
   });
 
-  final BuildContext context;
   final TransactionController controller;
   final NumberFormat format;
-  
-  IconData getCategoryIcon(String icon) {
-      switch (icon) {
-        case 'restaurant':
-          return Icons.restaurant_outlined;
-        case 'directions_car':
-          return Icons.directions_car_outlined;
-        case 'shopping_bag':
-          return Icons.shopping_bag_outlined;
-        case 'receipt_long':
-          return Icons.receipt_long_outlined;
-        case 'movie':
-          return Icons.movie_outlined;
-        case 'medical_services':
-          return Icons.medical_services_outlined;
-        case 'school':
-          return Icons.school_outlined;
-        case 'work':
-          return Icons.work_outline;
-        default:
-          return Icons.category_outlined;
-      }
-    }
 
   @override
   Widget build(BuildContext context) {
@@ -58,20 +33,26 @@ class RecentTransactionsSection extends StatelessWidget {
                 'Recent Transactions',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
+                  fontSize: (theme.textTheme.headlineSmall?.fontSize ?? 24) *
+                      context.responsiveFontSize,
                 ),
               ),
               TextButton(
                 onPressed: () => Get.find<NavigationController>().changePage(1),
-                child: const Text('See All'),
+                child: Text(
+                  'See All',
+                  style: TextStyle(fontSize: 14 * context.responsiveFontSize),
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: context.responsiveHeight(0.01)),
         Obx(() {
           final transactions = controller.transactions.take(5).toList();
           if (transactions.isEmpty) {
             return Card(
+              color: theme.colorScheme.surfaceContainerLow,
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Center(
@@ -118,7 +99,7 @@ class RecentTransactionsSection extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
-                      getCategoryIcon(category?.icon ?? 'category'),
+                      controller.getCategoryIcon(category?.icon ?? 'category'),
                       color: color,
                       size: 20 * context.responsiveFontSize,
                     ),

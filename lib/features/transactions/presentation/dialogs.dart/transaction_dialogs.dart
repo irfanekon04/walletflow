@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:walletflow/core/utils/responsive.dart';
+import 'package:walletflow/core/widgets/app_button.dart';
+import 'package:walletflow/core/widgets/confirm_dialog.dart';
 
 import 'package:walletflow/features/accounts/presentation/controllers/account_controller.dart';
 import 'package:walletflow/features/transactions/data/models/category_model.dart';
@@ -58,20 +60,18 @@ class TransactionDialogs {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: AppButton(
+                    isOutlined: true,
+                    label: 'Clear',
                     onPressed: () {
                       controller.clearFilters();
                       Get.back();
                     },
-                    child: const Text('Clear'),
                   ),
                 ),
                 SizedBox(width: context.responsiveWidth(0.03)),
                 Expanded(
-                  child: FilledButton(
-                    onPressed: () => Get.back(),
-                    child: const Text('Apply'),
-                  ),
+                  child: AppButton(label: 'Apply', onPressed: () => Get.back()),
                 ),
               ],
             ),
@@ -161,38 +161,23 @@ class TransactionDialogs {
     );
   }
 
-  static void showDeleteConfirmation(
+  static Future<void> showDeleteConfirmation(
     BuildContext context,
     TransactionModel transaction,
-  ) {
-    final theme = Theme.of(context);
+  ) async {
     final controller = Get.find<TransactionController>();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Transaction'),
-        content: const Text(
+    final confirmed = await ConfirmDialog.show(
+      title: 'Delete Transaction',
+      message:
           'Are you sure you want to delete this transaction? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () async {
-              await controller.deleteTransactionAndAdjustBalance(transaction);
-              if (context.mounted) {
-                Get.back();
-              }
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      confirmText: 'Delete',
+      isDestructive: true,
     );
+
+    if (confirmed == true) {
+      await controller.deleteTransactionAndAdjustBalance(transaction);
+    }
   }
 
   static void showEditTransactionBottomSheet(

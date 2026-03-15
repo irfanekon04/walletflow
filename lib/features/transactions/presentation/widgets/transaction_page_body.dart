@@ -9,6 +9,7 @@ import 'package:walletflow/features/transactions/presentation/controllers/transa
 import 'package:walletflow/features/transactions/presentation/dialogs.dart/transaction_dialogs.dart';
 import 'package:walletflow/features/transactions/presentation/widgets/transaction_filter_tabs.dart';
 import 'package:walletflow/features/transactions/presentation/widgets/transfer_list_item.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class TransactionPageBody extends StatelessWidget {
   const TransactionPageBody({
@@ -29,25 +30,13 @@ class TransactionPageBody extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final dateOnly = DateTime(date.year, date.month, date.day);
-    
+
     if (dateOnly == today) return 'Today';
     if (dateOnly == yesterday) return 'Yesterday';
     if (dateOnly.isAfter(today.subtract(const Duration(days: 7)))) {
       return DateFormat('EEEE').format(date);
     }
     return DateFormat('MMM dd, yyyy').format(date);
-  }
-
-  Map<String, List<TransactionModel>> _groupTransactionsByDate(List<TransactionModel> transactions) {
-    final Map<String, List<TransactionModel>> grouped = {};
-    
-    for (final transaction in transactions) {
-      final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
-      grouped.putIfAbsent(dateKey, () => []);
-      grouped[dateKey]!.add(transaction);
-    }
-    
-    return grouped;
   }
 
   @override
@@ -64,146 +53,133 @@ class TransactionPageBody extends StatelessWidget {
         ),
         Expanded(
           child: Obx(() {
-            // First get filtered transactions, then group by date
-            final filteredTransactions = controller.getFilteredTransactions();
-            final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
-            
-            if (groupedTransactions.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.receipt_long_outlined,
-                      size: 64 * context.responsiveFontSize,
-                      color: theme.colorScheme.outlineVariant,
-                    ),
-                    SizedBox(height: context.responsiveHeight(0.02)),
-                    Text(
-                      AppStrings.noTransactions,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+            final flatList = controller.flattenedTransactions;
+
+            if (flatList.isEmpty) {
+              return EmptyStateWidget(
+                icon: Icons.receipt_long_outlined,
+                title: AppStrings.noTransactions,
+                subtitle: 'No transactions found for the selected filters.',
+                // actionLabel: 'Clear Filters',
+                // onAction: () => controller.clearFilters(),
               );
             }
 
-            final sortedDates = groupedTransactions.keys.toList()
-              ..sort((a, b) => DateTime.parse(b).compareTo(DateTime.parse(a)));
-
             return ListView.builder(
               padding: EdgeInsets.only(
-                top: AppDimensions.paddingS,
-                left: context.responsivePadding,
-                right: context.responsivePadding,
-                bottom: 120,
+                top: 8.r,
+                left: 16.r,
+                right: 16.r,
+                bottom: 120.h,
               ),
-              itemCount: sortedDates.length,
+              itemCount: flatList.length,
               itemBuilder: (context, index) {
-                final dateKey = sortedDates[index];
-                final transactions = groupedTransactions[dateKey]!;
-                final date = DateTime.parse(dateKey);
+                final item = flatList[index];
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        _formatDateHeader(date),
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
+                if (item is DateTime) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12.h,
+                    ),
+                    child: Text(
+                      _formatDateHeader(item),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                        fontSize: 14.sp,
                       ),
                     ),
-                    ...transactions.map((transaction) {
-                      if (transaction.type == TransactionType.transfer) {
-                        return TransferListItem(
-                          transaction: transaction,
-                          onTap: () =>
-                              TransactionDialogs.showEditTransactionBottomSheet(
-                                context,
-                                controller,
-                                accountController,
-                                transaction,
-                              ),
-                          onDelete: () => TransactionDialogs.showDeleteConfirmation(
-                            context,
-                            transaction,
-                          ),
-                        );
-                      }
+                  );
+                }
 
-                      final category = controller.getCategoryById(
-                        transaction.categoryId ?? '',
-                      );
-                      final color = category != null
-                          ? Color(
-                              int.parse(
-                                category.color.replaceFirst('#', 'FF'),
-                                radix: 16,
-                              ),
-                            )
-                          : theme.colorScheme.secondary;
+                final transaction = item as TransactionModel;
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        color: theme.colorScheme.surfaceContainerLow,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          leading: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Icon(
-                              controller.getCategoryIcon(
-                                category?.icon ?? 'category',
-                              ),
-                              color: color,
-                              size: 20 * context.responsiveFontSize,
-                            ),
-                          ),
-                          title: Text(
-                            category?.name ?? 'Uncategorized',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Text(
-                            transaction.note ?? '',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: Text(
-                            '${transaction.type == TransactionType.expense ? '-' : '+'}${currencyFormat.format(transaction.amount)}',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: transaction.type == TransactionType.expense
-                                  ? theme.colorScheme.error
-                                  : theme.colorScheme.primary,
-                            ),
-                          ),
-                          onTap: () => TransactionDialogs.showTransactionDetails(
-                            context,
-                            transaction,
-                            category,
-                            currencyFormat,
-                          ),
+                if (transaction.type == TransactionType.transfer) {
+                  return TransferListItem(
+                    transaction: transaction,
+                    onTap: () =>
+                        TransactionDialogs.showEditTransactionBottomSheet(
+                          context,
+                          controller,
+                          accountController,
+                          transaction,
                         ),
-                      );
-                    }),
-                  ],
+                    onDelete: () => TransactionDialogs.showDeleteConfirmation(
+                      context,
+                      transaction,
+                    ),
+                  );
+                }
+
+                final category = controller.getCategoryById(
+                  transaction.categoryId ?? '',
+                );
+                final color = category != null
+                    ? Color(
+                        int.parse(
+                          category.color.replaceFirst('#', 'FF'),
+                          radix: 16,
+                        ),
+                      )
+                    : theme.colorScheme.secondary;
+
+                return Card(
+                  margin: EdgeInsets.only(
+                    bottom: 12.h,
+                  ),
+                  color: theme.colorScheme.surfaceContainerLow,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.r,
+                      vertical: 8.h,
+                    ),
+                    leading: Container(
+                      padding: EdgeInsets.all(12.r),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        controller.getCategoryIcon(
+                          category?.icon ?? 'category',
+                        ),
+                        color: color,
+                        size: 20.sp,
+                      ),
+                    ),
+                    title: Text(
+                      category?.name ?? 'Uncategorized',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    subtitle: Text(
+                      transaction.note ?? '',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontSize: 12.sp,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: Text(
+                      '${transaction.type == TransactionType.expense ? '-' : '+'}${currencyFormat.format(transaction.amount)}',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: transaction.type == TransactionType.expense
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.primary,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    onTap: () => TransactionDialogs.showTransactionDetails(
+                      context,
+                      transaction,
+                      category,
+                      currencyFormat,
+                    ),
+                  ),
                 );
               },
             );

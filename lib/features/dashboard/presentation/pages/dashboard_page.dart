@@ -6,7 +6,9 @@ import 'package:walletflow/features/dashboard/presentation/widgets/budget_overvi
 import 'package:walletflow/features/dashboard/presentation/widgets/income_expense_summary.dart';
 import 'package:walletflow/features/dashboard/presentation/widgets/loan_summary_section.dart';
 import 'package:walletflow/features/dashboard/presentation/widgets/recent_transactions_section.dart';
+import 'package:walletflow/features/dashboard/presentation/widgets/top_spending_card.dart';
 import 'package:walletflow/features/dashboard/presentation/widgets/total_balance_card.dart';
+import 'package:walletflow/features/reports/presentation/pages/reports_page.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
@@ -31,6 +33,11 @@ class DashboardPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(AppStrings.appName, style: theme.textTheme.titleLarge),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart_rounded),
+            onPressed: () => Get.to(() => const ReportsPage()),
+            tooltip: 'Financial Reports',
+          ),
           IconButton(icon: const Icon(Icons.sync_outlined), onPressed: () {}),
         ],
       ),
@@ -43,49 +50,60 @@ class DashboardPage extends StatelessWidget {
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(context.responsivePadding),
+          padding: EdgeInsets.all(16.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Obx(
                 () => TotalBalanceCard(
-                  context: context,
                   balance: currencyFormat.format(
                     accountController.totalBalance.value,
                   ),
                 ),
               ),
-              SizedBox(height: context.responsiveHeight(0.02)),
-              IncomeExpenseSummary(
-                context: context,
-                income: currencyFormat.format(
-                  transactionController.totalIncome.value,
-                ),
-                expense: currencyFormat.format(
-                  transactionController.totalExpense.value,
+              16.h.verticalSpacer,
+              Obx(
+                () => IncomeExpenseSummary(
+                  income: currencyFormat.format(
+                    transactionController.totalIncome.value,
+                  ),
+                  expense: currencyFormat.format(
+                    transactionController.totalExpense.value,
+                  ),
                 ),
               ),
-              SizedBox(height: context.responsiveHeight(0.03)),
+              Obx(() {
+                if (transactionController.topSpendingCategory.value == null ||
+                    transactionController.topSpendingAmount.value <= 0) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  children: [
+                    24.h.verticalSpacer,
+                    TopSpendingCard(
+                      controller: transactionController,
+                      format: currencyFormat,
+                    ),
+                  ],
+                );
+              }),
+              16.h.verticalSpacer,
               AccountsSection(
-                context: context,
                 controller: accountController,
                 format: currencyFormat,
               ),
-              SizedBox(height: context.responsiveHeight(0.03)),
+              16.h.verticalSpacer,
               RecentTransactionsSection(
-                context: context,
                 controller: transactionController,
                 format: currencyFormat,
               ),
-              SizedBox(height: context.responsiveHeight(0.03)),
+              16.h.verticalSpacer,
               BudgetOverviewSection(
-                context: context,
                 controller: budgetController,
                 format: currencyFormat,
               ),
-              SizedBox(height: context.responsiveHeight(0.03)),
+              16.h.verticalSpacer,
               LoanSummarySection(
-                context: context,
                 controller: loanController,
                 format: currencyFormat,
               ),

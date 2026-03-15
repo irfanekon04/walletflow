@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:csv/csv.dart';
-import 'package:get/get.dart';
+
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_saver/file_saver.dart';
 import '../database/database_service.dart';
+import '../widgets/snackbar_helper.dart';
 import '../../features/accounts/data/models/account_model.dart';
 import '../../features/transactions/data/models/transaction_model.dart';
 import '../../features/transactions/data/models/category_model.dart';
@@ -59,11 +60,7 @@ class ExportService {
       final csvContent = await exportTransactionsToCSV();
       
       if (csvContent.split('\n').length <= 1) {
-        Get.snackbar(
-          'No Data',
-          'No transactions to export',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        SnackbarHelper.warning('No transactions to export', title: 'No Data');
         return;
       }
       
@@ -77,17 +74,9 @@ class ExportService {
         mimeType: MimeType.csv,
       );
       
-      Get.snackbar(
-        'Export Successful',
-        'File saved: $fileName',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.success('File saved: $fileName', title: 'Export Successful');
     } catch (e) {
-      Get.snackbar(
-        'Export Failed',
-        'Unable to export: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.error('Unable to export: $e', title: 'Export Failed');
     }
   }
   

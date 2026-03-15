@@ -68,6 +68,8 @@ class CategoryRepository {
       {'name': 'Entertainment', 'icon': 'movie', 'color': '#00BCD4'},
       {'name': 'Health', 'icon': 'medical_services', 'color': '#4CAF50'},
       {'name': 'Education', 'icon': 'school', 'color': '#FF5722'},
+      {'name': 'Lending', 'icon': 'handshake', 'color': '#2196F3'},
+      {'name': 'Debt Repayment', 'icon': 'account_balance_wallet', 'color': '#F44336'},
       {'name': 'Others', 'icon': 'more_horiz', 'color': '#607D8B'},
     ];
 
@@ -77,6 +79,8 @@ class CategoryRepository {
       {'name': 'Business', 'icon': 'business', 'color': '#9C27B0'},
       {'name': 'Investment', 'icon': 'trending_up', 'color': '#00BCD4'},
       {'name': 'Gift', 'icon': 'card_giftcard', 'color': '#E91E63'},
+      {'name': 'Borrowing', 'icon': 'request_quote', 'color': '#FF9800'},
+      {'name': 'Debt Collection', 'icon': 'account_balance_wallet', 'color': '#4CAF50'},
       {'name': 'Others', 'icon': 'more_horiz', 'color': '#607D8B'},
     ];
 

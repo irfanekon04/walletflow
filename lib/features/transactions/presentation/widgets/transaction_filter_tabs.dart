@@ -23,8 +23,8 @@ class TransactionFilterTabs extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(
-        horizontal: context.responsivePadding,
-        vertical: AppDimensions.paddingS,
+        horizontal: 16.r,
+        vertical: 8.h,
       ),
       child: Row(
         children: [
@@ -36,7 +36,7 @@ class TransactionFilterTabs extends StatelessWidget {
             colorScheme: colorScheme,
             isCompact: isCompact,
           ),
-          SizedBox(width: isCompact ? 6 : 8),
+          (isCompact ? 6 : 8).w.horizontalSpacer,
           _buildChip(
             context: context,
             label: AppStrings.income,
@@ -46,7 +46,7 @@ class TransactionFilterTabs extends StatelessWidget {
             color: AppColors.incomeGreen,
             isCompact: isCompact,
           ),
-          SizedBox(width: isCompact ? 6 : 8),
+          (isCompact ? 6 : 8).w.horizontalSpacer,
           _buildChip(
             context: context,
             label: AppStrings.expense,
@@ -56,7 +56,7 @@ class TransactionFilterTabs extends StatelessWidget {
             color: AppColors.expenseRed,
             isCompact: isCompact,
           ),
-          SizedBox(width: isCompact ? 6 : 8),
+          (isCompact ? 6 : 8).w.horizontalSpacer,
           _buildChip(
             context: context,
             label: AppStrings.transfer,
@@ -86,7 +86,7 @@ class TransactionFilterTabs extends StatelessWidget {
       label: Text(
         label,
         style: TextStyle(
-          fontSize: isCompact ? 12 : 14,
+          fontSize: (isCompact ? 12 : 14).sp,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           color: isSelected ? Colors.white : chipColor,
         ),
@@ -98,11 +98,11 @@ class TransactionFilterTabs extends StatelessWidget {
       checkmarkColor: Colors.white,
       showCheckmark: false,
       padding: EdgeInsets.symmetric(
-        horizontal: isCompact ? 8 : 12,
-        vertical: isCompact ? 4 : 8,
+        horizontal: (isCompact ? 8 : 12).r,
+        vertical: (isCompact ? 4 : 8).r,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+        borderRadius: BorderRadius.circular(24.r),
         side: BorderSide(
           color: isSelected ? chipColor : chipColor.withValues(alpha: 0.3),
         ),

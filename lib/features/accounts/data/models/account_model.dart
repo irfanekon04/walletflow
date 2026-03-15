@@ -11,7 +11,7 @@ enum AccountType {
   @HiveField(2)
   mfs,
   @HiveField(3)
-  creditCard,
+  card,
 }
 
 @HiveType(typeId: 1)
@@ -64,7 +64,7 @@ class AccountModel extends HiveObject {
   });
 
   double get availableBalance {
-    if (type == AccountType.creditCard && creditLimit != null) {
+    if (type == AccountType.card && creditLimit != null) {
       return creditLimit! - balance;
     }
     return balance;

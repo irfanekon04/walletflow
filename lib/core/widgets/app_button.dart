@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:walletflow/core/utils/responsive.dart';
 
 class AppButton extends StatelessWidget {
@@ -23,9 +24,17 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Helper to handle tap with haptics
+    void handlePress() {
+      HapticFeedback.lightImpact();
+      if (onPressed != null) {
+        onPressed!();
+      }
+    }
+
     if (isOutlined) {
       return OutlinedButton.icon(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isLoading ? null : handlePress,
         icon: isLoading
             ? SizedBox(
                 width: 16 * context.responsiveFontSize,
@@ -59,7 +68,7 @@ class AppButton extends StatelessWidget {
     }
 
     return FilledButton.icon(
-      onPressed: isLoading ? null : onPressed,
+      onPressed: isLoading ? null : handlePress,
       icon: isLoading
           ? SizedBox(
               width: 16 * context.responsiveFontSize,

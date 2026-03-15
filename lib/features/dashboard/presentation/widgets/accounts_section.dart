@@ -4,34 +4,32 @@ import 'package:intl/intl.dart';
 import 'package:walletflow/core/constants/app_constants.dart';
 import 'package:walletflow/core/utils/responsive.dart';
 import 'package:walletflow/features/accounts/presentation/controllers/account_controller.dart';
+import 'package:walletflow/features/accounts/presentation/pages/account_list_page.dart';
 
 class AccountsSection extends StatelessWidget {
   const AccountsSection({
     super.key,
-    required this.context,
     required this.controller,
     required this.format,
   });
 
-  final BuildContext context;
   final AccountController controller;
   final NumberFormat format;
-  
-  
+
   IconData getAccountIcon(String type) {
-      switch (type) {
-        case 'cash':
-          return Icons.account_balance_wallet_outlined;
-        case 'bank':
-          return Icons.account_balance_outlined;
-        case 'mfs':
-          return Icons.phone_android_outlined;
-        case 'creditCard':
-          return Icons.credit_card_outlined;
-        default:
-          return Icons.account_balance_wallet_outlined;
-      }
+    switch (type) {
+      case 'cash':
+        return Icons.account_balance_wallet_outlined;
+      case 'bank':
+        return Icons.account_balance_outlined;
+      case 'mfs':
+        return Icons.phone_android_outlined;
+      case 'card':
+        return Icons.credit_card_outlined;
+      default:
+        return Icons.account_balance_wallet_outlined;
     }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,25 +39,36 @@ class AccountsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            AppStrings.accounts,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppStrings.accounts,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24.sp,
+                ),
+              ),
+              TextButton(
+                onPressed: () => Get.to(() => const AccountListPage()),
+                child: Text('Manage', style: TextStyle(fontSize: 14.sp)),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
+        12.h.verticalSpacer,
         Obx(() {
           if (controller.accounts.isEmpty) {
             return Card(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24.r),
                 child: Center(
                   child: Text(
                     AppStrings.noAccounts,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ),
@@ -67,7 +76,7 @@ class AccountsSection extends StatelessWidget {
             );
           }
           return SizedBox(
-            height: context.responsiveHeight(0.14),
+            height: 120.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               clipBehavior: Clip.none,
@@ -75,7 +84,7 @@ class AccountsSection extends StatelessWidget {
               itemBuilder: (context, index) {
                 final account = controller.accounts[index];
                 return Card(
-                  margin: EdgeInsets.only(right: context.responsiveWidth(0.03)),
+                  margin: EdgeInsets.only(right: 12.w),
                   color: theme.colorScheme.surfaceContainerLow,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -85,8 +94,8 @@ class AccountsSection extends StatelessWidget {
                     ),
                   ),
                   child: Container(
-                    width: context.isTabletWidth ? 200 : 160,
-                    padding: EdgeInsets.all(context.responsivePadding),
+                    width: 160.w,
+                    padding: EdgeInsets.all(16.r),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,15 +104,17 @@ class AccountsSection extends StatelessWidget {
                           children: [
                             Icon(
                               getAccountIcon(account.type.name),
-                              size: 20 * context.responsiveFontSize,
+                              size: 20.sp,
                               color: theme.colorScheme.primary,
                             ),
-                            SizedBox(width: context.responsiveWidth(0.02)),
+                            8.w.horizontalSpacer,
                             Expanded(
                               child: Text(
                                 account.name,
                                 overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.labelLarge,
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  fontSize: 14.sp,
+                                ),
                               ),
                             ),
                           ],
@@ -112,7 +123,7 @@ class AccountsSection extends StatelessWidget {
                           format.format(account.balance),
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20 * context.responsiveFontSize,
+                            fontSize: 20.sp,
                             color: account.balance < 0
                                 ? theme.colorScheme.error
                                 : theme.colorScheme.primary,

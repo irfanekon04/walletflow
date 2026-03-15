@@ -1,24 +1,31 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'app/theme/app_theme.dart';
 import 'core/database/database_service.dart';
-import 'core/services/auth_service.dart';
-import 'core/services/supabase_service.dart';
-import 'core/services/sync_service.dart';
-import 'features/transactions/data/repositories/category_repository.dart';
-import 'features/accounts/presentation/controllers/account_controller.dart';
-import 'features/auth/presentation/controllers/auth_controller.dart';
-import 'features/transactions/presentation/controllers/transaction_controller.dart';
-import 'features/budgets/presentation/controllers/budget_controller.dart';
-import 'features/loans/presentation/controllers/loan_controller.dart';
+import 'app/bindings/initial_binding.dart';
 import 'features/settings/presentation/controllers/settings_controller.dart';
-
+import 'features/transactions/data/repositories/category_repository.dart';
 import 'app/routes/app_pages.dart';
+import 'core/widgets/error_page.dart';
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Global error handlers
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    _handleError(details);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    _handlePlatformError(error, stack);
+    return true;
+  };
 
   // Load environment variables
   try {
@@ -34,25 +41,18 @@ void main() async {
   final categoryRepo = CategoryRepository();
   await categoryRepo.initDefaultCategories();
 
-  // Initialize Services (order matters: Supabase -> Auth -> Sync)
-  // await Get.putAsync(() => SupabaseService().init());
-  // await Get.putAsync(() => AuthService().init());
-  // await Get.putAsync(() => SyncService().init());
-
-  // Put dummy services for dependency injection if needed
-  Get.put(SupabaseService());
-  Get.put(AuthService());
-  Get.put(SyncService());
-
-  // Initialize Controllers
-  Get.put(AccountController(), permanent: true);
-  Get.put(TransactionController(), permanent: true);
-  Get.put(BudgetController(), permanent: true);
-  Get.put(LoanController(), permanent: true);
-  Get.put(AuthController(), permanent: true);
+  // Initialize SettingsController before runApp to access theme
   Get.put(SettingsController(), permanent: true);
 
   runApp(const WalletFlowApp());
+}
+
+void _handleError(FlutterErrorDetails details) {
+  debugPrint('FLUTTER ERROR: ${details.exceptionAsString()}');
+}
+
+void _handlePlatformError(Object error, StackTrace stack) {
+  debugPrint('PLATFORM ERROR: $error');
 }
 
 class WalletFlowApp extends StatelessWidget {
@@ -75,8 +75,15 @@ class WalletFlowApp extends StatelessWidget {
             theme: AppTheme.lightTheme(useDynamic ? lightDynamic : null),
             darkTheme: AppTheme.darkTheme(useDynamic ? darkDynamic : null),
             themeMode: themeMode,
+            initialBinding: InitialBinding(),
             initialRoute: AppPages.initial,
             getPages: AppPages.routes,
+            defaultTransition: Transition.cupertino,
+            transitionDuration: const Duration(milliseconds: 400),
+            builder: (context, widget) {
+              ErrorWidget.builder = (details) => ErrorPage(details: details);
+              return widget ?? const SizedBox.shrink();
+            },
           );
         },
       );
