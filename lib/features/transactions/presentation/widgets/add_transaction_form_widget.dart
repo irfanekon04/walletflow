@@ -220,15 +220,26 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
         return AppDropdown<String>(
           value: validValue,
           label: 'Account',
+          prefixIcon: const Icon(Icons.wallet_outlined),
           items: accountController.accounts
               .map(
                 (acc) => DropdownMenuItem(
                   value: acc.id,
-                  child: Text(
-                    acc.name,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        accountController.getAccountIcon(acc.type.name),
+                        size: 18 * context.responsiveFontSize,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          acc.name,
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               )
@@ -271,16 +282,26 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     return AppDropdown<String>(
       value: validValue,
       label: 'To Account',
-      prefixIcon: const Icon(Icons.arrow_downward),
+      prefixIcon: const Icon(Icons.arrow_downward_rounded),
       items: availableAccounts
           .map(
             (acc) => DropdownMenuItem(
               value: acc.id,
-              child: Text(
-                acc.name,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface,
-                ),
+              child: Row(
+                children: [
+                  Icon(
+                    accountController.getAccountIcon(acc.type.name),
+                    size: 18 * context.responsiveFontSize,
+                    color: theme.colorScheme.secondary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      acc.name,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ),
+                ],
               ),
             ),
           )
@@ -311,15 +332,26 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
     return AppDropdown<String>(
       value: validValue,
       label: 'Category',
+      prefixIcon: const Icon(Icons.category_outlined),
       items: categories
           .map(
             (cat) => DropdownMenuItem(
               value: cat.id,
-              child: Text(
-                cat.name,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.onSurface,
-                ),
+              child: Row(
+                children: [
+                  Icon(
+                    transactionController.getCategoryIcon(cat.icon),
+                    size: 18 * context.responsiveFontSize,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      cat.name,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ),
+                ],
               ),
             ),
           )

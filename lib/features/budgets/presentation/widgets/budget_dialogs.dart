@@ -29,15 +29,20 @@ class BudgetDialogs {
                   child: AppDropdown<int>(
                     value: controller.selectedMonth.value,
                     label: 'Month',
+                    prefixIcon: const Icon(Icons.calendar_month_outlined),
                     items: List.generate(12, (index) => index + 1)
                         .map(
                           (m) => DropdownMenuItem(
                             value: m,
-                            child: Text(
-                              controller.getMonthName(m),
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  controller.getMonthName(m),
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         )
@@ -50,6 +55,7 @@ class BudgetDialogs {
                   child: AppDropdown<int>(
                     value: controller.selectedYear.value,
                     label: 'Year',
+                    prefixIcon: const Icon(Icons.event_outlined),
                     items: List.generate(
                       5,
                       (index) => DateTime.now().year - 2 + index,
@@ -58,8 +64,8 @@ class BudgetDialogs {
                         value: y,
                         child: Text(
                           y.toString(),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -122,15 +128,26 @@ class BudgetDialogs {
                     ? null
                     : selectedCategoryId.value,
                 label: 'Category',
+                prefixIcon: const Icon(Icons.category_outlined),
                 items: transactionController.expenseCategories
                     .map(
                       (cat) => DropdownMenuItem(
                         value: cat.id,
-                        child: Text(
-                          cat.name,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              transactionController.getCategoryIcon(cat.icon),
+                              size: 18 * context.responsiveFontSize,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                cat.name,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     )

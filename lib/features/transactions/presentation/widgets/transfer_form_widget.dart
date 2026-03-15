@@ -214,15 +214,27 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
                       AppDropdown<String>(
                         value: _fromAccountId,
                         label: 'From Account',
-                        prefixIcon: const Icon(Icons.arrow_outward),
+                        prefixIcon: const Icon(Icons.arrow_outward_rounded),
                         items: accounts
                             .where((a) => a.id != _toAccountId)
                             .map(
                               (account) => DropdownMenuItem(
                                 value: account.id,
-                                child: Text(
-                                  account.name,
-                                  overflow: TextOverflow.ellipsis,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      accountController.getAccountIcon(account.type.name),
+                                      size: 18 * context.responsiveFontSize,
+                                      color: colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        account.name,
+                                        style: TextStyle(fontSize: isCompact ? 14 : 16),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             )
@@ -243,15 +255,27 @@ class _TransferFormWidgetState extends State<TransferFormWidget> {
                       AppDropdown<String>(
                         value: _toAccountId,
                         label: 'To Account',
-                        prefixIcon: const Icon(Icons.arrow_downward),
+                        prefixIcon: const Icon(Icons.arrow_downward_rounded),
                         items: accounts
                             .where((a) => a.id != _fromAccountId)
                             .map(
                               (account) => DropdownMenuItem(
                                 value: account.id,
-                                child: Text(
-                                  account.name,
-                                  overflow: TextOverflow.ellipsis,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      accountController.getAccountIcon(account.type.name),
+                                      size: 18 * context.responsiveFontSize,
+                                      color: colorScheme.secondary,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        account.name,
+                                        style: TextStyle(fontSize: isCompact ? 14 : 16),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             )

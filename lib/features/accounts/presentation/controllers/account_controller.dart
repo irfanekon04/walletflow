@@ -69,4 +69,19 @@ class AccountController extends GetxController {
   List<AccountModel> getAccountsByType(AccountType type) {
     return accounts.where((acc) => acc.type == type).toList();
   }
+
+  IconData getAccountIcon(String type) {
+    switch (type) {
+      case 'cash':
+        return Icons.account_balance_wallet_outlined;
+      case 'bank':
+        return Icons.account_balance_outlined;
+      case 'mfs':
+        return Icons.phone_android_outlined;
+      case 'creditCard':
+        return Icons.credit_card_outlined;
+      default:
+        return Icons.account_balance_wallet_outlined;
+    }
+  }
 }
