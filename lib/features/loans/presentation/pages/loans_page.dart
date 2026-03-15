@@ -90,26 +90,33 @@ class LoansPage extends StatelessWidget {
       }
 
       return ListView.builder(
-        padding: EdgeInsets.only(
-          top: AppDimensions.paddingS,
-          left: context.responsivePadding,
-          right: context.responsivePadding,
-          bottom: 120,
+        padding: EdgeInsets.fromLTRB(
+          16.r,
+          16.r,
+          16.r,
+          120.h,
         ),
         itemCount: loans.length,
         itemBuilder: (context, index) {
           final loan = loans[index];
-          return LoanListItem(
-            loan: loan,
-            controller: controller,
-            currencyFormat: format,
-            onTap: () =>
-                LoanDialogs.showLoanDetails(context, controller, loan, format),
-            onAddMore: () => LoanDialogs.showAddMoreBottomSheet(
-              context,
-              controller,
-              loan,
-              format,
+          return Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: LoanListItem(
+              loan: loan,
+              controller: controller,
+              currencyFormat: format,
+              onTap: () => LoanDialogs.showLoanDetails(
+                context,
+                controller,
+                loan,
+                format,
+              ),
+              onAddMore: () => LoanDialogs.showAddMoreBottomSheet(
+                context,
+                controller,
+                loan,
+                format,
+              ),
             ),
           );
         },

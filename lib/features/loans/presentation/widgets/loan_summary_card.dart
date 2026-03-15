@@ -21,11 +21,11 @@ class LoanSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      margin: EdgeInsets.all(context.responsivePadding),
-      padding: EdgeInsets.all(context.responsivePadding * 1.25),
+      margin: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -38,8 +38,8 @@ class LoanSummaryCard extends StatelessWidget {
             theme.colorScheme.primary,
           ),
           Container(
-            width: 1,
-            height: 40,
+            width: 1.w,
+            height: 40.h,
             color: theme.colorScheme.outlineVariant,
           ),
           _buildSummaryItem(
@@ -50,8 +50,8 @@ class LoanSummaryCard extends StatelessWidget {
             theme.colorScheme.error,
           ),
           Container(
-            width: 1,
-            height: 40,
+            width: 1.w,
+            height: 40.h,
             color: theme.colorScheme.outlineVariant,
           ),
           _buildSummaryItem(
@@ -82,16 +82,19 @@ class LoanSummaryCard extends StatelessWidget {
           label,
           style: theme.textTheme.labelMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
+            fontSize: 12.sp,
           ),
         ),
-        SizedBox(height: 4 * context.responsiveFontSize),
+        4.h.verticalSpacer,
         Text(
           format.format(amount),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: color,
+            fontSize: 16.sp,
           ),
         ),
+
       ],
     );
   }

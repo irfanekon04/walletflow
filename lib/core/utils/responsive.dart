@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 extension ScreenSize on BuildContext {
   double get screenWidth => MediaQuery.of(this).size.width;
@@ -29,13 +30,52 @@ extension ScreenSize on BuildContext {
     return 1.0;
   }
 
-  double responsiveWidth(double fraction) {
-    return screenWidth * fraction;
+  /// Scales font size based on [responsiveFontSize]
+  double sp(num size) => size * responsiveFontSize;
+
+  /// Scales width based on a standard 375px design width
+  double w(num size) => size * (screenWidth / 375);
+
+  /// Scales height based on a standard 812px design height
+  double h(num size) => size * (screenHeight / 812);
+
+  /// Adaptive "responsive" size that scales based on screen width
+  /// Perfect for icons, padding, and images.
+  double r(num size) => size * (screenWidth / 375);
+
+  double responsiveWidth(double fraction) => screenWidth * fraction;
+  double responsiveHeight(double fraction) => screenHeight * fraction;
+}
+
+extension ResponsiveSizing on num {
+  /// Responsive font size: [24.sp]
+  double get sp {
+    final context = Get.context;
+    if (context == null) return toDouble();
+    return context.sp(this);
   }
 
-  double responsiveHeight(double fraction) {
-    return screenHeight * fraction;
+  /// Responsive width: [100.w]
+  double get w {
+    return this * (Get.width / 375);
   }
+
+  /// Responsive height: [100.h]
+  double get h {
+    return this * (Get.height / 812);
+  }
+
+  /// Adaptive responsive size: [16.r]
+  /// Scale factors are calculated based on screen width.
+  double get r {
+    return this * (Get.width / 375);
+  }
+
+  /// Creates a vertical [SizedBox] with this value as height
+  Widget get verticalSpacer => SizedBox(height: h);
+
+  /// Creates a horizontal [SizedBox] with this value as width
+  Widget get horizontalSpacer => SizedBox(width: w);
 }
 
 class ResponsiveWidget extends StatelessWidget {

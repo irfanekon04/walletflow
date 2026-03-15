@@ -17,7 +17,6 @@ class TopSpendingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final responsive = context.responsiveFontSize;
 
     return Obx(() {
       final category = controller.topSpendingCategory.value;
@@ -34,7 +33,7 @@ class TopSpendingCard extends StatelessWidget {
       );
 
       return Container(
-        padding: EdgeInsets.all(20 * responsive),
+        padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -59,7 +58,7 @@ class TopSpendingCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
@@ -67,10 +66,10 @@ class TopSpendingCard extends StatelessWidget {
                       child: Icon(
                         controller.getCategoryIcon(category.icon),
                         color: color,
-                        size: 20 * responsive,
+                        size: 20.sp,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    12.w.horizontalSpacer,
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -79,12 +78,14 @@ class TopSpendingCard extends StatelessWidget {
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
+                            fontSize: 12.sp,
                           ),
                         ),
                         Text(
                           category.name,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                            fontSize: 16.sp,
                           ),
                         ),
                       ],
@@ -96,11 +97,12 @@ class TopSpendingCard extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: color,
+                    fontSize: 16.sp,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            16.h.verticalSpacer,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -108,6 +110,7 @@ class TopSpendingCard extends StatelessWidget {
                   '${percentage.toStringAsFixed(1)}% of monthly expenses',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 12.sp,
                   ),
                 ),
                 Text(
@@ -115,18 +118,19 @@ class TopSpendingCard extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: color.withValues(alpha: 0.8),
                     fontStyle: FontStyle.italic,
+                    fontSize: 12.sp,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            8.h.verticalSpacer,
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
                 value: percentage / 100,
                 backgroundColor: color.withValues(alpha: 0.1),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
-                minHeight: 8,
+                minHeight: 8.r,
               ),
             ),
           ],

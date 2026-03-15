@@ -28,31 +28,32 @@ class LoanListItem extends StatelessWidget {
     final isLent = loan.type == LoanType.lent;
 
     return Card(
-      margin: EdgeInsets.only(bottom: context.responsiveHeight(0.015)),
+      margin: EdgeInsets.only(bottom: 12.h),
       color: theme.colorScheme.surfaceContainerLow,
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(
-          horizontal: context.responsivePadding,
-          vertical: context.responsivePadding * 0.5,
+          horizontal: 16.r,
+          vertical: 8.h,
         ),
         leading: Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12.r),
           decoration: BoxDecoration(
             color: (isLent 
                 ? theme.colorScheme.primary 
                 : theme.colorScheme.error).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Icon(
             isLent ? Icons.arrow_outward : Icons.arrow_downward,
             color: isLent ? theme.colorScheme.primary : theme.colorScheme.error,
-            size: 20 * context.responsiveFontSize,
+            size: 20.sp,
           ),
         ),
         title: Text(
           loan.personName,
           style: theme.textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
+            fontSize: 16.sp,
           ),
         ),
         subtitle: Column(
@@ -62,13 +63,14 @@ class LoanListItem extends StatelessWidget {
               'Remaining: ${currencyFormat.format(remaining)}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 12.sp,
               ),
             ),
             Text(
               controller.getAccountById(loan.accountId)?.name ?? 'Unknown Account',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.primary,
-                fontSize: 10,
+                fontSize: 10.sp,
               ),
             ),
           ],
@@ -85,17 +87,19 @@ class LoanListItem extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isLent ? theme.colorScheme.primary : theme.colorScheme.error,
+                    fontSize: 16.sp,
                   ),
                 ),
                 Text(
                   isLent ? AppStrings.lent : AppStrings.owed,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 12.sp,
                   ),
                 ),
               ],
             ),
-            const SizedBox(width: 8),
+            8.w.horizontalSpacer,
             Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.primaryContainer,
@@ -104,13 +108,13 @@ class LoanListItem extends StatelessWidget {
               child: IconButton(
                 icon: Icon(
                   Icons.add,
-                  size: 20,
+                  size: 20.sp,
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
                 onPressed: onAddMore,
-                constraints: const BoxConstraints(
-                  minWidth: 36,
-                  minHeight: 36,
+                constraints: BoxConstraints(
+                  minWidth: 36.r,
+                  minHeight: 36.r,
                 ),
                 padding: EdgeInsets.zero,
               ),

@@ -22,7 +22,7 @@ class BudgetDialogs {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Select Date', style: theme.textTheme.titleLarge),
-            SizedBox(height: context.responsiveHeight(0.03)),
+            24.h.verticalSpacer,
             Row(
               children: [
                 Expanded(
@@ -107,9 +107,9 @@ class BudgetDialogs {
       showDragHandle: true,
       builder: (context) => Padding(
         padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          left: 20.r,
+          right: 20.r,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -121,7 +121,7 @@ class BudgetDialogs {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: context.responsiveHeight(0.03)),
+            24.h.verticalSpacer,
             Obx(
               () => AppDropdown<String>(
                 value: selectedCategoryId.value.isEmpty
@@ -137,10 +137,10 @@ class BudgetDialogs {
                           children: [
                             Icon(
                               categoryController.getIconData(cat.icon),
-                              size: 18 * context.responsiveFontSize,
+                              size: 18.sp,
                               color: theme.colorScheme.primary,
                             ),
-                            const SizedBox(width: 12),
+                            12.w.horizontalSpacer,
                             Expanded(
                               child: Text(
                                 cat.name,
@@ -157,9 +157,9 @@ class BudgetDialogs {
                     : (val) => selectedCategoryId.value = val ?? '',
               ),
             ),
-            SizedBox(height: context.responsiveHeight(0.02)),
+            16.h.verticalSpacer,
             AppAmountField(controller: amountController, label: 'Limit Amount'),
-            SizedBox(height: context.responsiveHeight(0.04)),
+            32.h.verticalSpacer,
             AppButton(
               label: AppStrings.save,
               onPressed: () async {

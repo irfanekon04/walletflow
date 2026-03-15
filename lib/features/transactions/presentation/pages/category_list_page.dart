@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/confirm_dialog.dart';
 import '../../data/models/category_model.dart';
 import '../controllers/category_controller.dart';
@@ -13,31 +14,33 @@ class CategoryListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Manage Categories'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Expenses'),
-              Tab(text: 'Income'),
+      child: Builder(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Manage Categories'),
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'Expenses'),
+                Tab(text: 'Income'),
+              ],
+            ),
+          ),
+          body: const TabBarView(
+            children: [
+              _CategoryList(type: CategoryType.expense),
+              _CategoryList(type: CategoryType.income),
             ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            _CategoryList(type: CategoryType.expense),
-            _CategoryList(type: CategoryType.income),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => CategoryDialogs.showAddEditCategory(
-            context,
-            initialType: DefaultTabController.of(context).index == 0
-                ? CategoryType.expense
-                : CategoryType.income,
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => CategoryDialogs.showAddEditCategory(
+              context,
+              initialType: DefaultTabController.of(context).index == 0
+                  ? CategoryType.expense
+                  : CategoryType.income,
+            ),
+            icon: const Icon(Icons.add),
+            label: const Text('New Category'),
           ),
-          icon: const Icon(Icons.add),
-          label: const Text('New Category'),
         ),
       ),
     );
@@ -77,21 +80,26 @@ class _CategoryList extends StatelessWidget {
       }
 
       return ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          context.responsivePadding,
+          context.responsivePadding,
+          context.responsivePadding,
+          120,
+        ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
           final color = AppColors.fromHex(category.color);
 
           return Card(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: EdgeInsets.only(bottom: context.responsiveHeight(0.015)),
             color: theme.colorScheme.surfaceContainerLow,
             child: ListTile(
               leading: Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(context.responsivePadding * 0.6),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusM),
                 ),
                 child: Icon(
                   controller.getIconData(category.icon),
@@ -130,7 +138,8 @@ class _CategoryList extends StatelessWidget {
                         size: 20,
                         color: theme.colorScheme.error,
                       ),
-                      onPressed: () => _confirmDelete(context, controller, category),
+                      onPressed: () =>
+                          _confirmDelete(context, controller, category),
                     ),
                 ],
               ),
@@ -148,7 +157,8 @@ class _CategoryList extends StatelessWidget {
   ) async {
     final confirmed = await ConfirmDialog.show(
       title: 'Delete Category',
-      message: 'Are you sure you want to delete "${category.name}"? This will not delete transactions using this category.',
+      message:
+          'Are you sure you want to delete "${category.name}"? This will not delete transactions using this category.',
       confirmText: 'Delete',
       isDestructive: true,
     );

@@ -38,28 +38,28 @@ class BudgetListItem extends StatelessWidget {
         : theme.colorScheme.secondary;
 
     return Card(
-      margin: EdgeInsets.only(bottom: context.responsiveHeight(0.02)),
+      margin: EdgeInsets.only(bottom: 16.h),
       color: theme.colorScheme.surfaceContainerLow,
       child: Padding(
-        padding: EdgeInsets.all(context.responsivePadding * 1.25),
+        padding: EdgeInsets.all(20.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(context.responsivePadding * 0.6),
+                  padding: EdgeInsets.all(10.r),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Icon(
                     _getCategoryIcon(category?.icon ?? 'category'),
                     color: color,
-                    size: 20 * context.responsiveFontSize,
+                    size: 20.sp,
                   ),
                 ),
-                SizedBox(width: context.responsiveWidth(0.03)),
+                12.w.horizontalSpacer,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,6 +69,7 @@ class BudgetListItem extends StatelessWidget {
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.onSurface,
+                          fontSize: 16.sp,
                         ),
                       ),
                       Text(
@@ -77,6 +78,7 @@ class BudgetListItem extends StatelessWidget {
                           color: isOver
                               ? theme.colorScheme.error
                               : theme.colorScheme.onSurfaceVariant,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ],
@@ -89,16 +91,17 @@ class BudgetListItem extends StatelessWidget {
                     color: isOver
                         ? theme.colorScheme.error
                         : theme.colorScheme.onSurface,
+                    fontSize: 16.sp,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: context.responsiveHeight(0.02)),
+            16.h.verticalSpacer,
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
               child: LinearProgressIndicator(
                 value: percent.clamp(0.0, 1.0),
-                minHeight: 10 * context.responsiveFontSize,
+                minHeight: 10.h,
                 backgroundColor: theme.colorScheme.onSurface.withValues(
                   alpha: 0.3,
                 ),
@@ -109,7 +112,7 @@ class BudgetListItem extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: context.responsiveHeight(0.015)),
+            12.h.verticalSpacer,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -121,6 +124,7 @@ class BudgetListItem extends StatelessWidget {
                     color: isOver
                         ? theme.colorScheme.error
                         : theme.colorScheme.primary,
+                    fontSize: 12.sp,
                   ),
                 ),
                 Row(
@@ -128,15 +132,15 @@ class BudgetListItem extends StatelessWidget {
                     IconButton.filledTonal(
                       icon: Icon(
                         Icons.edit_outlined,
-                        size: 18 * context.responsiveFontSize,
+                        size: 18.sp,
                       ),
                       onPressed: onEdit,
                     ),
-                    SizedBox(width: context.responsiveWidth(0.02)),
+                    8.w.horizontalSpacer,
                     IconButton.filledTonal(
                       icon: Icon(
                         Icons.delete_outline,
-                        size: 18 * context.responsiveFontSize,
+                        size: 18.sp,
                       ),
                       onPressed: onDelete,
                       style: IconButton.styleFrom(

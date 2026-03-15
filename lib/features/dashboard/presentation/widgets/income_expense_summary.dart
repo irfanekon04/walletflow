@@ -21,7 +21,7 @@ class IncomeExpenseSummary extends StatelessWidget {
           child: Card(
             color: theme.colorScheme.surfaceContainerLow,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -30,23 +30,25 @@ class IncomeExpenseSummary extends StatelessWidget {
                       Icon(
                         Icons.arrow_downward,
                         color: theme.colorScheme.primary,
-                        size: 18 * context.responsiveFontSize,
+                        size: 18.sp,
                       ),
-                      SizedBox(width: context.responsiveWidth(0.01)),
+                      4.w.horizontalSpacer,
                       Text(
                         AppStrings.income,
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  8.h.verticalSpacer,
                   Text(
                     income,
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
+                      fontSize: 22.sp,
                     ),
                   ),
                 ],
@@ -54,12 +56,12 @@ class IncomeExpenseSummary extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: context.responsiveWidth(0.03)),
+        12.w.horizontalSpacer,
         Expanded(
           child: Card(
             color: theme.colorScheme.surfaceContainerLow,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -68,23 +70,25 @@ class IncomeExpenseSummary extends StatelessWidget {
                       Icon(
                         Icons.arrow_upward,
                         color: theme.colorScheme.error,
-                        size: 18 * context.responsiveFontSize,
+                        size: 18.sp,
                       ),
-                      SizedBox(width: context.responsiveWidth(0.01)),
+                      4.w.horizontalSpacer,
                       Text(
                         AppStrings.expense,
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  8.h.verticalSpacer,
                   Text(
                     expense,
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: theme.colorScheme.error,
                       fontWeight: FontWeight.bold,
+                      fontSize: 22.sp,
                     ),
                   ),
                 ],

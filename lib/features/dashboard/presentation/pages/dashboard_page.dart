@@ -50,7 +50,7 @@ class DashboardPage extends StatelessWidget {
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(context.responsivePadding),
+          padding: EdgeInsets.all(16.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -61,7 +61,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: context.responsiveHeight(0.02)),
+              16.h.verticalSpacer,
               Obx(
                 () => IncomeExpenseSummary(
                   income: currencyFormat.format(
@@ -79,7 +79,7 @@ class DashboardPage extends StatelessWidget {
                 }
                 return Column(
                   children: [
-                    SizedBox(height: context.responsiveHeight(0.03)),
+                    24.h.verticalSpacer,
                     TopSpendingCard(
                       controller: transactionController,
                       format: currencyFormat,
@@ -87,22 +87,22 @@ class DashboardPage extends StatelessWidget {
                   ],
                 );
               }),
-              SizedBox(height: context.responsiveHeight(0.02)),
+              16.h.verticalSpacer,
               AccountsSection(
                 controller: accountController,
                 format: currencyFormat,
               ),
-              SizedBox(height: context.responsiveHeight(0.02)),
+              16.h.verticalSpacer,
               RecentTransactionsSection(
                 controller: transactionController,
                 format: currencyFormat,
               ),
-              SizedBox(height: context.responsiveHeight(0.02)),
+              16.h.verticalSpacer,
               BudgetOverviewSection(
                 controller: budgetController,
                 format: currencyFormat,
               ),
-              SizedBox(height: context.responsiveHeight(0.02)),
+              16.h.verticalSpacer,
               LoanSummarySection(
                 controller: loanController,
                 format: currencyFormat,

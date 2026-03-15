@@ -67,10 +67,10 @@ class TransactionPageBody extends StatelessWidget {
 
             return ListView.builder(
               padding: EdgeInsets.only(
-                top: AppDimensions.paddingS,
-                left: context.responsivePadding,
-                right: context.responsivePadding,
-                bottom: 120,
+                top: 8.r,
+                left: 16.r,
+                right: 16.r,
+                bottom: 120.h,
               ),
               itemCount: flatList.length,
               itemBuilder: (context, index) {
@@ -78,12 +78,15 @@ class TransactionPageBody extends StatelessWidget {
 
                 if (item is DateTime) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12.h,
+                    ),
                     child: Text(
                       _formatDateHeader(item),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
+                        fontSize: 14.sp,
                       ),
                     ),
                   );
@@ -121,15 +124,17 @@ class TransactionPageBody extends StatelessWidget {
                     : theme.colorScheme.secondary;
 
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: EdgeInsets.only(
+                    bottom: 12.h,
+                  ),
                   color: theme.colorScheme.surfaceContainerLow,
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.r,
+                      vertical: 8.h,
                     ),
                     leading: Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12.r),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
@@ -139,19 +144,21 @@ class TransactionPageBody extends StatelessWidget {
                           category?.icon ?? 'category',
                         ),
                         color: color,
-                        size: 20 * context.responsiveFontSize,
+                        size: 20.sp,
                       ),
                     ),
                     title: Text(
                       category?.name ?? 'Uncategorized',
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
+                        fontSize: 16.sp,
                       ),
                     ),
                     subtitle: Text(
                       transaction.note ?? '',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
+                        fontSize: 12.sp,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -163,6 +170,7 @@ class TransactionPageBody extends StatelessWidget {
                         color: transaction.type == TransactionType.expense
                             ? theme.colorScheme.error
                             : theme.colorScheme.primary,
+                        fontSize: 16.sp,
                       ),
                     ),
                     onTap: () => TransactionDialogs.showTransactionDetails(

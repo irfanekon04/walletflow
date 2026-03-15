@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/reports_controller.dart';
 import '../../../../features/transactions/presentation/controllers/category_controller.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/responsive.dart';
 
 class CategorySpendingChart extends StatelessWidget {
   const CategorySpendingChart({super.key});
@@ -45,21 +46,21 @@ class CategorySpendingChart extends StatelessWidget {
       return Column(
         children: [
           SizedBox(
-            height: 200,
+            height: 200.h,
             child: PieChart(
               PieChartData(
                 sections: sections,
-                centerSpaceRadius: 40,
+                centerSpaceRadius: 40.sp,
                 sectionsSpace: 2,
               ),
               duration: const Duration(milliseconds: 800),
               curve: Curves.easeInOutCirc,
             ),
           ),
-          const SizedBox(height: 24),
+          24.h.verticalSpacer,
           Wrap(
-            spacing: 16,
-            runSpacing: 8,
+            spacing: 16.sp,
+            runSpacing: 8.sp,
             children: legends,
           ),
         ],
@@ -85,14 +86,16 @@ class _LegendItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: 12.r,
+          height: 12.r,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 8),
+        8.w.horizontalSpacer,
         Text(
           '$name: \$${amount.toStringAsFixed(0)}',
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontSize: 14.sp,
+          ),
         ),
       ],
     );

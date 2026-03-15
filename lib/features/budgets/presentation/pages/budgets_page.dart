@@ -34,11 +34,11 @@ class BudgetsPage extends StatelessWidget {
         }
 
         return ListView.builder(
-          padding: EdgeInsets.only(
-            top: AppDimensions.paddingS,
-            left: context.responsivePadding,
-            right: context.responsivePadding,
-            bottom: 120,
+          padding: EdgeInsets.fromLTRB(
+            16.r,
+            16.r,
+            16.r,
+            120.h,
           ),
           itemCount: controller.budgets.length,
           itemBuilder: (context, index) {
@@ -47,19 +47,22 @@ class BudgetsPage extends StatelessWidget {
               budget.categoryId,
             );
 
-            return BudgetListItem(
-              budget: budget,
-              category: category,
-              currencyFormat: currencyFormat,
-              onEdit: () => BudgetDialogs.showAddBudgetBottomSheet(
-                context,
-                controller,
+            return Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: BudgetListItem(
                 budget: budget,
-              ),
-              onDelete: () => BudgetDialogs.showDeleteConfirmation(
-                context,
-                controller,
-                budget,
+                category: category,
+                currencyFormat: currencyFormat,
+                onEdit: () => BudgetDialogs.showAddBudgetBottomSheet(
+                  context,
+                  controller,
+                  budget: budget,
+                ),
+                onDelete: () => BudgetDialogs.showDeleteConfirmation(
+                  context,
+                  controller,
+                  budget,
+                ),
               ),
             );
           },

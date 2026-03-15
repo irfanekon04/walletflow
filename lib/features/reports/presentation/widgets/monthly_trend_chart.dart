@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reports_controller.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/responsive.dart';
 
 class MonthlyTrendChart extends StatelessWidget {
   const MonthlyTrendChart({super.key});
@@ -17,7 +18,7 @@ class MonthlyTrendChart extends StatelessWidget {
       if (trends.isEmpty) return const SizedBox.shrink();
 
       return SizedBox(
-        height: 250,
+        height: 280.h,
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
@@ -31,10 +32,12 @@ class MonthlyTrendChart extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     if (value.toInt() >= 0 && value.toInt() < trends.length) {
                       return Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: EdgeInsets.only(top: 8.h),
                         child: Text(
                           trends[value.toInt()].monthName,
-                          style: theme.textTheme.bodySmall,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 12.sp,
+                          ),
                         ),
                       );
                     }
@@ -63,14 +66,14 @@ class MonthlyTrendChart extends StatelessWidget {
                   BarChartRodData(
                     toY: trend.income,
                     color: AppColors.incomeGreen,
-                    width: 12,
-                    borderRadius: BorderRadius.circular(4),
+                    width: 12.w,
+                    borderRadius: BorderRadius.circular(4.r),
                   ),
                   BarChartRodData(
                     toY: trend.expense,
                     color: AppColors.expenseRed,
-                    width: 12,
-                    borderRadius: BorderRadius.circular(4),
+                    width: 12.w,
+                    borderRadius: BorderRadius.circular(4.r),
                   ),
                 ],
               );

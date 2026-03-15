@@ -33,15 +33,15 @@ class TransferListItem extends StatelessWidget {
     );
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12.h),
       color: theme.colorScheme.surfaceContainerLow,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.r,
+          vertical: 8.h,
         ),
         leading: Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12.r),
           decoration: BoxDecoration(
             color: theme.colorScheme.tertiary.withAlpha(25),
             borderRadius: BorderRadius.circular(16),
@@ -49,19 +49,21 @@ class TransferListItem extends StatelessWidget {
           child: Icon(
             Icons.swap_horiz,
             color: theme.colorScheme.tertiary,
-            size: 20 * context.responsiveFontSize,
+            size: 20.sp,
           ),
         ),
         title: Text(
           'Transfer',
           style: theme.textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
+            fontSize: 16.sp,
           ),
         ),
         subtitle: Text(
           'From ${fromAccount?.name ?? 'Unknown'} → To ${toAccount?.name ?? 'Unknown'}${transaction.note != null ? '\n${transaction.note}' : ''}',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
+            fontSize: 12.sp,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -71,6 +73,7 @@ class TransferListItem extends StatelessWidget {
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.tertiary,
+            fontSize: 16.sp,
           ),
         ),
         onTap: () {

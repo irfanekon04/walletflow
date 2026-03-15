@@ -19,7 +19,7 @@ class TotalBalanceCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(context.responsivePadding * 1.5),
+        padding: EdgeInsets.all(24.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -29,15 +29,15 @@ class TotalBalanceCard extends StatelessWidget {
                 color: theme.colorScheme.onPrimaryContainer.withValues(
                   alpha: 0.7,
                 ),
-                fontSize: 14 * context.responsiveFontSize,
+                fontSize: 14.sp,
               ),
             ),
-            SizedBox(height: context.responsiveHeight(0.01)),
+            8.h.verticalSpacer,
             Text(
               balance,
               style: theme.textTheme.displayLarge?.copyWith(
                 color: theme.colorScheme.onPrimaryContainer,
-                fontSize: 32 * context.responsiveFontSize,
+                fontSize: 32.sp,
               ),
             ),
           ],

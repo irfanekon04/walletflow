@@ -33,9 +33,9 @@ class LoanDialogs {
       showDragHandle: true,
       builder: (context) => Padding(
         padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          left: 20.r,
+          right: 20.r,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
         ),
         child: Form(
           key: formKey,
@@ -50,7 +50,7 @@ class LoanDialogs {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: context.responsiveHeight(0.03)),
+                24.h.verticalSpacer,
                 Obx(
                   () => SegmentedButton<LoanType>(
                     segments: const [
@@ -70,9 +70,9 @@ class LoanDialogs {
                 Obx(
                   () => Container(
                     margin: EdgeInsets.only(
-                      top: context.responsiveHeight(0.01),
+                      top: 8.h,
                     ),
-                    padding: EdgeInsets.all(context.responsivePadding * 0.5),
+                    padding: EdgeInsets.all(8.r),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceContainerHighest
                           .withValues(alpha: 0.5),
@@ -84,10 +84,10 @@ class LoanDialogs {
                       children: [
                         Icon(
                           Icons.info_outline,
-                          size: 14,
+                          size: 14.sp,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        SizedBox(width: context.responsivePadding * 0.25),
+                        4.w.horizontalSpacer,
                         Expanded(
                           child: Text(
                             selectedType.value == LoanType.lent
@@ -95,6 +95,7 @@ class LoanDialogs {
                                 : 'Owed: You borrow money from someone (added to account)',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
+                              fontSize: 12.sp,
                             ),
                           ),
                         ),
@@ -102,7 +103,7 @@ class LoanDialogs {
                     ),
                   ),
                 ),
-                SizedBox(height: context.responsiveHeight(0.025)),
+                20.h.verticalSpacer,
                 AppTextField(
                   controller: nameController,
                   label: 'Person Name',
@@ -113,9 +114,9 @@ class LoanDialogs {
                     return null;
                   },
                 ),
-                SizedBox(height: context.responsiveHeight(0.02)),
+                16.h.verticalSpacer,
                 AppAmountField(controller: amountController, label: 'Amount'),
-                SizedBox(height: context.responsiveHeight(0.02)),
+                16.h.verticalSpacer,
                 Obx(
                   () => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +127,7 @@ class LoanDialogs {
                         isRequired: true,
                         labelText: 'Select Account *',
                       ),
-                      SizedBox(height: context.responsiveHeight(0.04)),
+                      32.h.verticalSpacer,
                       AppButton(
                         label: AppStrings.save,
                         onPressed: () async {
@@ -191,9 +192,9 @@ class LoanDialogs {
       showDragHandle: true,
       builder: (context) => Padding(
         padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          left: 20.r,
+          right: 20.r,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
         ),
         child: Form(
           key: formKey,
@@ -208,9 +209,9 @@ class LoanDialogs {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: context.responsiveHeight(0.01)),
+                8.h.verticalSpacer,
                 Container(
-                  padding: EdgeInsets.all(context.responsivePadding * 0.75),
+                  padding: EdgeInsets.all(12.r),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainerHighest.withValues(
                       alpha: 0.5,
@@ -224,6 +225,7 @@ class LoanDialogs {
                         'Current Amount:',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 14.sp,
                         ),
                       ),
                       Text(
@@ -233,14 +235,15 @@ class LoanDialogs {
                           color: isLent
                               ? theme.colorScheme.primary
                               : theme.colorScheme.error,
+                          fontSize: 16.sp,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: context.responsiveHeight(0.025)),
+                20.h.verticalSpacer,
                 Container(
-                  padding: EdgeInsets.all(context.responsivePadding * 0.5),
+                  padding: EdgeInsets.all(8.r),
                   decoration: BoxDecoration(
                     color:
                         (isLent
@@ -260,12 +263,12 @@ class LoanDialogs {
                     children: [
                       Icon(
                         isLent ? Icons.arrow_outward : Icons.arrow_downward,
-                        size: 16,
+                        size: 16.sp,
                         color: isLent
                             ? theme.colorScheme.primary
                             : theme.colorScheme.error,
                       ),
-                      SizedBox(width: context.responsivePadding * 0.25),
+                      4.w.horizontalSpacer,
                       Expanded(
                         child: Text(
                           isLent
@@ -275,18 +278,19 @@ class LoanDialogs {
                             color: isLent
                                 ? theme.colorScheme.primary
                                 : theme.colorScheme.error,
+                            fontSize: 12.sp,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: context.responsiveHeight(0.025)),
+                20.h.verticalSpacer,
                 AppAmountField(
                   controller: amountController,
                   label: 'Additional Amount',
                 ),
-                SizedBox(height: context.responsiveHeight(0.02)),
+                16.h.verticalSpacer,
                 Obx(
                   () => Column(
                     children: [
@@ -297,12 +301,12 @@ class LoanDialogs {
                         labelText:
                             isLent ? 'Deduct from Account *' : 'Add to Account *',
                       ),
-                      SizedBox(height: context.responsiveHeight(0.02)),
+                      16.h.verticalSpacer,
                       AppTextField(
                         controller: noteController,
                         label: 'Note (optional)',
                       ),
-                      SizedBox(height: context.responsiveHeight(0.04)),
+                      32.h.verticalSpacer,
                       AppButton(
                         label: 'Add',
                         onPressed: () async {
@@ -473,9 +477,9 @@ class LoanDialogs {
       showDragHandle: true,
       builder: (context) => Padding(
         padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          left: 20.r,
+          right: 20.r,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
         ),
         child: Form(
           key: formKey,
@@ -490,16 +494,17 @@ class LoanDialogs {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: context.responsiveHeight(0.01)),
+                8.h.verticalSpacer,
                 Text(
                   'Remaining: ${format.format(remaining)}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 14.sp,
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(top: context.responsiveHeight(0.015)),
-                  padding: EdgeInsets.all(context.responsivePadding * 0.5),
+                  margin: EdgeInsets.only(top: 12.h),
+                  padding: EdgeInsets.all(8.r),
                   decoration: BoxDecoration(
                     color:
                         (isLent
@@ -519,12 +524,12 @@ class LoanDialogs {
                     children: [
                       Icon(
                         isLent ? Icons.call_received : Icons.call_made,
-                        size: 16,
+                        size: 16.sp,
                         color: isLent
                             ? theme.colorScheme.primary
                             : theme.colorScheme.error,
                       ),
-                      SizedBox(width: context.responsivePadding * 0.25),
+                      4.w.horizontalSpacer,
                       Expanded(
                         child: Text(
                           isLent
@@ -534,13 +539,14 @@ class LoanDialogs {
                             color: isLent
                                 ? theme.colorScheme.primary
                                 : theme.colorScheme.error,
+                            fontSize: 12.sp,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: context.responsiveHeight(0.03)),
+                24.h.verticalSpacer,
                 AppAmountField(
                   controller: amountController,
                   label: 'Payment Amount',
@@ -558,7 +564,7 @@ class LoanDialogs {
                     return null;
                   },
                 ),
-                SizedBox(height: context.responsiveHeight(0.02)),
+                16.h.verticalSpacer,
                 Obx(
                   () => Column(
                     children: [
@@ -569,12 +575,12 @@ class LoanDialogs {
                         labelText:
                             isLent ? 'Receive to Account *' : 'Pay from Account *',
                       ),
-                      SizedBox(height: context.responsiveHeight(0.02)),
+                      16.h.verticalSpacer,
                       AppTextField(
                         controller: noteController,
                         label: 'Note (optional)',
                       ),
-                      SizedBox(height: context.responsiveHeight(0.04)),
+                      32.h.verticalSpacer,
                       AppButton(
                         label: 'Confirm Payment',
                         onPressed: () async {

@@ -22,15 +22,16 @@ class LoanSummarySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
           child: Text(
             'Loan Summary',
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 24.sp,
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        12.h.verticalSpacer,
         Obx(
           () => Row(
             children: [
@@ -38,7 +39,7 @@ class LoanSummarySection extends StatelessWidget {
                 child: Card(
                   color: theme.colorScheme.surfaceContainerLow,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.r),
                     child: Column(
                       children: [
                         Text(
@@ -46,16 +47,16 @@ class LoanSummarySection extends StatelessWidget {
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.bold,
-                            fontSize: 16 * context.responsiveFontSize,
+                            fontSize: 16.sp,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        8.h.verticalSpacer,
                         Text(
                           format.format(controller.totalLent.value),
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.primary,
-                            fontSize: 20 * context.responsiveFontSize,
+                            fontSize: 20.sp,
                           ),
                         ),
                       ],
@@ -63,12 +64,12 @@ class LoanSummarySection extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              8.w.horizontalSpacer,
               Expanded(
                 child: Card(
                   color: theme.colorScheme.surfaceContainerLow,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.r),
                     child: Column(
                       children: [
                         Text(
@@ -76,16 +77,16 @@ class LoanSummarySection extends StatelessWidget {
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.bold,
-                            fontSize: 16 * context.responsiveFontSize,
+                            fontSize: 16.sp,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        8.h.verticalSpacer,
                         Text(
                           format.format(controller.totalOwed.value),
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.error,
-                            fontSize: 20 * context.responsiveFontSize,
+                            fontSize: 20.sp,
                           ),
                         ),
                       ],

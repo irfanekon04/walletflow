@@ -24,27 +24,33 @@ class ReportsPage extends StatelessWidget {
         }
 
         return SingleChildScrollView(
-          padding: EdgeInsets.all(context.responsivePadding),
+          padding: EdgeInsets.all(16.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Spending by Category',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22.sp,
+                ),
               ),
-              const SizedBox(height: 16),
+              20.h.verticalSpacer,
               const CategorySpendingChart(),
               
-              const SizedBox(height: 40),
+              48.h.verticalSpacer,
               
               Text(
                 'Financial Trends',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22.sp,
+                ),
               ),
-              const SizedBox(height: 16),
+              20.h.verticalSpacer,
               const MonthlyTrendChart(),
               
-              const SizedBox(height: 100), // Bottom padding
+              120.h.verticalSpacer, // Bottom padding
             ],
           ),
         );

@@ -33,16 +33,21 @@ class RecentTransactionsSection extends StatelessWidget {
                 'Recent Transactions',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
+                  fontSize: (theme.textTheme.headlineSmall?.fontSize ?? 24) *
+                      context.responsiveFontSize,
                 ),
               ),
               TextButton(
                 onPressed: () => Get.find<NavigationController>().changePage(1),
-                child: const Text('See All'),
+                child: Text(
+                  'See All',
+                  style: TextStyle(fontSize: 14 * context.responsiveFontSize),
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: context.responsiveHeight(0.01)),
         Obx(() {
           final transactions = controller.transactions.take(5).toList();
           if (transactions.isEmpty) {
