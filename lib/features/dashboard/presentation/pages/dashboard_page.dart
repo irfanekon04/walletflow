@@ -7,6 +7,7 @@ import 'package:walletflow/features/dashboard/presentation/widgets/income_expens
 import 'package:walletflow/features/dashboard/presentation/widgets/loan_summary_section.dart';
 import 'package:walletflow/features/dashboard/presentation/widgets/recent_transactions_section.dart';
 import 'package:walletflow/features/dashboard/presentation/widgets/total_balance_card.dart';
+import 'package:walletflow/features/reports/presentation/pages/reports_page.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
@@ -31,6 +32,11 @@ class DashboardPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(AppStrings.appName, style: theme.textTheme.titleLarge),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart_rounded),
+            onPressed: () => Get.to(() => const ReportsPage()),
+            tooltip: 'Financial Reports',
+          ),
           IconButton(icon: const Icon(Icons.sync_outlined), onPressed: () {}),
         ],
       ),
