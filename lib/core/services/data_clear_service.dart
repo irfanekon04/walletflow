@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 // import 'package:hive/hive.dart';
 import '../database/database_service.dart';
+import '../widgets/snackbar_helper.dart';
 import 'auth_service.dart';
 import 'supabase_service.dart';
 import 'sync_service.dart';
@@ -27,17 +28,9 @@ class DataClearService {
       final categoryRepo = _getCategoryRepository();
       await categoryRepo.initDefaultCategories();
 
-      Get.snackbar(
-        'Success',
-        'All local data has been cleared',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.success('All local data has been cleared', title: 'Success');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to clear data: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.error('Failed to clear data: $e', title: 'Error');
     }
   }
 
@@ -69,17 +62,9 @@ class DataClearService {
       // Clear local data
       await clearAllLocalData();
 
-      Get.snackbar(
-        'Success',
-        'All data has been cleared',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.success('All data has been cleared', title: 'Success');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to clear data: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.error('Failed to clear data: $e', title: 'Error');
     }
   }
 

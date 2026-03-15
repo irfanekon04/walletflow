@@ -1,64 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:walletflow/app/routes/app_routes.dart';
-import '../../../../core/database/database_service.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../controllers/splash_controller.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends GetView<SplashController> {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkAuth();
-  }
-
-  Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
-    
-    // Check if onboarding is completed
-    final bool onboardingCompleted = 
-        DatabaseService.settings.get('onboarding_completed', defaultValue: false);
-
-    if (onboardingCompleted) {
-      Get.offAllNamed(Routes.home);
-    } else {
-      Get.offAllNamed(Routes.onboarding);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final onPrimary = theme.colorScheme.onPrimary;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: primaryColor,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.account_balance_wallet,
-              size: 80 * context.responsiveFontSize,
-              color: Colors.white,
+        child: Obx(() => AnimatedOpacity(
+          duration: const Duration(milliseconds: 800),
+          opacity: controller.opacity.value,
+          curve: Curves.easeOut,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 800),
+            scale: controller.scale.value,
+            curve: Curves.easeOutBack,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(24.r),
+                  decoration: BoxDecoration(
+                    color: onPrimary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.account_balance_wallet,
+                    size: 80.sp,
+                    color: onPrimary,
+                  ),
+                ),
+                32.h.verticalSpacer,
+                Text(
+                  'WalletFlow',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontSize: 36.sp,
+                    fontWeight: FontWeight.w800,
+                    color: onPrimary,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                12.h.verticalSpacer,
+                Text(
+                  'Master your money',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: onPrimary.withValues(alpha: 0.8),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                48.h.verticalSpacer,
+                LoadingIndicator(color: onPrimary),
+              ],
             ),
-            SizedBox(height: context.responsiveHeight(0.03)),
-            Text(
-              'WalletFlow',
-              style: TextStyle(
-                fontSize: 32 * context.responsiveFontSize,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(height: context.responsiveHeight(0.04)),
-            const LoadingIndicator(color: Colors.white),
-          ],
-        ),
+          ),
+        )),
       ),
     );
   }

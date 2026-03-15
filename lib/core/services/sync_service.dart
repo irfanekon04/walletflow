@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'auth_service.dart';
 import 'supabase_service.dart';
+import '../widgets/snackbar_helper.dart';
 import '../../features/accounts/data/models/account_model.dart';
 import '../../features/transactions/data/models/transaction_model.dart';
 import '../../features/transactions/data/models/category_model.dart';
@@ -37,11 +38,7 @@ class SyncService extends GetxService {
 
   Future<void> enableSync() async {
     if (!_authService.isLoggedIn) {
-      Get.snackbar(
-        'Sign In Required',
-        'Please sign in to enable cloud backup',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.error('Please sign in to enable cloud backup', title: 'Sign In Required');
       return;
     }
 
@@ -80,17 +77,9 @@ class SyncService extends GetxService {
       await _settingsBox.put(_lastSyncKey, now);
       pendingChanges.value = 0;
 
-      Get.snackbar(
-        'Sync Complete',
-        'All data has been backed up to cloud',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.success('All data has been backed up to cloud', title: 'Sync Complete');
     } catch (e) {
-      Get.snackbar(
-        'Sync Failed',
-        'Unable to sync data. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.error('Unable to sync data. Please try again.', title: 'Sync Failed');
     } finally {
       isSyncing.value = false;
     }
@@ -351,17 +340,9 @@ class SyncService extends GetxService {
         await loansBox.put(loan.id, loan);
       }
 
-      Get.snackbar(
-        'Restore Complete',
-        'Data has been restored from cloud',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.success('Data has been restored from cloud', title: 'Restore Complete');
     } catch (e) {
-      Get.snackbar(
-        'Restore Failed',
-        'Unable to restore data from cloud',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.error('Unable to restore data from cloud', title: 'Restore Failed');
     } finally {
       isSyncing.value = false;
     }
