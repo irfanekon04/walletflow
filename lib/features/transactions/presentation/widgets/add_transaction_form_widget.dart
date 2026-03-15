@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:walletflow/features/transactions/presentation/widgets/transaction_form_helpers/amount_field.dart';
 import 'package:walletflow/features/transactions/presentation/widgets/transaction_form_helpers/note_field.dart';
@@ -472,6 +473,7 @@ class _AddTransactionFormWidgetState extends State<AddTransactionFormWidget> {
 
     accountController.loadAccounts();
     widget.onSaved();
+    HapticFeedback.mediumImpact();
     Get.back();
   }
 }

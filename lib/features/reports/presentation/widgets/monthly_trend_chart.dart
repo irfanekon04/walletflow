@@ -70,6 +70,8 @@ class MonthlyTrendChart extends StatelessWidget {
               );
             }).toList(),
           ),
+          swapAnimationDuration: const Duration(milliseconds: 600),
+          swapAnimationCurve: Curves.linear,
         ),
       );
     });

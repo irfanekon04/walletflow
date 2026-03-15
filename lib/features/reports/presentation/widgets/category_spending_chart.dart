@@ -52,6 +52,8 @@ class CategorySpendingChart extends StatelessWidget {
                 centerSpaceRadius: 40,
                 sectionsSpace: 2,
               ),
+              swapAnimationDuration: const Duration(milliseconds: 800),
+              swapAnimationCurve: Curves.easeInOutCirc,
             ),
           ),
           const SizedBox(height: 24),

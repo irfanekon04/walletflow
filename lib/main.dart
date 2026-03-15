@@ -77,6 +77,8 @@ class WalletFlowApp extends StatelessWidget {
             themeMode: themeMode,
             initialRoute: AppPages.initial,
             getPages: AppPages.routes,
+            defaultTransition: Transition.cupertino,
+            transitionDuration: const Duration(milliseconds: 400),
           );
         },
       );
