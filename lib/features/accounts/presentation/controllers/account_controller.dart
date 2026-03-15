@@ -78,7 +78,7 @@ class AccountController extends GetxController {
         return Icons.account_balance_outlined;
       case 'mfs':
         return Icons.phone_android_outlined;
-      case 'creditCard':
+      case 'card':
         return Icons.credit_card_outlined;
       default:
         return Icons.account_balance_wallet_outlined;

@@ -15,22 +15,21 @@ class AccountsSection extends StatelessWidget {
 
   final AccountController controller;
   final NumberFormat format;
-  
-  
+
   IconData getAccountIcon(String type) {
-      switch (type) {
-        case 'cash':
-          return Icons.account_balance_wallet_outlined;
-        case 'bank':
-          return Icons.account_balance_outlined;
-        case 'mfs':
-          return Icons.phone_android_outlined;
-        case 'creditCard':
-          return Icons.credit_card_outlined;
-        default:
-          return Icons.account_balance_wallet_outlined;
-      }
+    switch (type) {
+      case 'cash':
+        return Icons.account_balance_wallet_outlined;
+      case 'bank':
+        return Icons.account_balance_outlined;
+      case 'mfs':
+        return Icons.phone_android_outlined;
+      case 'card':
+        return Icons.credit_card_outlined;
+      default:
+        return Icons.account_balance_wallet_outlined;
     }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,10 +52,7 @@ class AccountsSection extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () => Get.to(() => const AccountListPage()),
-                child: Text(
-                  'Manage',
-                  style: TextStyle(fontSize: 14.sp),
-                ),
+                child: Text('Manage', style: TextStyle(fontSize: 14.sp)),
               ),
             ],
           ),

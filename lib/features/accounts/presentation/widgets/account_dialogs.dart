@@ -71,7 +71,7 @@ class AccountDialogs {
               ),
               16.h.verticalSpacer,
               Obx(() {
-                if (selectedType.value == AccountType.creditCard) {
+                if (selectedType.value == AccountType.card) {
                   return AppAmountField(
                     controller: creditLimitController,
                     label: 'Credit Limit',
@@ -140,12 +140,12 @@ class AccountDialogs {
               ),
               24.h.verticalSpacer,
               AppTextField(
-                controller: nameController, 
+                controller: nameController,
                 label: 'Account Name',
                 prefixIcon: const Icon(Icons.edit_outlined),
               ),
               16.h.verticalSpacer,
-              if (account.type == AccountType.creditCard)
+              if (account.type == AccountType.card)
                 AppAmountField(
                   controller: creditLimitController,
                   label: 'Credit Limit',
@@ -196,7 +196,7 @@ class AccountDialogs {
         return Icons.account_balance_outlined;
       case AccountType.mfs:
         return Icons.phone_android_outlined;
-      case AccountType.creditCard:
+      case AccountType.card:
         return Icons.credit_card_outlined;
     }
   }

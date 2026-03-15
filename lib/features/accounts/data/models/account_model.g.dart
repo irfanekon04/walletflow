@@ -16,7 +16,7 @@ class AccountTypeAdapter extends TypeAdapter<AccountType> {
       case 2:
         return AccountType.mfs;
       case 3:
-        return AccountType.creditCard;
+        return AccountType.card;
       default:
         return AccountType.cash;
     }
@@ -34,7 +34,7 @@ class AccountTypeAdapter extends TypeAdapter<AccountType> {
       case AccountType.mfs:
         writer.writeByte(2);
         break;
-      case AccountType.creditCard:
+      case AccountType.card:
         writer.writeByte(3);
         break;
     }
