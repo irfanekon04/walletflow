@@ -9,6 +9,7 @@ import 'package:walletflow/features/transactions/presentation/controllers/transa
 import 'package:walletflow/features/transactions/presentation/dialogs.dart/transaction_dialogs.dart';
 import 'package:walletflow/features/transactions/presentation/widgets/transaction_filter_tabs.dart';
 import 'package:walletflow/features/transactions/presentation/widgets/transfer_list_item.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class TransactionPageBody extends StatelessWidget {
   const TransactionPageBody({
@@ -29,7 +30,7 @@ class TransactionPageBody extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final dateOnly = DateTime(date.year, date.month, date.day);
-    
+
     if (dateOnly == today) return 'Today';
     if (dateOnly == yesterday) return 'Yesterday';
     if (dateOnly.isAfter(today.subtract(const Duration(days: 7)))) {
@@ -37,7 +38,6 @@ class TransactionPageBody extends StatelessWidget {
     }
     return DateFormat('MMM dd, yyyy').format(date);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,26 +54,14 @@ class TransactionPageBody extends StatelessWidget {
         Expanded(
           child: Obx(() {
             final flatList = controller.flattenedTransactions;
-            
+
             if (flatList.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.receipt_long_outlined,
-                      size: 64 * context.responsiveFontSize,
-                      color: theme.colorScheme.outlineVariant,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppStrings.noTransactions,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+              return EmptyStateWidget(
+                icon: Icons.receipt_long_outlined,
+                title: AppStrings.noTransactions,
+                subtitle: 'No transactions found for the selected filters.',
+                // actionLabel: 'Clear Filters',
+                // onAction: () => controller.clearFilters(),
               );
             }
 
@@ -106,12 +94,13 @@ class TransactionPageBody extends StatelessWidget {
                 if (transaction.type == TransactionType.transfer) {
                   return TransferListItem(
                     transaction: transaction,
-                    onTap: () => TransactionDialogs.showEditTransactionBottomSheet(
-                      context,
-                      controller,
-                      accountController,
-                      transaction,
-                    ),
+                    onTap: () =>
+                        TransactionDialogs.showEditTransactionBottomSheet(
+                          context,
+                          controller,
+                          accountController,
+                          transaction,
+                        ),
                     onDelete: () => TransactionDialogs.showDeleteConfirmation(
                       context,
                       transaction,

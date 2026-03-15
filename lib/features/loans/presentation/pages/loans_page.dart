@@ -8,6 +8,7 @@ import '../controllers/loan_controller.dart';
 import '../widgets/loan_summary_card.dart';
 import '../widgets/loan_list_item.dart';
 import '../widgets/loan_dialogs.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class LoansPage extends StatelessWidget {
   const LoansPage({super.key});
@@ -33,26 +34,40 @@ class LoansPage extends StatelessWidget {
         ),
         body: Column(
           children: [
-            Obx(() => LoanSummaryCard(
-              totalLent: controller.totalLent.value,
-              totalOwed: controller.totalOwed.value,
-              netPosition: controller.netPosition.value,
-              currencyFormat: currencyFormat,
-            )),
+            Obx(
+              () => LoanSummaryCard(
+                totalLent: controller.totalLent.value,
+                totalOwed: controller.totalOwed.value,
+                netPosition: controller.netPosition.value,
+                currencyFormat: currencyFormat,
+              ),
+            ),
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildLoansList(context, controller, LoanType.lent, currencyFormat),
-                  _buildLoansList(context, controller, LoanType.owed, currencyFormat),
+                  _buildLoansList(
+                    context,
+                    controller,
+                    LoanType.lent,
+                    currencyFormat,
+                  ),
+                  _buildLoansList(
+                    context,
+                    controller,
+                    LoanType.owed,
+                    currencyFormat,
+                  ),
                 ],
               ),
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton.large(
+        floatingActionButton: FloatingActionButton.extended(
           heroTag: 'loans_fab',
-          onPressed: () => LoanDialogs.showAddLoanBottomSheet(context, controller),
-          child: const Icon(Icons.add),
+          onPressed: () =>
+              LoanDialogs.showAddLoanBottomSheet(context, controller),
+          label: const Text('Add Loan'),
+          icon: const Icon(Icons.add),
         ),
       ),
     );
@@ -66,7 +81,9 @@ class LoansPage extends StatelessWidget {
   ) {
     final theme = Theme.of(context);
     return Obx(() {
-      final loans = type == LoanType.lent ? controller.lentLoans : controller.owedLoans;
+      final loans = type == LoanType.lent
+          ? controller.lentLoans
+          : controller.owedLoans;
 
       if (loans.isEmpty) {
         return _buildEmptyState(context, theme);
@@ -86,8 +103,14 @@ class LoansPage extends StatelessWidget {
             loan: loan,
             controller: controller,
             currencyFormat: format,
-            onTap: () => LoanDialogs.showLoanDetails(context, controller, loan, format),
-            onAddMore: () => LoanDialogs.showAddMoreBottomSheet(context, controller, loan, format),
+            onTap: () =>
+                LoanDialogs.showLoanDetails(context, controller, loan, format),
+            onAddMore: () => LoanDialogs.showAddMoreBottomSheet(
+              context,
+              controller,
+              loan,
+              format,
+            ),
           );
         },
       );
@@ -95,24 +118,13 @@ class LoansPage extends StatelessWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.handshake_outlined,
-            size: 64 * context.responsiveFontSize,
-            color: theme.colorScheme.outlineVariant,
-          ),
-          SizedBox(height: context.responsiveHeight(0.02)),
-          Text(
-            AppStrings.noLoans,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
+    return EmptyStateWidget(
+      icon: Icons.handshake_outlined,
+      title: AppStrings.noLoans,
+      subtitle: 'Keep track of money you lend to or borrow from friends.',
+      // actionLabel: 'Add Loan',
+      // onAction: () =>
+      //     LoanDialogs.showAddLoanBottomSheet(context, Get.find<LoanController>()),
     );
   }
 }

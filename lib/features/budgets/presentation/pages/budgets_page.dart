@@ -7,6 +7,7 @@ import '../../../transactions/presentation/controllers/transaction_controller.da
 import '../controllers/budget_controller.dart';
 import '../widgets/budget_list_item.dart';
 import '../widgets/budget_dialogs.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class BudgetsPage extends StatelessWidget {
   const BudgetsPage({super.key});
@@ -64,34 +65,26 @@ class BudgetsPage extends StatelessWidget {
           },
         );
       }),
-      floatingActionButton: FloatingActionButton.large(
+      floatingActionButton: FloatingActionButton.extended(
         heroTag: 'budgets_fab',
         onPressed: () =>
             BudgetDialogs.showAddBudgetBottomSheet(context, controller),
-        child: const Icon(Icons.add),
+        label: const Text('Add Budget'),
+        icon: const Icon(Icons.add),
       ),
     );
   }
 
   Widget _buildEmptyState(BuildContext context, ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.pie_chart_outline,
-            size: 64 * context.responsiveFontSize,
-            color: theme.colorScheme.outlineVariant,
-          ),
-          SizedBox(height: context.responsiveHeight(0.02)),
-          Text(
-            AppStrings.noBudgets,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
+    return EmptyStateWidget(
+      icon: Icons.pie_chart_outline,
+      title: AppStrings.noBudgets,
+      subtitle: 'Set monthly limits for your categories to save more.',
+      // actionLabel: 'Create Budget',
+      // onAction: () => BudgetDialogs.showAddBudgetBottomSheet(
+      //   context,
+      //   Get.find<BudgetController>(),
+      // ),
     );
   }
 }

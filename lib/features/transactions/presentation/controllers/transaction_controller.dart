@@ -19,6 +19,9 @@ class TransactionController extends GetxController {
   final RxString filterAccountId = ''.obs;
   final RxString filterCategoryId = ''.obs;
 
+  final Rx<CategoryModel?> topSpendingCategory = Rx<CategoryModel?>(null);
+  final RxDouble topSpendingAmount = 0.0.obs;
+
   /// Flattened list of transactions and date headers for optimized ListView rendering
   final RxList<dynamic> flattenedTransactions = <dynamic>[].obs;
 
@@ -79,7 +82,41 @@ class TransactionController extends GetxController {
       start: startOfMonth,
       end: endOfMonth,
     );
+
+    // Calculate top spending category for current month
+    _calculateTopSpending(startOfMonth, endOfMonth);
+    
     isLoading.value = false;
+  }
+
+  void _calculateTopSpending(DateTime start, DateTime end) {
+    final monthTransactions = transactions.where((t) => 
+      t.type == TransactionType.expense && 
+      t.date.isAfter(start.subtract(const Duration(seconds: 1))) && 
+      t.date.isBefore(end.add(const Duration(seconds: 1)))
+    ).toList();
+
+    if (monthTransactions.isEmpty) {
+      topSpendingCategory.value = null;
+      topSpendingAmount.value = 0.0;
+      return;
+    }
+
+    final Map<String, double> categoryTotals = {};
+    for (final tx in monthTransactions) {
+      final catId = tx.categoryId ?? 'uncategorized';
+      categoryTotals[catId] = (categoryTotals[catId] ?? 0) + tx.amount;
+    }
+
+    if (categoryTotals.isEmpty) {
+      topSpendingCategory.value = null;
+      topSpendingAmount.value = 0.0;
+      return;
+    }
+
+    final topEntry = categoryTotals.entries.reduce((a, b) => a.value > b.value ? a : b);
+    topSpendingCategory.value = getCategoryById(topEntry.key);
+    topSpendingAmount.value = topEntry.value;
   }
 
   Future<void> addTransaction({

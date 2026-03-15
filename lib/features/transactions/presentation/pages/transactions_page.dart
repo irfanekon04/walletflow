@@ -7,7 +7,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../accounts/presentation/controllers/account_controller.dart';
 import '../controllers/transaction_controller.dart';
 
-
 class TransactionsPage extends StatelessWidget {
   const TransactionsPage({super.key});
 
@@ -32,12 +31,18 @@ class TransactionsPage extends StatelessWidget {
           ),
         ],
       ),
-      body: TransactionPageBody(controller: controller, theme: theme, accountController: accountController, currencyFormat: currencyFormat),
-      floatingActionButton: FloatingActionButton.large(
+      body: TransactionPageBody(
+        controller: controller,
+        theme: theme,
+        accountController: accountController,
+        currencyFormat: currencyFormat,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
         heroTag: 'transactions_fab',
         onPressed: () =>
             TransactionDialogs.showAddTransactionBottomSheet(context),
-        child: const Icon(Icons.add),
+        label: const Text('Add Transaction'),
+        icon: const Icon(Icons.add),
       ),
     );
   }
