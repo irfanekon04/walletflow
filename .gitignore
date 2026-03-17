@@ -36,6 +36,10 @@ migrate_working_dir/
 # Environment variables
 .env
 
+# Firebase configuration
+android/app/google-services.json
+firebase.json
+
 # Symbolication related
 app.*.symbols
 
